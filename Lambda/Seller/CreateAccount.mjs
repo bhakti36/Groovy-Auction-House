@@ -57,5 +57,17 @@ export const handler = async (event) => {
         });
     };
 
+    try {
+        await CreateAccount(event.username, event.password)
+        console.log("CreateAccount in lambda");
+        return response;
+      } catch (error) {
+        console.log(error)
+        return response;
+      } finally {
+        pool.end()
+      }
+    
+
 
 };

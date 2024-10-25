@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS SellerAccount;
 DROP TABLE IF EXISTS Accounts;
 
 CREATE TABLE Accounts (
-    AccountID INT PRIMARY KEY,
+    AccountID INT AUTO_INCREMENT  PRIMARY KEY,
     Username VARCHAR(255) Unique,
     Password VARCHAR(255)
 );
@@ -71,11 +71,11 @@ CREATE TABLE AuctionHouse (
     FOREIGN KEY (SuccessfulPurchaseID) REFERENCES Purchase(PurchaseID)
 );
 
-INSERT INTO Accounts (AccountID, Username, Password) VALUES
-(1, 'buyer1', 'buyer123'),
-(2, 'seller1', 'seller123'),
-(3, 'buyer2', 'buyer456'),
-(4, 'seller2', 'seller456');
+INSERT INTO Accounts ( Username, Password) VALUES
+('buyer1', 'buyer123'),
+('seller1', 'seller123'),
+('buyer2', 'buyer456'),
+('seller2', 'seller456');
 
 INSERT INTO BuyerAccount (AccountID, AvailableFunds, TotalFunds, IsFrozen) VALUES
 (1, 1000.00, 1500.00, FALSE),

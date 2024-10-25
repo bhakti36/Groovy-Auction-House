@@ -24,7 +24,7 @@ export const handler = async (event) => {
         message: "Logged in successfully"
     };
 
-    //let response = {}
+    let response = {}
 
     //create function
     let CreateAccount = (username, password) => {
@@ -34,19 +34,19 @@ export const handler = async (event) => {
                 [username, password],
                 (error, result) => {
                     if (error) {
-                        let response = {
+                        response = {
                             error: "Database Error"
                         };
                         reject(error);
                     } else {
                         if (result.affectedRows == 1) {
-                            let response = {
+                            response = {
                                 success: "Account created successfully",
-                                SellerID: result.insertId 
+                                SellerID: result.insertId
                             };
-                            resolve(result.insertId); 
+                            resolve(result.insertId);
                         } else {
-                            let response = {
+                            response = {
                                 error: "Seller Account creation failed"
                             };
                             reject("Unable to create account for username '" + username + "'");
@@ -61,13 +61,13 @@ export const handler = async (event) => {
         await CreateAccount(event.username, event.password)
         console.log("CreateAccount in lambda");
         return response;
-      } catch (error) {
+    } catch (error) {
         console.log(error)
         return response;
-      } finally {
+    } finally {
         pool.end()
-      }
-    
+    }
+
 
 
 };

@@ -8,7 +8,6 @@ export const handler = async (event) => {
         password: "8NpElCb61lk8lqVRaYAu",
         database: "auction_house"
     });
-
     const usernameNotFound = {
         status: 400,
         message: "username not found"

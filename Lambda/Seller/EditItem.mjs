@@ -61,14 +61,13 @@ export const handler = async (event) => {
     };
 
     try {
-        await EditItem(event.username, event.password)
-        console.log("Seller Edit Item in lambda");
+        const { sellerID, itemID, updates } = event.request;
+        await EditItem(sellerID, itemID, updates);
         return response;
     } catch (error) {
-        console.log(error)
         return response;
     } finally {
-        pool.end()
+        pool.end(); 
     }
 
 };

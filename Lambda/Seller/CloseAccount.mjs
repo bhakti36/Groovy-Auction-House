@@ -26,7 +26,7 @@ export const handler = async (event) => {
     let response = {}
 
     //close function
-    let CloseAccount = (username, password) => {
+    let CloseAccount = (sellerID) => {
         return new Promise((resolve, reject) => {
             pool.query(
                 `UPDATE SellerAccount SET IsClosed = TRUE WHERE AccountID = ?`, 

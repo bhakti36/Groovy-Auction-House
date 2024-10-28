@@ -56,7 +56,7 @@ export const handler = async (event) => {
     };
 
     try {
-        await CloseAccount(event.username, event.password)
+        await CloseAccount(event.sellerID)
         console.log("CloseAccount in lambda");
         return response;
     } catch (error) {

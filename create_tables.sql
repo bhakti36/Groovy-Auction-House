@@ -67,7 +67,7 @@ CREATE TABLE Bid (
 
 CREATE TABLE AuctionHouse (
     Funds DECIMAL(10, 2) PRIMARY KEY,
-    SuccessfulPurchaseID INT, YEAR.we32w
+    SuccessfulPurchaseID INT,
     FOREIGN KEY (SuccessfulPurchaseID) REFERENCES Purchase(PurchaseID)
 );
 

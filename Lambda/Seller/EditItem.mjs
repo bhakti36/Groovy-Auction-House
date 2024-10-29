@@ -61,10 +61,12 @@ export const handler = async (event) => {
     };
 
     try {
-        const { sellerID, itemID, updates } = event.request;
-        await EditItem(sellerID, itemID, updates);
+       // const { sellerID, itemID, updates } = event.request;
+        await EditItem(event.sellerID, event.itemID, event.updates);
+        console.log("Edit Item successfully");
         return response;
     } catch (error) {
+        console.log(error)
         return response;
     } finally {
         pool.end(); 

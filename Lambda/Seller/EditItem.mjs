@@ -39,7 +39,8 @@ export const handler = async (event) => {
                 (error, result) => {
                     if (error) {
                         response = {
-                            error: "Database Error"
+                            error: "Database Error" + error
+
                         };
                         reject(response);
                     } else {

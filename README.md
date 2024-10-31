@@ -20,3 +20,7 @@ Planned:
 Working on
 
 Completed
+
+Improvements:
+    If new Account is created, Buyer or Seller, Auto Update the Buyer and Seller Tables in SQL.
+    PlaceBids Needs to Check if the last bid on the item is the same buyer

@@ -19,16 +19,14 @@ const LoginPage = () => {
       setErrorMessage('Please enter both username and password.');
       return;
     }
+
+    let method = '/' + userType + '/login';
     let request = {
         username: username,
         password: password
     }
-
-    let method = '/' + userType + '/login';
-    // let method = '${employeeName} works in the ${employeeDept} department.'
-
+    
     instance.post(method, request).then((response) => {
-        
         console.log(response);
     }).catch((error) => {
         console.log(error);
@@ -45,7 +43,19 @@ const LoginPage = () => {
       setErrorMessage('Make sure you enter the same password twice!');
       return;
     }
-    // Perform registration logic here
+    let method = '/' + userType + '/createAccount';
+    let request = {
+        username: username,
+        password: password
+    }
+
+    instance.post(method, request).then((response) => {
+        console.log(response);
+    }).catch((error) => {
+        console.log(error);
+    });
+
+
     setErrorMessage(''); // Clear error message on successful registration
   };
 
@@ -94,7 +104,7 @@ const LoginPage = () => {
         </div>
 
       <div>
-        <button onClick={() => (isRegister ? handleRegister(): handleLogin())} disabled={isRegister}>
+        <button onClick={() => (isRegister ? handleRegister(): handleLogin())}>
           {isRegister? 'Register' : 'Login'}
         </button>
         

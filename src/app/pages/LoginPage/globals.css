@@ -1,0 +1,23 @@
+.login-register-page {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.login-register-page input, 
+.login-register-page select, 
+.login-register-page button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.login-register-page .error {
+  color: red;
+  font-size: 14px;
+}

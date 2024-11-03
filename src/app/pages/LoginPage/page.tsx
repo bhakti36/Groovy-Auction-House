@@ -28,6 +28,8 @@ const LoginPage = () => {
     
     instance.post(method, request).then((response) => {
         console.log(response);
+        //if response is admin specific
+        
     }).catch((error) => {
         console.log(error);
     });

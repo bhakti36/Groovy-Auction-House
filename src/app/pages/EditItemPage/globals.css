@@ -1,0 +1,89 @@
+/* Styles for EditItemPage */
+.edit-item-page {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-item-page h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.edit-item-page input,
+.edit-item-page select,
+.edit-item-page textarea,
+.edit-item-page button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.edit-item-page textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-item-page button {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.edit-item-page button:hover {
+  background-color: #45a049;
+}
+
+.edit-item-page .error {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.edit-item-page label {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  margin: 5px 0;
+  color: #555;
+}
+
+.edit-item-page input[type="file"] {
+  padding: 5px;
+}
+
+.edit-item-page p {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Image preview styling */
+.edit-item-page .image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-item-page .image-preview img {
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}

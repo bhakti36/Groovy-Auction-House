@@ -35,14 +35,14 @@ const AddItemPage = () => {
     }
 
     const request = {
-      name,
-      description,
-      initialPrice,
-      images,
-      startTime,
-      durationDays: parseInt(durationDays),
-      durationHours: parseInt(durationHours),
-      durationMinutes: parseInt(durationMinutes),
+      Name: name,
+      Description: description,
+      Initial_Price: initialPrice,
+      Images: images,
+      StartDate: startTime,
+      DurationDays: parseInt(durationDays),
+      DurationHours: parseInt(durationHours),
+      DurationMinutes: parseInt(durationMinutes),
       SellerID: 2, // Default SellerID set to 2
     };
 

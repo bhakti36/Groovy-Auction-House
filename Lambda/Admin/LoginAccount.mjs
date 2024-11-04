@@ -25,7 +25,7 @@ const CheckPassword = (username, password) => {
                 if (rows && rows.length === 1) {
                     const account = rows[0];
 
-                    // If admin, fetch seller details and items
+                  
                     if (account.accountType === 'Admin') {
                         pool.query(`
                             SELECT Accounts.AccountID, Accounts.Username, SellerAccount.Funds, Item.*

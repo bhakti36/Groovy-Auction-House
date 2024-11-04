@@ -13,7 +13,7 @@ export default function Home() {
         <button type="button" onClick={() => router.push('/pages/LoginPage')}>Go to Login</button>
       </p>
       <p>
-        <button type="button" onClick={() => router.push('/pages/EditItemPage')}>Go to EditItem</button>
+        <button type="button" onClick={() => router.push('/pages/AddItemPage')}>Go to AddItem</button>
       </p>
     </main>
   </>

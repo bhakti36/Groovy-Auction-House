@@ -6,17 +6,30 @@ const instance = axios.create({
   baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
 });
 
-const EditItemPage = () => {
+const AddItemPage = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [initialPrice, setInitialPrice] = useState('');
   const [images, setImages] = useState<File[]>([]); 
   const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [durationDays, setDurationDays] = useState('');
+  const [durationHours, setDurationHours] = useState('');
+  const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleEditItem = () => {
-    if (!name || !description || !initialPrice || !startTime || !endTime) {
+  const handleAddItem = () => {
+    // Log values before making the request
+    console.log('handleAddItem called');
+    console.log('name:', name);
+    console.log('description:', description);
+    console.log('initialPrice:', initialPrice);
+    console.log('images:', images);
+    console.log('startTime:', startTime);
+    console.log('durationDays:', durationDays);
+    console.log('durationHours:', durationHours);
+    console.log('durationMinutes:', durationMinutes);
+
+    if (!name || !description || !initialPrice || !startTime || !durationDays || !durationHours || !durationMinutes) {
       setErrorMessage('Please fill out all fields.');
       return;
     }
@@ -25,19 +38,24 @@ const EditItemPage = () => {
       name,
       description,
       initialPrice,
-      images, 
+      images,
       startTime,
-      endTime,
+      durationDays: parseInt(durationDays),
+      durationHours: parseInt(durationHours),
+      durationMinutes: parseInt(durationMinutes),
+      SellerID: 2, // Default SellerID set to 2
     };
+
+    console.log('Request payload:', request); // Log the full request payload
 
     instance.post('/seller/additem', request)
       .then((response) => {
-        console.log(response);
+        console.log('Response:', response.data);
         setErrorMessage(''); 
       })
       .catch((error) => {
-        console.log(error);
-        setErrorMessage('Error editing item.');
+        console.error('Error response:', error.response ? error.response.data : error.message);
+        setErrorMessage('Error adding item.');
       });
   };
 
@@ -47,8 +65,8 @@ const EditItemPage = () => {
   };
 
   return (
-    <div className="edit-item-page">
-      <h1>Edit Item</h1>
+    <div className="add-item-page">
+      <h1>Add Item</h1>
       <div>
         <input
           type="text"
@@ -88,20 +106,37 @@ const EditItemPage = () => {
           onChange={(e) => setStartTime(e.target.value)}
         />
       </div>
-      <div>
-        <label>End Time:</label>
+      <div className="duration-container">
+        <label>Duration (Days):</label>
         <input
-          type="datetime-local"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
+          type="number"
+          value={durationDays}
+          min="0"
+          onChange={(e) => setDurationDays(e.target.value)}
+        />
+        <label>Hours:</label>
+        <input
+          type="number"
+          value={durationHours}
+          min="0"
+          max="23"
+          onChange={(e) => setDurationHours(e.target.value)}
+        />
+        <label>Minutes:</label>
+        <input
+          type="number"
+          value={durationMinutes}
+          min="0"
+          max="59"
+          onChange={(e) => setDurationMinutes(e.target.value)}
         />
       </div>
       <div>
-        <button onClick={handleEditItem}>Submit Changes</button>
+        <button onClick={handleAddItem}>Submit Changes</button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
     </div>
   );
 };
 
-export default EditItemPage;
+export default AddItemPage;

@@ -42,11 +42,11 @@ CREATE TABLE Item
     DurationDays INT,
     DurationHours INT,
     DurationMinutes INT,
-    IsPublished  BOOLEAN,
-    IsFrozen     BOOLEAN,
-    IsArchived   BOOLEAN,
-    IsComplete   BOOLEAN,
-    IsFailed     BOOLEAN,
+    IsPublished  BOOLEAN DEFAULT FALSE,
+    IsFrozen     BOOLEAN DEFAULT FALSE,
+    IsArchived   BOOLEAN DEFAULT FALSE,
+    IsComplete   BOOLEAN DEFAULT FALSE,
+    IsFailed     BOOLEAN DEFAULT FALSE,
     SellerID     INT,
     FOREIGN KEY (SellerID) REFERENCES SellerAccount (AccountID)
 );

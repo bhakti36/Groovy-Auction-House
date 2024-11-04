@@ -11,8 +11,8 @@ CREATE TABLE Accounts
     AccountID INT AUTO_INCREMENT PRIMARY KEY,
     Username  VARCHAR(255) Unique,
     Password  VARCHAR(255),
-    IsFrozen       BOOLEAN,
-    IsClosed       BOOLEAN,
+    IsFrozen       BOOLEAN DEFAULT FALSE,
+    IsClosed       BOOLEAN DEFAULT FALSE,
     accountType ENUM('Buyer', 'Seller', 'Admin')
 );
 
@@ -42,11 +42,11 @@ CREATE TABLE Item
     DurationDays INT,
     DurationHours INT,
     DurationMinutes INT,
-    IsPublished  BOOLEAN,
-    IsFrozen     BOOLEAN,
-    IsArchived   BOOLEAN,
-    IsComplete   BOOLEAN,
-    IsFailed     BOOLEAN,
+    IsPublished  BOOLEAN DEFAULT FALSE,
+    IsFrozen     BOOLEAN DEFAULT FALSE,
+    IsArchived   BOOLEAN DEFAULT FALSE,
+    IsComplete   BOOLEAN DEFAULT FALSE,
+    IsFailed     BOOLEAN DEFAULT FALSE,
     SellerID     INT,
     FOREIGN KEY (SellerID) REFERENCES SellerAccount (AccountID)
 );
@@ -80,11 +80,12 @@ CREATE TABLE Bid
 #                               FOREIGN KEY (SuccessfulPurchaseID) REFERENCES Purchase(PurchaseID)
 #     );
 
-INSERT INTO Accounts (Username, Password, IsFrozen, IsClosed)
-VALUES ('buyer1', 'buyer123', FALSE, FALSE),
-       ('seller1', 'seller123', FALSE, FALSE),
-       ('buyer2', 'buyer456', FALSE, FALSE),
-       ('seller2', 'seller456', FALSE, FALSE);
+INSERT INTO Accounts (Username, Password, accountType)
+VALUES ('buyer1', 'buyer123', 'Buyer'),
+       ('seller1', 'seller123', 'Seller'),
+       ('buyer2', 'buyer456', 'Buyer'),
+       ('seller2', 'seller456', 'Seller'),
+       ('Admin', 'Admin123', 'Admin');
 
 INSERT INTO BuyerAccount (AccountID, AvailableFunds, TotalFunds)
 VALUES (1, 1000.00, 1500.00),
@@ -112,7 +113,9 @@ VALUES (1, 'Antique Vase', 'A rare antique vase from the 18th century.', '[
 
 INSERT INTO Bid (BidID, BuyerID, ItemID, BidAmount)
 VALUES (1, 1, 1, 350.00),
+       (3, 3, 1, 400.00),
        (2, 3, 2, 600.00);
+
 
 INSERT INTO Purchase (PurchaseID, ItemID, Name, Description, Images, PurchasePrice, AuctionHouseProfit)
 VALUES (1, 1, 'Antique Vase', 'A rare antique vase from the 18th century.', '[

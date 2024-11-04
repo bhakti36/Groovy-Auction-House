@@ -7,12 +7,14 @@ Planned:
     Seller/CloseAccount -Bh
     Seller/AddItem - Tr
     Seller/EditItem -Bh
+
     Seller/PublishItem - Tr
  
     Buyer/CreateAccount - Yi
     Buyer/LoginAccount - Ba
     Buyer/CloseAccount - Yi
     Buyer/AddFunds - Ba
+    
     Buyer/ViewItem - Yi
     Buyer/PlaceBid - Ba
 
@@ -24,3 +26,4 @@ Completed
 Improvements:
     If new Account is created, Buyer or Seller, Auto Update the Buyer and Seller Tables in SQL.
     PlaceBids Needs to Check if the last bid on the item is the same buyer
+    Need to limit the input of the Edit Item Page to 

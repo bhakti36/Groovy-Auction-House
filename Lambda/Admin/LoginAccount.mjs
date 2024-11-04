@@ -20,7 +20,7 @@ const CheckPassword = (username, password) => {
             "SELECT * FROM auction_house.Accounts WHERE Username = ? AND Password = ?",
             [username, password],
             (error, rows) => {
-                if (error) return reject(responses.dbError);
+                if (error) return reject ( {"response":(responses.dbError), "error": error});
 
                 if (rows && rows.length === 1) {
                     const account = rows[0];
@@ -33,7 +33,7 @@ const CheckPassword = (username, password) => {
                             JOIN auction_house.SellerAccount ON Accounts.AccountID = SellerAccount.AccountID
                             LEFT JOIN auction_house.Item ON SellerAccount.AccountID = Item.SellerID
                         `, (error, sellerItems) => {
-                            if (error) return reject(responses.dbError);
+                            if (error) return reject( {"response":(responses.dbError), "error": error});
 
                             resolve({
                                 ...responses.success,

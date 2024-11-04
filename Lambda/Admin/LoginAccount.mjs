@@ -33,7 +33,7 @@ const CheckPassword = (username, password) => {
                             JOIN auction_house.SellerAccount ON Accounts.AccountID = SellerAccount.AccountID
                             LEFT JOIN auction_house.Item ON SellerAccount.AccountID = Item.SellerID
                         `, (error, sellerItems) => {
-                            if (error) return reject(responses.dbError);
+                            if (error) return reject( {"response":(responses.dbError), "error": error});
 
                             resolve({
                                 ...responses.success,

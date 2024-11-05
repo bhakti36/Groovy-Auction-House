@@ -20,19 +20,23 @@ const AdminPage : React.FC = () => {
   ]);
 
   // Handle Freeze action
-  const handleFreeze = (id: number) => {
+  const handleFreezeUnfreeze = (id: number, freeze: boolean) => {
     setItemList((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, status: 'Frozen' } : item
+        item.id === id ? { ...item, status: freeze ? 'Frozen' : 'Unfrozen' } : item
       )
     );
     
 
     let method = '/' + userType + '/freeze';
-     let request = {
-         username: username,
-         password: password
-   }
+    let request = {
+      admin_credential: {
+          username: "Admin",  
+          password: "Admin123"   
+      },
+      freeze: freeze,          
+      itemID: id
+  };
     
     instance.post(method, request).then((response) => {
         console.log(response);
@@ -48,30 +52,30 @@ const AdminPage : React.FC = () => {
   };
 
   // Handle Unfreeze action
-  const handleUnfreeze = (id: number) => {
-    setItemList((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, status: 'Active' } : item
-      )
-    );
+  // const handleUnfreeze = (id: number) => {
+  //   setItemList((prevItems) =>
+  //     prevItems.map((item) =>
+  //       item.id === id ? { ...item, status: 'Active' } : item
+  //     )
+  //   );
 
-    let method = '/' + userType + '/unfreeze';
-     let request = {
-         username: username,
-         password: password
-   }
+  //   let method = '/' + userType + '/unfreeze';
+  //    let request = {
+  //        username: username,
+  //        password: password
+  //  }
     
-    instance.post(method, request).then((response) => {
-        console.log(response);
-        //if response is admin specific
-        console.log("Un Freezed");
-        // navigate('/adminhome');
+  //   instance.post(method, request).then((response) => {
+  //       console.log(response);
+  //       //if response is admin specific
+  //       console.log("Un Freezed");
+  //       // navigate('/adminhome');
 
         
-    }).catch((error) => {
-        console.log(error);
-    });
-  };
+  //   }).catch((error) => {
+  //       console.log(error);
+  //   });
+  // };
   // const navigate = useNavigate();
   
   const handleReport = () => {}
@@ -96,10 +100,10 @@ const AdminPage : React.FC = () => {
               <td>{item.name}</td>
               <td>{item.status}</td>
               <td>
-                <button onClick={() => handleFreeze(item.id)}>Freeze</button>
+                <button onClick={() => handleFreezeUnfreeze(item.id,true)} disabled={item.status === 'Frozen'}>Freeze</button>
               </td>
               <td>
-                <button onClick={() => handleUnfreeze(item.id)}>Unfreeze</button>
+                <button onClick={() => handleFreezeUnfreeze(item.id,false)} disabled={item.status === 'Unfrozen'}>Unfreeze</button>
               </td>
             </tr>
           ))}

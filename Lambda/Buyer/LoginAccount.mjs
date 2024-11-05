@@ -1,5 +1,7 @@
-import mysql from 'mysql';
+import mysql from 'mysql'
 
+export const handler = async (event) => {
+    
 const pool = mysql.createPool({
     host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
     user: "admin",
@@ -7,58 +9,132 @@ const pool = mysql.createPool({
     database: "auction_house"
 });
 
-const responses = {
-    usernameNotFound: { status: 400, message: "username not found" },
-    dbError: { status: 402, message: "DB Error" },
-    wrongPassword: { status: 401, message: "wrong password" },
-    success: { status: 200, message: "Logged in successfully" }
+const usernameNotFound = {
+    status: 400,
+    message: "username not found"
 };
 
-const CheckPassword = (username, password) => {
+const dbError = {
+    status: 402,
+    message: "DB Error"
+}
+
+const wrongPassword = {
+    status: 401,
+    message: "wrong password"
+};
+
+const success = {
+    status: 200,
+    message: "Logged in successfully"
+};
+
+const response = {}
+
+
+const CheckPassword = async (username, password) => {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT * FROM auction_house.Accounts WHERE Username=? AND Password=?", [username, password], (error, rows) => {
-            if (error) return reject(responses.dbError);
-            if (rows && rows.length === 1) {
-                pool.query("SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?", [rows[0].AccountID], (error, accountDetails) => {
-                    if (error) return reject(responses.dbError);
-                    if (accountDetails && accountDetails.length === 1) {
-                        resolve({
-                            accountID: rows[0].AccountID,
-                            isFrozen: accountDetails[0].isFrozen,
-                            isClosed: accountDetails[0].isClosed,
-                            funds: accountDetails[0].funds
-                        });
-                    } else {
-                        reject(responses.usernameNotFound);
-                    }
-                });
-            } else {
-                reject(responses.usernameNotFound);
+        pool.query("SELECT * FROM auction_house.Accounts WHERE Username=? AND Password=?", 
+                [username, password], 
+                (error, rows) => {
+                    if (error) {
+                        console.error("Accounts query error:", error);
+                        return reject(dbError);
+                    } else if (rows && rows.length === 1) {
+                        const accountID = rows[0].AccountID;
+                        console.log("Account found, AccountID:", accountID);
+                        
+                        pool.query(
+                            "SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?", 
+                            [accountID], 
+                            async (error, accountDetails) => {
+                                if (error) {
+                                    console.error("BuyerAccount query error:", error);
+                                    return reject(dbError);
+                                } else if (accountDetails && accountDetails.length === 1) {
+
+                                    const itemsResponse = await new Promise((resolve, reject) => {
+                                        pool.query("SELECT * FROM auction_house.Item", (error, items) => {
+                                            if (error) {
+                                                console.error("Items query error:", error);
+                                                return reject(dbError);
+                                            } else {
+                                                resolve(items);
+                                            }
+                                        });
+                                    });
+                                    const itemsWithBids = await Promise.all(itemsResponse.map(async (item) => {
+                                        const bidsResponse = await new Promise((resolve, reject) => {
+                                            pool.query("SELECT * FROM auction_house.Bid WHERE ItemID=?", [item.ItemID], (error, bids) => {
+                                                if (error) {
+                                                    console.error("Bids query error:", error);
+                                                    return reject(dbError);
+                                                } else {
+                                                    resolve(bids);
+                                                }
+                                            });
+                                        });
+                                        return {
+                                            ItemID: item.ItemID,
+                                            Name: item.Name,
+                                            Description: item.Description,
+                                            Images: item.Images,
+                                            InitialPrice: item.InitialPrice,
+                                            StartDate: item.StartDate,
+                                            Duration: item.Duration,
+                                            IsPublished: item.IsPublished,
+                                            IsFrozen: item.IsFrozen,
+                                            IsArchived: item.IsArchived,
+                                            IsComplete: item.IsComplete,
+                                            IsFailed: item.IsFailed,
+                                            biddingHistory: bidsResponse.map(bid => ({
+                                                BidID: bid.BidID,
+                                                BuyerID: bid.BuyerID,
+                                                ItemID: bid.ItemID,
+                                                BidAmount: bid.BidAmount
+                                            }))
+                                        };
+                                    }));
+
+                                    return resolve({
+                                        status: 200,
+                                        success: {
+                                            code: 200,
+                                            message: "logged in successfully!",
+                                            accountID: accountID,
+                                            isFrozen: accountDetails[0].isFrozen,
+                                            isClosed: accountDetails[0].isClosed,
+                                            items: itemsWithBids,
+                                            funds: accountDetails[0].funds
+                                        }
+                                     });
+                            } else {
+                                return reject(usernameNotFound);
+                            }
+                        }
+                    );
+                } else {
+                    return reject(usernameNotFound);
+                }
             }
-        });
+        );
     });
 };
 
-const fetchItems = () => {
-    return new Promise((resolve, reject) => {
-        pool.query("SELECT * FROM auction_house.Item", (error, items) => {
-            if (error) return reject(responses.dbError);
-            resolve(items);
-        });
-    });
-};
 
-export const handler = async (event) => {
-    let response = {};
     try {
-        const { username, password } = event;
-        const userDetails = await CheckPassword(username, password);
-        const items = await fetchItems();
-        response = { ...responses.success, ...userDetails, items };
+        const username = event.username || "";
+        const password = event.password || "";
+
+        if (!username || !password) {
+            return { status: 400, message: "Username and password required." };
+        }
+
+        const response = await CheckPassword(username, password);
+        return response;
     } catch (error) {
-        response = error;
-    } finally {
-        pool.end();
+        console.error("Handler error:", error);
+        return error;
     }
-    return response;
+
 };

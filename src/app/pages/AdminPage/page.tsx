@@ -28,7 +28,7 @@ const AdminPage : React.FC = () => {
     );
     
 
-    let method = '/' + userType + '/freeze';
+    let method = '/' + userType + '/freeze_unfreeze';
     let request = {
       admin_credential: {
           username: "Admin",  

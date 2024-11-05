@@ -11,8 +11,11 @@ const responses = {
     usernameNotFound: { status: 400, message: "username not found" },
     dbError: { status: 402, message: "DB Error" },
     wrongPassword: { status: 401, message: "wrong password" },
-    success: { status: 200, message: "Logged in successfully" },
-    operationError: { status: 400, message: "Failed to freeze/unfreeze item" }
+    successFreeze: { status: 200, message: "Item frozen successfully" },
+    successUnfreeze: { status: 200, message: "Item unfrozen successfully" },
+    operationError: { status: 400, message: "Failed to freeze/unfreeze item" },
+    itemNotFound: { status: 404, message: "Item not found" },
+    unauthorized: { status: 401, message: "Unauthorized access" }
 };
 
 // Function to verify admin credentials
@@ -37,10 +40,10 @@ const verifyAdmin = (username, password) => {
 const updateItemStatus = (itemID, freeze) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            "UPDATE auction_house.Item SET status = ? WHERE ItemID = ?",
-            [freeze ? 'frozen' : 'active', itemID],
+            "UPDATE auction_house.Item SET IsFrozen = ? WHERE ItemID = ?",
+            [freeze, itemID],
             (error, results) => {
-                if (error) return reject(responses.operationError);
+                if (error) return reject({"response":(responses.operationError), "error": error});
                 if (results.affectedRows === 1) {
                     resolve(freeze ? responses.successFreeze : responses.successUnfreeze);
                 } else {
@@ -66,13 +69,10 @@ export const handler = async (event) => {
     } catch (error) {
         response = error;
     } finally {
-        pool.end(); // End the database connection
+        pool.end(); 
     }
 
-    return {
-        statusCode: response.status || 500,
-        body: JSON.stringify({ message: response.message })
-    };
+    return response;
 };
 
 

@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
 
 const instance = axios.create({
     baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
@@ -13,7 +14,7 @@ const LoginPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState('buyer');
   const [errorMessage, setErrorMessage] = useState('');
-
+  // const navigate = useNavigate();
   const handleLogin = () => {
     if (!username || !password) {
       setErrorMessage('Please enter both username and password.');
@@ -29,6 +30,9 @@ const LoginPage = () => {
     instance.post(method, request).then((response) => {
         console.log(response);
         //if response is admin specific
+        console.log("Admin page open");
+        // navigate('/adminhome');
+
         
     }).catch((error) => {
         console.log(error);

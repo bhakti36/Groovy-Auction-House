@@ -11,6 +11,8 @@ const instance = axios.create({
 
 const AdminPage : React.FC = () => {
   const [userType, setUserType] = useState('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [itemList, setItemList] = useState([
     { id: 1, name: 'Antique Vase', status: 'Active' },
     { id: 2, name: 'Vintage Painting', status: 'Frozen' },
@@ -26,16 +28,16 @@ const AdminPage : React.FC = () => {
     );
     
 
-    let method = '/' + userType + '/login';
+    let method = '/' + userType + '/freeze';
      let request = {
-    //     username: username,
-    //     password: password
+         username: username,
+         password: password
    }
     
     instance.post(method, request).then((response) => {
         console.log(response);
         //if response is admin specific
-        console.log("Admin page open");
+        console.log("Freezed");
         // navigate('/adminhome');
 
         
@@ -43,8 +45,6 @@ const AdminPage : React.FC = () => {
         console.log(error);
     });
    // setErrorMessage('');
-
-
   };
 
   // Handle Unfreeze action
@@ -54,6 +54,23 @@ const AdminPage : React.FC = () => {
         item.id === id ? { ...item, status: 'Active' } : item
       )
     );
+
+    let method = '/' + userType + '/unfreeze';
+     let request = {
+         username: username,
+         password: password
+   }
+    
+    instance.post(method, request).then((response) => {
+        console.log(response);
+        //if response is admin specific
+        console.log("Un Freezed");
+        // navigate('/adminhome');
+
+        
+    }).catch((error) => {
+        console.log(error);
+    });
   };
   // const navigate = useNavigate();
   

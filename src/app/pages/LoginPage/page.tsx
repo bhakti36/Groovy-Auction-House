@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
 import axios from 'axios';
 
 const instance = axios.create({
@@ -13,6 +14,8 @@ const LoginPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState('buyer');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const router = useRouter();
 
   const handleLogin = () => {
     if (!username || !password) {
@@ -28,6 +31,22 @@ const LoginPage = () => {
     
     instance.post(method, request).then((response) => {
         console.log(response);
+        if (response.data.status == 200) {
+          // console.log("hii");
+            // Redirect to the appropriate page
+            if (userType == 'buyer') {
+                // Redirect to buyer page
+                router.push('/pages/BuyerHomePage')
+            } else if (userType == 'seller') {
+              router.push('/pages/SellerHomePage')
+                // Redirect to seller page
+            } else if (userType == 'admin') {
+                // Redirect to admin page
+            }
+        }
+        else {
+            setErrorMessage('Invalid username or password');
+        } 
     }).catch((error) => {
         console.log(error);
     });

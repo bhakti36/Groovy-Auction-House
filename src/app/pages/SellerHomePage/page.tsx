@@ -1,18 +1,16 @@
 'use client'
 import { useState } from 'react';
+import { useRouter } from "next/navigation";
 
 export default function SellerPage() {
   const [walletAmount, setWalletAmount] = useState(0);
   const [showNewItemDialog, setShowNewItemDialog] = useState(false);
   const [newItemName, setNewItemName] = useState('');
+  const router = useRouter();
+
 
   const handleAddNewItem = () => {
-    if (newItemName.trim()) {
-      // Add a new item 
-      alert(`New item "${newItemName}" added.`);
-      setNewItemName('');
-      setShowNewItemDialog(false);
-    }
+    router.push('/pages/AddItemPage');
   };
 
   const handleCloseAccount = () => {
@@ -35,7 +33,7 @@ export default function SellerPage() {
       <div className="mt-10 flex justify-end items-center space-x-4">
         <div className="text-lg">Wallet: ${walletAmount}</div>
         <button
-          onClick={() => setShowNewItemDialog(true)}
+          onClick={() => handleAddNewItem()}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           New Item
@@ -47,35 +45,6 @@ export default function SellerPage() {
           Close Account
         </button>
       </div>
-
-      {showNewItemDialog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-lg mb-4">Add New Item</h2>
-            <input
-              type="text"
-              placeholder="Enter item name"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              className="border p-2 mb-4 w-full"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={handleAddNewItem}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                OK
-              </button>
-              <button
-                onClick={() => setShowNewItemDialog(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

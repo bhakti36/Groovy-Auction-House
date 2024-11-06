@@ -25,7 +25,7 @@ const verifyAdmin = (username, password) => {
             "SELECT * FROM auction_house.Accounts WHERE Username = ? AND Password = ? AND accountType = 'Admin'",
             [username, password],
             (error, results) => {
-                if (error) return reject(responses.dbError);
+                if (error) return reject({"response":(responses.dbError),"error": error});
                 if (results && results.length === 1) {
                     resolve(true);
                 } else {
@@ -43,7 +43,10 @@ const updateItemStatus = (itemID, freeze) => {
             "UPDATE auction_house.Item SET IsFrozen = ? WHERE ItemID = ?",
             [freeze, itemID],
             (error, results) => {
-                if (error) return reject({"response":(responses.operationError), "error": error});
+                if (error) {
+                    return reject({"response":(responses.operationError), "error": error});
+                }
+               
                 if (results.affectedRows === 1) {
                     resolve(freeze ? responses.successFreeze : responses.successUnfreeze);
                 } else {
@@ -65,14 +68,10 @@ export const handler = async (event) => {
         await verifyAdmin(username, password);
 
         // Freeze or unfreeze the item
-        response = await updateItemStatus(itemID, freeze === 'true');
+        response = await updateItemStatus(itemID, freeze);
     } catch (error) {
         response = error;
-    } finally {
-        pool.end(); 
     }
 
     return response;
 };
-
-

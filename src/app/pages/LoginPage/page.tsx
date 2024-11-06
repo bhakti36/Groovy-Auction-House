@@ -44,7 +44,7 @@ const LoginPage = () => {
                 // Redirect to seller page
             } else if (userType == 'admin') {
                 // Redirect to admin page
-              router.push('/pages/AdminHomePage')
+              router.push('/pages/AdminPage')
             }
         }
         else {

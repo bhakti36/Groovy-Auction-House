@@ -28,82 +28,54 @@ const success = {
     message: "Logged in successfully"
 };
 
-export const handler = async (event) =>  {
+const response = {}
 
-    let response = {}
 
-    let CheckPassword = (username, password) => {
-        return new Promise((resolve, reject) => {
-            pool.query("SELECT * FROM auction_house.Accounts WHERE Username=? AND Password=?", [username, password], (error, rows) => {
-                if (error) { 
-                    response = {
-                        error: dbError,
-                        message: "Account Table Problem"
+const CheckPassword = (username, password) => {
+    return new Promise((resolve, reject) => {
+        pool.query("SELECT * FROM auction_house.Accounts WHERE Username=? AND Password=?", [username, password], (error, rows) => {
+            if (error) return reject(responses.dbError);
+            if (rows && rows.length === 1) {
+                pool.query("SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?", [rows[0].AccountID], (error, accountDetails) => {
+                    if (error) return reject(responses.dbError);
+                    if (accountDetails && accountDetails.length === 1) {
+                        resolve({
+                            accountID: rows[0].AccountID,
+                            isFrozen: accountDetails[0].isFrozen,
+                            isClosed: accountDetails[0].isClosed,
+                            funds: accountDetails[0].funds
+                        });
+                    } else {
+                        reject(responses.usernameNotFound);
                     }
-                    reject(error) 
-                }
-                if ((rows) && (rows.length == 1)) {
-                    pool.query("SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?", [rows[0].AccountID], (error, accountDetails) => {
-                        if (error) {
-                            response = {
-                                error: dbError,
-                                message: "Buyer Table Problem"
-                            }
-                            reject(error)
-                        }
-                        console.log("account", accountDetails)
-                        if ((accountDetails) && (accountDetails.length == 1)) {
-                            console.log(accountDetails)
-                            response = {
-                                success: success,
-                                accountID: rows[0].AccountID,
-                                isFrozen: accountDetails[0].isFrozen,
-                                isClosed: accountDetails[0].isClosed,
-                                funds: accountDetails[0].funds
-                                // items: []
-                            }
-
-
-                            pool.query("SELECT * FROM auction_house.Item", (error, items) => {
-                                if (error) {
-                                    response = {
-                                        error: dbError,
-                                        message: "items_missing"
-                                    }
-                                    reject(error)
-                                }
-                                if (items) {
-                                    response.items = items
-                                    resolve("Done")
-                                }
-                            });
-                        }else{
-                            response = {
-                                error: usernameNotFound,
-                                message: "accountDetails:" + accountDetails
-                            }
-                            reject("unable to locate username")
-                        }
-                    });
-                } else {
-                    response = {
-                        error: usernameNotFound
-                    }
-                    reject("unable to locate username '" + username + "'")
-                }
-            });
+                });
+            } else {
+                reject(responses.usernameNotFound);
+            }
         });
-    }
+    });
+};
 
+const fetchItems = () => {
+    return new Promise((resolve, reject) => {
+        pool.query("SELECT * FROM auction_house.Item", (error, items) => {
+            if (error) return reject(responses.dbError);
+            resolve(items);
+        });
+    });
+};
+
+export const handler = async (event) => {
+    let response = {};
     try {
-        let username = event.username
-        let password = event.password
-        await CheckPassword(username, password)
-        return response
+        const { username, password } = event;
+        const userDetails = await CheckPassword(username, password);
+        const items = await fetchItems();
+        response = { ...responses.success, ...userDetails, items };
     } catch (error) {
-        return response
+        response = error;
     } finally {
-        pool.end()
+        pool.end();
     }
 
 };

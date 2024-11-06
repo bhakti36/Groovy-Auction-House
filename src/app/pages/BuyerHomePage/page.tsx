@@ -1,8 +1,19 @@
 'use client'
+import { totalmem } from 'os';
 import { useState } from 'react';
 
 export default function BuyerPage() {
-  const [walletAmount, setWalletAmount] = useState(0);
+  let info =localStorage.getItem('userInfo');
+  let totalFunds = 0;
+  // console.log(info)
+  if (info != null) {
+    console.log(info)
+    let json = JSON.parse(info)
+    console.log("json",json)
+    console.log("username", json.success.username)
+    totalFunds = parseInt(json.success.totalFunds)
+  }
+  const [walletAmount, setWalletAmount] = useState(totalFunds);
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
 

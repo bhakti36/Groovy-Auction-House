@@ -3,6 +3,18 @@ import { useState } from 'react';
 import { useRouter } from "next/navigation";
 
 export default function SellerPage() {
+
+  let info =localStorage.getItem('userInfo');
+  let totalFunds = 0;
+  // console.log(info)
+  if (info != null) {
+    console.log(info)
+    let json = JSON.parse(info)
+    console.log("json",json)
+    console.log("username", json.success.username)
+    totalFunds = parseInt(json.success.totalFunds)
+  }
+
   const [walletAmount, setWalletAmount] = useState(0);
   const [showNewItemDialog, setShowNewItemDialog] = useState(false);
   const [newItemName, setNewItemName] = useState('');

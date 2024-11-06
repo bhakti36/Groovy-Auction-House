@@ -1,9 +1,11 @@
 'use client'
 import Link  from "next/link";
+import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
 
   return (<>
     <main>

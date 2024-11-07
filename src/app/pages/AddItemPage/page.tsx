@@ -18,7 +18,6 @@ const AddItemPage = () => {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(''); 
   const router = useRouter(); 
   
   const handleAddItem = async () => {
@@ -76,11 +75,10 @@ const AddItemPage = () => {
       console.log('Response:', response.data);
 
       setErrorMessage('');
-      setSuccessMessage('Item added successfully!'); 
       
-      setTimeout(() => {
-        router.push('/pages/SellerHomePage');
-      }, 500); 
+      // Show a popup message and navigate to SellerHomePage after clicking OK
+      window.alert("Item added successfully!");
+      router.push('/pages/SellerHomePage'); // Redirect after success
 
     } catch (error) {
       const err = error as AxiosError;
@@ -171,7 +169,6 @@ const AddItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
-      {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
     </div>
   );
 };

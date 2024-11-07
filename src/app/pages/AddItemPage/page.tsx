@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
+import { useRouter } from "next/navigation";
 
 const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
@@ -17,9 +18,26 @@ const AddItemPage = () => {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const [successMessage, setSuccessMessage] = useState(''); 
+  const router = useRouter(); 
+  
   const handleAddItem = async () => {
     console.log('handleAddItem called');
+
+    // Validate that the duration is within acceptable range
+    const hours = parseInt(durationHours);
+    const minutes = parseInt(durationMinutes);
+
+    if (hours < 0 || hours > 23) {
+      setErrorMessage('Please enter a valid hour between 0 and 23.');
+      return;
+    }
+
+    if (minutes < 0 || minutes > 59) {
+      setErrorMessage('Please enter a valid minute between 0 and 59.');
+      return;
+    }
+
     if (!name || !description || !initialPrice || !startTime || !durationDays || !durationHours || !durationMinutes) {
       setErrorMessage('Please fill out all fields.');
       return;
@@ -36,9 +54,8 @@ const AddItemPage = () => {
     );
 
     try {
-      setIsLoading(true); // Show loading state
+      setIsLoading(true); 
 
-      // Wait for all images to be processed
       const base64Images = await Promise.all(imagePromises);
       
       const request = {
@@ -48,8 +65,8 @@ const AddItemPage = () => {
         Images: base64Images,
         StartDate: startTime,
         DurationDays: parseInt(durationDays),
-        DurationHours: parseInt(durationHours),
-        DurationMinutes: parseInt(durationMinutes),
+        DurationHours: hours, 
+        DurationMinutes: minutes, 
         SellerID: 2, 
       };
 
@@ -59,6 +76,12 @@ const AddItemPage = () => {
       console.log('Response:', response.data);
 
       setErrorMessage('');
+      setSuccessMessage('Item added successfully!'); 
+      
+      setTimeout(() => {
+        router.push('/pages/SellerHomePage');
+      }, 500); 
+
     } catch (error) {
       const err = error as AxiosError;
       console.error('Error response:', err.response ? err.response.data : err.message);
@@ -148,6 +171,7 @@ const AddItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
+      {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
     </div>
   );
 };

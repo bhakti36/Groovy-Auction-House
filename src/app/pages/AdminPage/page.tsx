@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import axios from 'axios';
 // import { useNavigate } from 'react-router-dom';
 
@@ -7,17 +7,55 @@ const instance = axios.create({
     baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
     });
 
- 
+    interface Seller {
+      Username: string;
+      Name: string | null;
+      IsFrozen: number;
+      ItemID: number;
+    }
+    
+    interface ItemDetail {
+      accountName: string;
+      item: string;
+      status: string;
+      id: number;
+    }
 
 const AdminPage : React.FC = () => {
   const [userType, setUserType] = useState('admin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [itemList, setItemList] = useState([
-    { id: 1, name: 'Antique Vase', status: 'Active' },
-    { id: 2, name: 'Vintage Painting', status: 'Frozen' },
-    { id: 3, name: 'Rare Coin', status: 'Active' },
-  ]);
+  const [itemList, setItemList] = useState<{ accountName: string; item: string; status: string; id:number }[]>([]);
+  
+  
+
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem('userInfo');
+    if (storedUserInfo) {
+      const parsedUserInfo = JSON.parse(storedUserInfo); 
+    //console.log('Loaded userInfo:', parsedUserInfo);
+    if (Array.isArray(parsedUserInfo.sellers)) {
+      const itemDetailList: ItemDetail[] = parsedUserInfo.sellers.map((seller: Seller) => ({
+        accountName: seller.Username,
+        item: seller.Name || "Unnamed Item",
+        status: seller.IsFrozen ? "Frozen" : "Unfrozen",
+        id: seller.ItemID
+      }));
+      
+      // // Corrected forEach with explicit typing of 't' as ItemDetail
+      // itemDetailList.forEach((t: ItemDetail) => {
+      //   console.log('id:', t.id);
+      // });
+
+     // console.log('itemDetailList:', itemDetailList);  
+      setItemList(itemDetailList);
+      
+      
+    }
+    }
+  }, []);
+
+
 
   // Handle Freeze action
   const handleFreezeUnfreeze = (id: number, freeze: boolean) => {
@@ -27,7 +65,7 @@ const AdminPage : React.FC = () => {
       )
     );
     
-
+ 
     let method = '/' + userType + '/freeze_unfreeze';
     let request = {
       admin_credential: {
@@ -40,10 +78,6 @@ const AdminPage : React.FC = () => {
     
     instance.post(method, request).then((response) => {
         console.log(response);
-        //if response is admin specific
-        console.log("Freezed");
-        // navigate('/adminhome');
-
         
     }).catch((error) => {
         console.log(error);
@@ -51,32 +85,7 @@ const AdminPage : React.FC = () => {
    // setErrorMessage('');
   };
 
-  // Handle Unfreeze action
-  // const handleUnfreeze = (id: number) => {
-  //   setItemList((prevItems) =>
-  //     prevItems.map((item) =>
-  //       item.id === id ? { ...item, status: 'Active' } : item
-  //     )
-  //   );
 
-  //   let method = '/' + userType + '/unfreeze';
-  //    let request = {
-  //        username: username,
-  //        password: password
-  //  }
-    
-  //   instance.post(method, request).then((response) => {
-  //       console.log(response);
-  //       //if response is admin specific
-  //       console.log("Un Freezed");
-  //       // navigate('/adminhome');
-
-        
-  //   }).catch((error) => {
-  //       console.log(error);
-  //   });
-  // };
-  // const navigate = useNavigate();
   
   const handleReport = () => {}
   
@@ -88,6 +97,7 @@ const AdminPage : React.FC = () => {
       <table>
         <thead>
           <tr>
+            <th>Account</th>
             <th>Item</th>
             <th>Status</th>
             <th>Freeze</th>
@@ -97,7 +107,8 @@ const AdminPage : React.FC = () => {
         <tbody>
           {itemList.map((item) => (
             <tr key={item.id}>
-              <td>{item.name}</td>
+              <td>{item.accountName}</td>
+              <td>{item.item}</td>
               <td>{item.status}</td>
               <td>
                 <button onClick={() => handleFreezeUnfreeze(item.id,true)} disabled={item.status === 'Frozen'}>Freeze</button>

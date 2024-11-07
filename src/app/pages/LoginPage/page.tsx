@@ -15,6 +15,8 @@ const LoginPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState('buyer');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // Popup 
+
 
   const router = useRouter();
 
@@ -24,8 +26,8 @@ const LoginPage = () => {
       return;
     }
 
-    let method = '/' + userType + '/login';
-    let request = {
+    const method = '/' + userType + '/login';
+    const request = {
         username: username,
         password: password
     }
@@ -35,7 +37,7 @@ const LoginPage = () => {
         if (response.data.status == 200) {
           // console.log("hii");
             // Redirect to the appropriate page
-            localStorage.setItem('userInfo', JSON.stringify(response.data));
+            sessionStorage.setItem('userInfo', JSON.stringify(response.data));
             if (userType == 'buyer') {
                 // Redirect to buyer page
                 router.push('/pages/BuyerHomePage')
@@ -46,6 +48,10 @@ const LoginPage = () => {
                 // Redirect to admin page
               router.push('/pages/AdminPage')
             }
+        }
+        else if(response.data.status == 403) {
+          console.log("403 error");
+          setErrorMessage('Account is closed');
         }
         else {
             setErrorMessage('Invalid username or password');
@@ -65,20 +71,30 @@ const LoginPage = () => {
       setErrorMessage('Make sure you enter the same password twice!');
       return;
     }
-    let method = '/' + userType + '/createAccount';
-    let request = {
+    const method = '/' + userType + '/createAccount';
+    const request = {
         username: username,
         password: password
-    }
+    };
 
-    instance.post(method, request).then((response) => {
-        console.log(response);
-    }).catch((error) => {
-        console.log(error);
-    });
-
-
-    setErrorMessage(''); // Clear error message on successful registration
+    instance.post(method, request)
+    .then((response) => {
+      console.log(response)
+      if (response.data.status === 200) {
+        setShowSuccessPopup(true); // Show success popup
+        setErrorMessage(''); // Clear any previous errors
+      } else {
+        setErrorMessage('Username Exists');
+      }
+    })
+    .catch((error) => {
+      if (error.response && error.response.data.code === 401 && error.response.data.message === 'Username Exists') {
+        setErrorMessage('Username already exists. Please choose a different one.');
+      } else {
+        //setErrorMessage('An error occurred during registration.');
+        setErrorMessage('Username Exists');
+      }
+    }); 
   };
 
   return (
@@ -136,6 +152,24 @@ const LoginPage = () => {
       </div>
       {errorMessage && (
         <p className="error">{errorMessage}</p>
+      )}
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Registration Successful</h2>
+            <p>Your account has been successfully created.</p>
+            <button
+              onClick={() =>{ setShowSuccessPopup(false)
+                router.back()
+              }}
+
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

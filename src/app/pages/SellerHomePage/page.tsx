@@ -11,6 +11,7 @@ export default function SellerPage() {
   useEffect(() => {
     const info =sessionStorage.getItem('userInfo');
     let totalFunds = 0;
+    let userName='';
     // console.log(info)
     if (info != null) {
       console.log(info)
@@ -20,6 +21,8 @@ export default function SellerPage() {
       totalFunds = parseInt(json.success.totalFunds)
       console.log(totalFunds)
       setWalletAmount(totalFunds)
+      userName=json.success.username;
+      setUserName(userName)
     }
   }, []);
 
@@ -28,7 +31,7 @@ export default function SellerPage() {
   // const [newItemName, setNewItemName] = useState('');
   const router = useRouter();
   const [, setErrorMessage] = useState('');
-
+  const [userNameHome, setUserName] = useState('');
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
@@ -55,11 +58,8 @@ export default function SellerPage() {
     <main className="min-h-screen p-6 bg-gray-100">
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
         <h1 className="text-xl font-semibold">Seller Home Page</h1>
-        <div>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => alert('Logged out')}>
-            Log Out
-          </button>
-        </div>
+        <h1>{userNameHome}</h1>
+        
       </header>
 
       <div className="mt-10 flex justify-end items-center space-x-4">

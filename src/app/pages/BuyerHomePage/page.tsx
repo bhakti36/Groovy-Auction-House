@@ -11,6 +11,7 @@ const instance = axios.create({
 export default function BuyerPage() {
   const router = useRouter();
   let totalFunds = 0;
+  let userName='';
   let info = ""
   useEffect(() => {
     info = sessionStorage.getItem('userInfo')!;
@@ -21,7 +22,10 @@ export default function BuyerPage() {
       console.log("json", json)
       console.log("username", json.success.username)
       totalFunds = parseInt(json.success.totalFunds)
+      userName=json.success.username;
+
       setWalletAmount(totalFunds)
+      setUserName(userName)
     }
   });
 
@@ -30,6 +34,7 @@ export default function BuyerPage() {
   const [inputAmount, setInputAmount] = useState('');
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('buyer');
+  const [userNameHome, setUserName] = useState('');
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
@@ -86,11 +91,7 @@ export default function BuyerPage() {
     <main className="min-h-screen p-6 bg-gray-100">
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
         <h1 className="text-xl font-semibold">Buyer home page</h1>
-        <div>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => alert('Logged out')}>
-            Log Out
-          </button>
-        </div>
+        <h1>{userNameHome}</h1>
       </header>
 
       <div className="mt-10 flex justify-end items-center space-x-4">

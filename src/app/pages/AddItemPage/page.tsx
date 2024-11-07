@@ -171,7 +171,7 @@ const AddItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
-      {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
+      {successMessage && <p className="success">{successMessage}</p>} { 'Successfully Added Item!' }
     </div>
   );
 };

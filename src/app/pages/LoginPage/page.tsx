@@ -24,8 +24,8 @@ const LoginPage = () => {
       return;
     }
 
-    let method = '/' + userType + '/login';
-    let request = {
+    const method = '/' + userType + '/login';
+    const request = {
         username: username,
         password: password
     }
@@ -35,7 +35,7 @@ const LoginPage = () => {
         if (response.data.status == 200) {
           // console.log("hii");
             // Redirect to the appropriate page
-            localStorage.setItem('userInfo', JSON.stringify(response.data));
+            sessionStorage.setItem('userInfo', JSON.stringify(response.data));
             if (userType == 'buyer') {
                 // Redirect to buyer page
                 router.push('/pages/BuyerHomePage')
@@ -65,8 +65,8 @@ const LoginPage = () => {
       setErrorMessage('Make sure you enter the same password twice!');
       return;
     }
-    let method = '/' + userType + '/createAccount';
-    let request = {
+    const method = '/' + userType + '/createAccount';
+    const request = {
         username: username,
         password: password
     }

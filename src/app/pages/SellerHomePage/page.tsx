@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 
@@ -8,23 +8,25 @@ const instance = axios.create({
 });
 
 export default function SellerPage() {
-
-  let info =localStorage.getItem('userInfo');
-  let totalFunds = 0;
-  // console.log(info)
-  if (info != null) {
-    console.log(info)
-    let json = JSON.parse(info)
-    console.log("json",json)
-    console.log("username", json.success.username)
-    totalFunds = parseInt(json.success.totalFunds)
-  }
+  useEffect(() => {
+    const info =sessionStorage.getItem('userInfo');
+    let totalFunds = 0;
+    // console.log(info)
+    if (info != null) {
+      console.log(info)
+      const json = JSON.parse(info)
+      console.log("json",json)
+      console.log("username", json.success.username)
+      totalFunds = parseInt(json.success.totalFunds)
+      console.log(totalFunds)
+    }
+  }, []);
 
   const [walletAmount, setWalletAmount] = useState(0);
-  const [showNewItemDialog, setShowNewItemDialog] = useState(false);
-  const [newItemName, setNewItemName] = useState('');
+  // const [showNewItemDialog, setShowNewItemDialog] = useState(false);
+  // const [newItemName, setNewItemName] = useState('');
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState('');
+  const [, setErrorMessage] = useState('');
 
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');

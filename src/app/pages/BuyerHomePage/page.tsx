@@ -41,7 +41,7 @@ export default function BuyerPage() {
         funds: amount,
       };
 
-      instance.put(method, request).then((response) => {
+      instance.post(method, request).then((response) => {
         console.log(response);
         setWalletAmount(walletAmount + amount);
         json.success.totalFunds=walletAmount + amount;

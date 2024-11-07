@@ -76,10 +76,9 @@ const AddItemPage = () => {
 
       setErrorMessage('');
       
-      // Show a popup message and navigate to SellerHomePage after clicking OK
       window.alert("Item added successfully!");
-      router.push('/pages/SellerHomePage'); // Redirect after success
-
+      router.push('/pages/SellerHomePage'); 
+      
     } catch (error) {
       const err = error as AxiosError;
       console.error('Error response:', err.response ? err.response.data : err.message);

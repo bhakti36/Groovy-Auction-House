@@ -4,10 +4,11 @@ import { useState } from 'react';
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
+  baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
 export default function BuyerPage() {
+
   let info =localStorage.getItem('userInfo');
   let totalFunds = 0;
   // console.log(info)
@@ -34,7 +35,7 @@ export default function BuyerPage() {
 
   const handleCloseAccount = () => {
     const request = {
-      buyerID: 1
+      buyerID: 3
     }
     instance.post('/buyer/closeAccount',request)
     .then((response)=>{

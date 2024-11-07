@@ -5,8 +5,8 @@ import axios from 'axios';
 // import { useNavigate } from 'react-router-dom';
 
 const instance = axios.create({
-    baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
-    });
+  baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
+});
 
 const LoginPage = () => {
   const [isRegister, setIsRegister] = useState(false);

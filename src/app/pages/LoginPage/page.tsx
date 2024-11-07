@@ -49,6 +49,10 @@ const LoginPage = () => {
               router.push('/pages/AdminPage')
             }
         }
+        else if(response.data.status == 403) {
+          console.log("403 error");
+          setErrorMessage('Account is closed');
+        }
         else {
             setErrorMessage('Invalid username or password');
         } 

@@ -22,15 +22,15 @@ const instance = axios.create({
     }
 
 const AdminPage : React.FC = () => {
-  const [userType, setUserType] = useState('admin');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [userType] = useState('admin');
+  // const [username, setUsername] = useState('');
+  // const [password, setPassword] = useState('');
   const [itemList, setItemList] = useState<{ accountName: string; item: string; status: string; id:number }[]>([]);
   
   
 
   useEffect(() => {
-    const storedUserInfo = localStorage.getItem('userInfo');
+    const storedUserInfo = sessionStorage.getItem('userInfo');
     if (storedUserInfo) {
       const parsedUserInfo = JSON.parse(storedUserInfo); 
     //console.log('Loaded userInfo:', parsedUserInfo);
@@ -66,8 +66,8 @@ const AdminPage : React.FC = () => {
     );
     
  
-    let method = '/' + userType + '/freeze_unfreeze';
-    let request = {
+    const method = '/' + userType + '/freeze_unfreeze';
+    const request = {
       admin_credential: {
           username: "Admin",  
           password: "Admin123"   

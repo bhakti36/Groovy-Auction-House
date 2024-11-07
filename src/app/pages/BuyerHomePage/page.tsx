@@ -1,6 +1,6 @@
 'use client'
-import { totalmem } from 'os';
-import { useState } from 'react';
+// import { totalmem } from 'os';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const instance = axios.create({
@@ -8,35 +8,39 @@ const instance = axios.create({
 });
 
 export default function BuyerPage() {
-  let info = localStorage.getItem('userInfo');
   let totalFunds = 0;
-  // console.log(info)
-  if (info != null) {
-    console.log(info)
-    let json = JSON.parse(info)
-    console.log("json", json)
-    console.log("username", json.success.username)
-    totalFunds = parseInt(json.success.totalFunds)
-  }
+  let info = ""
+  useEffect(() => {
+    info = sessionStorage.getItem('userInfo')!;
+    // console.log(info)
+    if (info != null) {
+      console.log(info)
+      const json = JSON.parse(info)
+      console.log("json", json)
+      console.log("username", json.success.username)
+      totalFunds = parseInt(json.success.totalFunds)
+    }
+  });
+
   const [walletAmount, setWalletAmount] = useState(totalFunds);
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [userType, setUserType] = useState('buyer');
+  const [, setErrorMessage] = useState('');
+  const [userType,] = useState('buyer');
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
     if (!isNaN(amount) && amount > 0) {
       //linking api
       if (info != null) {
-        let json = JSON.parse(info)
+        const json = JSON.parse(info)
        
     // console.log("json", json)
-    let accountid= json.success.accountID;
+    const accountid= json.success.accountID;
    
       
-      let method = '/' + userType + '/addFunds';
-      let request = {
+      const method = '/' + userType + '/addFunds';
+      const request = {
         accountID: accountid,
         funds: amount,
       };
@@ -45,7 +49,7 @@ export default function BuyerPage() {
         console.log(response);
         setWalletAmount(walletAmount + amount);
         json.success.totalFunds=walletAmount + amount;
-        localStorage.setItem('userInfo', JSON.stringify(json));
+        sessionStorage.setItem('userInfo', JSON.stringify(json));
 
       }).catch((error) => {
         console.log(error);

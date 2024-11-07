@@ -8,13 +8,13 @@ const instance = axios.create({
 });
 
 export default function BuyerPage() {
-  let info =localStorage.getItem('userInfo');
+  let info = localStorage.getItem('userInfo');
   let totalFunds = 0;
   // console.log(info)
   if (info != null) {
     console.log(info)
     let json = JSON.parse(info)
-    console.log("json",json)
+    console.log("json", json)
     console.log("username", json.success.username)
     totalFunds = parseInt(json.success.totalFunds)
   }
@@ -22,13 +22,38 @@ export default function BuyerPage() {
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [userType, setUserType] = useState('buyer');
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
     if (!isNaN(amount) && amount > 0) {
-      setWalletAmount(walletAmount + amount);
+      //linking api
+      if (info != null) {
+        let json = JSON.parse(info)
+       
+    // console.log("json", json)
+    let accountid= json.success.accountID;
+   
+      
+      let method = '/' + userType + '/addFunds';
+      let request = {
+        accountID: accountid,
+        funds: amount,
+      };
+
+      instance.put(method, request).then((response) => {
+        console.log(response);
+        setWalletAmount(walletAmount + amount);
+        json.success.totalFunds=walletAmount + amount;
+        localStorage.setItem('userInfo', JSON.stringify(json));
+
+      }).catch((error) => {
+        console.log(error);
+      });
+
       setInputAmount('');
       setShowAddMoneyDialog(false);
+    }
     }
   };
 
@@ -36,15 +61,15 @@ export default function BuyerPage() {
     const request = {
       buyerID: 1
     }
-    instance.post('/buyer/closeAccount',request)
-    .then((response)=>{
-      console.log('Response:', response.data);
-      setErrorMessage('');
-    })
-    .catch((error)=>{
-      console.error('Error response:', error.response ? error.response.data : error.message);
-      setErrorMessage('Error adding item.');
-    })
+    instance.post('/buyer/closeAccount', request)
+      .then((response) => {
+        console.log('Response:', response.data);
+        setErrorMessage('');
+      })
+      .catch((error) => {
+        console.error('Error response:', error.response ? error.response.data : error.message);
+        setErrorMessage('Error adding item.');
+      })
     setWalletAmount(0);
     alert('Account closed.');
   };

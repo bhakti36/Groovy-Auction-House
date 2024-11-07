@@ -48,6 +48,7 @@ export default function SellerPage() {
     })
     setWalletAmount(0);
     alert('Account closed.');
+    router.push('/pages/LoginPage');
   };
 
   return (

@@ -1,6 +1,6 @@
 'use client'
-import { totalmem } from 'os';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const instance = axios.create({
@@ -9,20 +9,20 @@ const instance = axios.create({
 
 export default function BuyerPage() {
 
-  let info =localStorage.getItem('userInfo');
+  let info = localStorage.getItem('userInfo');
   let totalFunds = 0;
-  // console.log(info)
   if (info != null) {
-    console.log(info)
-    let json = JSON.parse(info)
-    console.log("json",json)
-    console.log("username", json.success.username)
-    totalFunds = parseInt(json.success.totalFunds)
+    let json = JSON.parse(info);
+    totalFunds = parseInt(json.success.totalFunds);
   }
+  
   const [walletAmount, setWalletAmount] = useState(totalFunds);
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showCloseAccountDialog, setShowCloseAccountDialog] = useState(false);
+  const router = useRouter();
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
@@ -34,20 +34,42 @@ export default function BuyerPage() {
   };
 
   const handleCloseAccount = () => {
+    setShowCloseAccountDialog(true); 
+  };
+
+  const confirmCloseAccount = () => {
     const request = {
-      buyerID: 3
-    }
-    instance.post('/buyer/closeAccount',request)
-    .then((response)=>{
+      buyerID: 1, 
+    };
+
+    instance.post('/buyer/closeAccount', request)
+    .then((response) => {
       console.log('Response:', response.data);
       setErrorMessage('');
+      setWalletAmount(0); 
+      localStorage.removeItem('userInfo'); 
+      router.push('/'); 
     })
-    .catch((error)=>{
+    .catch((error) => {
       console.error('Error response:', error.response ? error.response.data : error.message);
-      setErrorMessage('Error adding item.');
-    })
-    setWalletAmount(0);
-    alert('Account closed.');
+      setErrorMessage('Error closing account.');
+    });
+
+    setShowCloseAccountDialog(false); 
+  };
+
+  const cancelCloseAccount = () => {
+    setShowCloseAccountDialog(false); 
+  };
+
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem('userInfo');
+    setShowLogoutDialog(false);
+    router.push('/'); // Redirect to homepage on logout
   };
 
   return (
@@ -55,7 +77,10 @@ export default function BuyerPage() {
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
         <h1 className="text-xl font-semibold">Buyer home page</h1>
         <div>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => alert('Logged out')}>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onClick={handleLogout}
+          >
             Log Out
           </button>
         </div>
@@ -77,6 +102,7 @@ export default function BuyerPage() {
         </button>
       </div>
 
+      {/* Add Money Dialog */}
       {showAddMoneyDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg">
@@ -103,6 +129,58 @@ export default function BuyerPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-lg mb-4">Are you sure you want to log out?</h2>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                OK
+              </button>
+              <button
+                onClick={() => setShowLogoutDialog(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Close Account Confirmation Dialog */}
+      {showCloseAccountDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-lg mb-4">Are you sure you want to close your account?</h2>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={confirmCloseAccount}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Yes, Close Account
+              </button>
+              <button
+                onClick={cancelCloseAccount}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-4 p-4 bg-red-100 text-red-700 border border-red-500 rounded">
+          {errorMessage}
         </div>
       )}
     </main>

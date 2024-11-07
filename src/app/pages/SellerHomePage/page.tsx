@@ -9,42 +9,61 @@ const instance = axios.create({
 
 export default function SellerPage() {
 
-  let info =localStorage.getItem('userInfo');
+  let info = localStorage.getItem('userInfo');
   let totalFunds = 0;
-  // console.log(info)
+
   if (info != null) {
-    console.log(info)
-    let json = JSON.parse(info)
-    console.log("json",json)
-    console.log("username", json.success.username)
-    totalFunds = parseInt(json.success.totalFunds)
+    let json = JSON.parse(info);
+    totalFunds = parseInt(json.success.totalFunds);
   }
 
-  const [walletAmount, setWalletAmount] = useState(0);
-  const [showNewItemDialog, setShowNewItemDialog] = useState(false);
-  const [newItemName, setNewItemName] = useState('');
-  const router = useRouter();
+  const [walletAmount, setWalletAmount] = useState(totalFunds);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showCloseAccountDialog, setShowCloseAccountDialog] = useState(false);
+  const router = useRouter();
 
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
 
   const handleCloseAccount = () => {
+    setShowCloseAccountDialog(true);
+  };
+
+  const confirmCloseAccount = () => {
     const request = {
-      sellerID: 2
-    }
-    instance.post('/seller/closeAccount',request)
-    .then((response)=>{
-      console.log('Response:', response.data);
-      setErrorMessage('');
-    })
-    .catch((error)=>{
-      console.error('Error response:', error.response ? error.response.data : error.message);
-      setErrorMessage('Error adding item.');
-    })
-    setWalletAmount(0);
-    alert('Account closed.');
+      sellerID: 2 
+    };
+
+    instance.post('/seller/closeAccount', request)
+      .then((response) => {
+        console.log('Response:', response.data);
+        setErrorMessage('');
+        localStorage.removeItem('userInfo'); 
+        setWalletAmount(0); 
+        router.push('/'); 
+      })
+      .catch((error) => {
+        console.error('Error response:', error.response ? error.response.data : error.message);
+        setErrorMessage('Error closing account.');
+      });
+
+    setShowCloseAccountDialog(false); 
+  };
+
+  const cancelCloseAccount = () => {
+    setShowCloseAccountDialog(false); 
+  };
+
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem('userInfo');
+    setShowLogoutDialog(false);
+    router.push('/'); // Redirect to homepage on logout
   };
 
   return (
@@ -52,7 +71,10 @@ export default function SellerPage() {
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
         <h1 className="text-xl font-semibold">Seller Home Page</h1>
         <div>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => alert('Logged out')}>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onClick={handleLogout}
+          >
             Log Out
           </button>
         </div>
@@ -61,7 +83,7 @@ export default function SellerPage() {
       <div className="mt-10 flex justify-end items-center space-x-4">
         <div className="text-lg">Wallet: ${walletAmount}</div>
         <button
-          onClick={() => handleAddNewItem()}
+          onClick={handleAddNewItem}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           New Item
@@ -73,6 +95,58 @@ export default function SellerPage() {
           Close Account
         </button>
       </div>
+
+      {/* Logout confirmation dialog */}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-lg mb-4">Are you sure you want to log out?</h2>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                OK
+              </button>
+              <button
+                onClick={() => setShowLogoutDialog(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Close account confirmation dialog */}
+      {showCloseAccountDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-lg mb-4">Are you sure you want to close your account?</h2>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={confirmCloseAccount}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Yes, Close Account
+              </button>
+              <button
+                onClick={cancelCloseAccount}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-4 p-4 bg-red-100 text-red-700 border border-red-500 rounded">
+          {errorMessage}
+        </div>
+      )}
     </main>
   );
 }

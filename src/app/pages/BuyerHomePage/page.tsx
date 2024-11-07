@@ -1,6 +1,11 @@
 'use client'
 import { totalmem } from 'os';
 import { useState } from 'react';
+import axios from 'axios';
+
+const instance = axios.create({
+  baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
+});
 
 export default function BuyerPage() {
   let info =localStorage.getItem('userInfo');
@@ -16,6 +21,7 @@ export default function BuyerPage() {
   const [walletAmount, setWalletAmount] = useState(totalFunds);
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
@@ -27,7 +33,18 @@ export default function BuyerPage() {
   };
 
   const handleCloseAccount = () => {
-    // Closing the account logic
+    const request = {
+      buyerID: 1
+    }
+    instance.post('/buyer/closeAccount',request)
+    .then((response)=>{
+      console.log('Response:', response.data);
+      setErrorMessage('');
+    })
+    .catch((error)=>{
+      console.error('Error response:', error.response ? error.response.data : error.message);
+      setErrorMessage('Error adding item.');
+    })
     setWalletAmount(0);
     alert('Account closed.');
   };

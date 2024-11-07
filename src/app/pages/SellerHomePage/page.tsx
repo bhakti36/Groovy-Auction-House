@@ -1,6 +1,11 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
+import axios from 'axios';
+
+const instance = axios.create({
+  baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
+});
 
 export default function SellerPage() {
 
@@ -19,14 +24,25 @@ export default function SellerPage() {
   const [showNewItemDialog, setShowNewItemDialog] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const router = useRouter();
-
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
 
   const handleCloseAccount = () => {
-    // Close the account
+    const request = {
+      BuyerID: 1
+    }
+    instance.post('/seller/closeAccount',request)
+    .then((response)=>{
+      console.log('Response:', response.data);
+      setErrorMessage('');
+    })
+    .catch((error)=>{
+      console.error('Error response:', error.response ? error.response.data : error.message);
+      setErrorMessage('Error adding item.');
+    })
     setWalletAmount(0);
     alert('Account closed.');
   };

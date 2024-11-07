@@ -32,7 +32,7 @@ export default function SellerPage() {
 
   const handleCloseAccount = () => {
     const request = {
-      BuyerID: 1
+      sellerID: 2
     }
     instance.post('/seller/closeAccount',request)
     .then((response)=>{

@@ -1,9 +1,9 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://uum435a7xb.execute-api.us-east-2.amazonaws.com/Test',
+  baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
 const AddItemPage = () => {
@@ -16,47 +16,58 @@ const AddItemPage = () => {
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddItem = () => {
-    // Log values before making the request
+  const handleAddItem = async () => {
     console.log('handleAddItem called');
-    console.log('name:', name);
-    console.log('description:', description);
-    console.log('initialPrice:', initialPrice);
-    console.log('images:', images);
-    console.log('startTime:', startTime);
-    console.log('durationDays:', durationDays);
-    console.log('durationHours:', durationHours);
-    console.log('durationMinutes:', durationMinutes);
-
     if (!name || !description || !initialPrice || !startTime || !durationDays || !durationHours || !durationMinutes) {
       setErrorMessage('Please fill out all fields.');
       return;
     }
 
-    const request = {
-      Name: name,
-      Description: description,
-      Initial_Price: initialPrice,
-      Images: images,
-      StartDate: startTime,
-      DurationDays: parseInt(durationDays),
-      DurationHours: parseInt(durationHours),
-      DurationMinutes: parseInt(durationMinutes),
-      SellerID: 2, // Default SellerID set to 2
-    };
-
-    console.log('Request payload:', request); // Log the full request payload
-
-    instance.post('/seller/additem', request)
-      .then((response) => {
-        console.log('Response:', response.data);
-        setErrorMessage(''); 
+    // Convert images to Base64 format
+    const imagePromises = images.map((image) =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
       })
-      .catch((error) => {
-        console.error('Error response:', error.response ? error.response.data : error.message);
-        setErrorMessage('Error adding item.');
-      });
+    );
+
+    try {
+      setIsLoading(true); // Show loading state
+
+      // Wait for all images to be processed
+      const base64Images = await Promise.all(imagePromises);
+      
+      const request = {
+        Name: name,
+        Description: description,
+        Initial_Price: initialPrice,
+        Images: base64Images,
+        StartDate: startTime,
+        DurationDays: parseInt(durationDays),
+        DurationHours: parseInt(durationHours),
+        DurationMinutes: parseInt(durationMinutes),
+        SellerID: 2, 
+      };
+
+      console.log('Request payload:', request);
+
+      const response = await instance.post('/seller/additem', request);
+      console.log('Response:', response.data);
+
+      setErrorMessage('');
+    } catch (error) {
+      const err = error as AxiosError;
+      console.error('Error response:', err.response ? err.response.data : err.message);
+      setErrorMessage(
+        err.response ? `Error adding item: ${err.response.data}` : 'Error adding item.'
+      );
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +143,9 @@ const AddItemPage = () => {
         />
       </div>
       <div>
-        <button onClick={handleAddItem}>Submit Changes</button>
+        <button onClick={handleAddItem} disabled={isLoading}>
+          {isLoading ? 'Submitting...' : 'Submit Changes'}
+        </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
     </div>

@@ -18,7 +18,6 @@ const AddItemPage = () => {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(''); 
   const router = useRouter(); 
   
   const handleAddItem = async () => {
@@ -76,12 +75,10 @@ const AddItemPage = () => {
       console.log('Response:', response.data);
 
       setErrorMessage('');
-      setSuccessMessage('Item added successfully!'); 
       
-      setTimeout(() => {
-        router.push('/pages/SellerHomePage');
-      }, 500); 
-
+      window.alert("Item added successfully!");
+      router.push('/pages/SellerHomePage'); 
+      
     } catch (error) {
       const err = error as AxiosError;
       console.error('Error response:', err.response ? err.response.data : err.message);
@@ -171,7 +168,6 @@ const AddItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
-      {successMessage && <p className="success">{successMessage}</p>} { 'Successfully Added Item!' }
     </div>
   );
 };

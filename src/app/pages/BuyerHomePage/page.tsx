@@ -1,6 +1,7 @@
 'use client'
 // import { totalmem } from 'os';
 import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 import axios from 'axios';
 
 const instance = axios.create({
@@ -8,6 +9,7 @@ const instance = axios.create({
 });
 
 export default function BuyerPage() {
+  const router = useRouter();
   let totalFunds = 0;
   let info = ""
   useEffect(() => {
@@ -19,6 +21,7 @@ export default function BuyerPage() {
       console.log("json", json)
       console.log("username", json.success.username)
       totalFunds = parseInt(json.success.totalFunds)
+      setWalletAmount(totalFunds)
     }
   });
 
@@ -76,6 +79,7 @@ export default function BuyerPage() {
       })
     setWalletAmount(0);
     alert('Account closed.');
+    router.push('/pages/LoginPage');
   };
 
   return (

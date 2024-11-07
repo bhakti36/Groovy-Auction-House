@@ -19,6 +19,7 @@ export default function SellerPage() {
       console.log("username", json.success.username)
       totalFunds = parseInt(json.success.totalFunds)
       console.log(totalFunds)
+      setWalletAmount(totalFunds)
     }
   }, []);
 

@@ -22,11 +22,13 @@ export default function BuyerPage() {
   const router = useRouter();
   let totalFunds = 0;
   let info = "";
+  // let userID = 0;
 
   useEffect(() => {
     info = sessionStorage.getItem('userInfo')!;
     if (info != null) {
       const json = JSON.parse(info);
+      setUserID(json.success.userID);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -37,13 +39,14 @@ export default function BuyerPage() {
   const [inputAmount, setInputAmount] = useState('');
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('buyer');
+  const [userID, setUserID] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice, setSortChoice] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]); 
   
   const handleCloseAccount = () => {
     const request = {
-      buyerID: 3
+      buyerID: userID
     }
     instance.post('/buyer/closeAccount', request)
       .then((response) => {

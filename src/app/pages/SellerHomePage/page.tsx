@@ -23,6 +23,7 @@ export default function SellerPage() {
       setWalletAmount(totalFunds)
       userName=json.success.username;
       setUserName(userName)
+      setUserID(json.success.accountID)
     }
   }, []);
 
@@ -32,13 +33,14 @@ export default function SellerPage() {
   const router = useRouter();
   const [, setErrorMessage] = useState('');
   const [userNameHome, setUserName] = useState('');
+  const [userID, setUserID] = useState(2);
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
 
   const handleCloseAccount = () => {
     const request = {
-      sellerID: 2
+      sellerID: userID
     }
     instance.post('/seller/closeAccount',request)
     .then((response)=>{

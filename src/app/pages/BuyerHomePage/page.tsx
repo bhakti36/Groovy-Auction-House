@@ -28,7 +28,7 @@ export default function BuyerPage() {
     info = sessionStorage.getItem('userInfo')!;
     if (info != null) {
       const json = JSON.parse(info);
-      setUserID(json.success.userID);
+      setUserID(json.success.accountID);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -45,6 +45,7 @@ export default function BuyerPage() {
   const [items, setItems] = useState<Item[]>([]); 
   
   const handleCloseAccount = () => {
+    console.log('handleCloseAccount called' + userID);
     const request = {
       buyerID: userID
     }

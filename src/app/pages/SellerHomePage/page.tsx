@@ -8,9 +8,9 @@ const instance = axios.create({
 });
 
 export default function SellerPage() {
+  let totalFunds = 0;
   useEffect(() => {
     const info =sessionStorage.getItem('userInfo');
-    let totalFunds = 0;
     let userName='';
     // console.log(info)
     if (info != null) {
@@ -18,7 +18,7 @@ export default function SellerPage() {
       const json = JSON.parse(info)
       console.log("json",json)
       console.log("username", json.success.username)
-      totalFunds = parseInt(json.success.totalFunds)
+      totalFunds = parseInt(json.success.funds)
       console.log(totalFunds)
       setWalletAmount(totalFunds)
       userName=json.success.username;

@@ -40,12 +40,40 @@ const AddItemPage = () => {
 
       // Wait for all images to be processed
       const base64Images = await Promise.all(imagePromises);
+      console.log('Base64 images:', base64Images);
+
+      const cleanedBase64Images = base64Images.map((base64Image) => base64Image.replace(/^data:image\/[a-z]+;base64,/, '') ); 
+      console.log('Cleaned Base64 images:', cleanedBase64Images);
+
+      let files = []
+
+      const date = new Date(); 
+      const folderName = `${name}_${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
+
+      for(let i = 0; i < cleanedBase64Images.length; i++) {
+        const upload_request = {
+          folderName: folderName,
+          fileName:  i + '.png',
+          imageData: cleanedBase64Images[i]
+        }
+        files.push(`${name}_${folderName}` + '/'+  i + '.png')
+  
+        const response_upload = await instance.post('/seller/uploadImg', upload_request);
+        console.log('Response:', response_upload.data);
+      }
+      // const upload_request = {
+      //   fileName: name + '.png',
+      //   imageData: cleanedBase64Images[0]
+      // }
+
+      // const response_upload = await instance.post('/seller/uploadImg', upload_request);
+      // console.log('Response:', response_upload.data);
       
       const request = {
         Name: name,
         Description: description,
         Initial_Price: initialPrice,
-        Images: base64Images,
+        Images: files,
         StartDate: startTime,
         DurationDays: parseInt(durationDays),
         DurationHours: parseInt(durationHours),

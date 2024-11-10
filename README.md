@@ -31,12 +31,15 @@ This command will open the home page of the application. The home page provides 
 2. Navigation and Routing
 To access the login page, click on the "Go to Login" button on the home page. This button will redirect you to the login page, as specified in the screen design.
 
-# Improvements:
-    If new Account is created, Buyer or Seller, Auto Update the Buyer and Seller Tables in SQL.
-    PlaceBids Needs to Check if the last bid on the item is the same buyer
-    Need to limit the input of the Edit Item Page to 
-    AWS Screen Refresh Issue
-    Avoid clicking the refresh button on the AWS screen, as this may cause display disturbances or unexpected behavior.
+# Users Available(Testing, You can make your own too except the Admin):
+UserID: buyer1 Password: buyer123
+UserID: seller1 Password: seller123
+UserID: Admin Password: Admin123
 
-    View Uploaded Images in Seller's AddItem Use Case
-    In the Seller → Add Item use case, while images are successfully uploaded to the S3 bucket, there currently isn't a way to view them within the application. Consider adding functionality to display uploaded images.
+(Password is Case Sensitive)
+
+# Improvements:
+    AWS Screen Refresh Issue
+    Avoid clicking the refresh button and using browser back button, as this may cause display disturbances or unexpected behavior.
+
+    In the Seller → Add Item use case, while images are successfully uploaded to the S3 bucket, there currently isn't a way to view them within the application. As the Items when Added are not published, they cannot be viewed in the buyer home page. 

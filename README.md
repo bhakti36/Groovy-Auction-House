@@ -32,8 +32,11 @@ This command will open the home page of the application. The home page provides 
 To access the login page, click on the "Go to Login" button on the home page. This button will redirect you to the login page, as specified in the screen design.
 
 # Users Available(Testing, You can make your own too except the Admin):
+
 UserID: buyer1 Password: buyer123
+
 UserID: seller1 Password: seller123
+
 UserID: Admin Password: Admin123
 
 (Password is Case Sensitive)

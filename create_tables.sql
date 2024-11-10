@@ -13,7 +13,7 @@ CREATE TABLE Accounts
     Password  VARCHAR(255),
     IsFrozen       BOOLEAN DEFAULT FALSE,
     IsClosed       BOOLEAN DEFAULT FALSE,
-    accountType ENUM('Buyer', 'Seller', 'Admin')
+    AccountType ENUM('Buyer', 'Seller', 'Admin')
 );
 
 CREATE TABLE BuyerAccount
@@ -42,7 +42,7 @@ CREATE TABLE Item
     DurationDays INT,
     DurationHours INT,
     DurationMinutes INT,
-    IsPublished  BOOLEAN DEFAULT FALSE,
+    IsPublished  BOOLEAN DEFAULT TRUE,
     IsFrozen     BOOLEAN DEFAULT FALSE,
     IsArchived   BOOLEAN DEFAULT FALSE,
     IsComplete   BOOLEAN DEFAULT FALSE,
@@ -97,19 +97,8 @@ VALUES (2, 500.00),
 
 INSERT INTO Item (ItemID, Name, Description, Images, InitialPrice, StartDate, DurationDays, DurationHours, DurationMinutes, IsPublished, IsFrozen,
                   IsArchived, IsComplete, IsFailed, SellerID)
-VALUES (1, 'Antique Vase', 'A rare antique vase from the 18th century.', '[
-  {
-    "url": "image1.jpg"
-  },
-  {
-    "url": "image2.jpg"
-  }
-]', 300.00, '2024-10-22 10:00:00', 3, 20, 10, TRUE, FALSE, FALSE, FALSE, FALSE, 2),
-       (2, 'Vintage Painting', 'An original painting from the 19th century.', '[
-         {
-           "url": "painting1.jpg"
-         }
-       ]', 500.00, '2024-10-21 12:00:00', 2, 5, 20, TRUE, FALSE, FALSE, FALSE, FALSE, 4);
+VALUES (1, 'Antique Vase', 'A rare antique vase from the 18th century.', '["20241110_001036/0.png", "20241110_001036/1.png"]', 300.00, '2024-10-22 10:00:00', 3, 20, 10, TRUE, FALSE, FALSE, FALSE, FALSE, 2),
+       (2, 'Vintage Painting', 'An original painting from the 19th century.', '["20241110_001134/0.png"]', 500.00, '2024-10-21 12:00:00', 2, 5, 20, TRUE, FALSE, FALSE, FALSE, FALSE, 4);
 
 INSERT INTO Bid (BidID, BuyerID, ItemID, BidAmount)
 VALUES (1, 1, 1, 350.00),
@@ -137,4 +126,7 @@ VALUES (1, 1, 'Antique Vase', 'A rare antique vase from the 18th century.', '[
 #        (15000.00, 2);
 
 SELECT * FROM Accounts;
+SELECT * FROM BuyerAccount;
+SELECT * FROM SellerAccount;
 SELECT * FROM Item;
+

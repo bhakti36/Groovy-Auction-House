@@ -64,7 +64,7 @@ const AddItemPage = () => {
       let files = []
 
       const date = new Date(); 
-      const folderName = `${name}_${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
+      const folderName = `${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
 
       for(let i = 0; i < cleanedBase64Images.length; i++) {
         const upload_request = {
@@ -72,7 +72,7 @@ const AddItemPage = () => {
           fileName:  i + '.png',
           imageData: cleanedBase64Images[i]
         }
-        files.push(`${name}_${folderName}` + '/'+  i + '.png')
+        files.push(`${folderName}` + '/'+  i + '.png')
   
         const response_upload = await instance.post('/seller/uploadImg', upload_request);
         console.log('Response:', response_upload.data);

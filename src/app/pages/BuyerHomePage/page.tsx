@@ -29,6 +29,7 @@ export default function BuyerPage() {
     if (info != null) {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
+      console.log(json);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -65,8 +66,9 @@ export default function BuyerPage() {
     const amount = parseFloat(inputAmount);
     if (!isNaN(amount) && amount > 0) {
       if (info != null) {
-        const json = JSON.parse(info);
-        const accountid = json.success.accountID;
+        console.log("info", info)
+        // const json = JSON.parse(info);
+        const accountid = userID
 
         const method = '/' + userType + '/addFunds';
         const request = {
@@ -76,8 +78,8 @@ export default function BuyerPage() {
 
         instance.post(method, request).then((response) => {
           setWalletAmount(walletAmount + amount);
-          json.success.totalFunds = walletAmount + amount;
-          sessionStorage.setItem('userInfo', JSON.stringify(json));
+          // json.success.totalFunds = walletAmount + amount;
+          // sessionStorage.setItem('userInfo', JSON.stringify(json));
         }).catch((error) => {
           console.log(error);
         });
@@ -90,7 +92,7 @@ export default function BuyerPage() {
 
   const handleViewItem = () => {
     const request = {
-      IsPublished: false,
+      IsPublished: true,
       IsComplete: false,
       IsFrozen: false
     };
@@ -98,16 +100,22 @@ export default function BuyerPage() {
     instance.post('/buyer/viewItem', request)
       .then((response) => {
         const responseItems = response.data.success.items;
+
+        // let parseImages = 
+        let base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
         
         const formattedItems: Item[] = responseItems.map((item: any) => ({
           id: item.ItemID,
           name: item.Name,
           description: item.Description,
-          image: JSON.parse(item.Images)[0]?.url || '/images/default_image.jpg',
+          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
           value: `$${item.InitialPrice}`,
           timeLeft: calculateTimeLeft(item.StartDate), 
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
+
+        console.log(formattedItems);
+        console.log("respons", JSON.parse(responseItems[0].Images));
 
         setItems(formattedItems);
         setErrorMessage('');
@@ -160,8 +168,8 @@ export default function BuyerPage() {
           <input
             type="text"
             placeholder="Search"
-            value={inputAmount}
-            onChange={(e) => setInputAmount(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="search-box"
           />
           <select className="sort-choice">

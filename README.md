@@ -45,4 +45,4 @@ UserID: Admin Password: Admin123
     AWS Screen Refresh Issue
     Avoid clicking the refresh button and using browser back button, as this may cause display disturbances or unexpected behavior.
 
-    In the Seller → Add Item use case, while images are successfully uploaded to the S3 bucket, there currently isn't a way to view them within the application. As the Items when Added are not published, they cannot be viewed in the buyer home page. 
+    In the Seller → Add Item use case, while images are successfully uploaded to the S3 bucket, there currently isn't a way to view them within the application. As the Items when Added are not published, they cannot be viewed in the buyer home page. Currently while testing them, they are set as published as default so the added items are visible in the buyer account home page

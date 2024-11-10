@@ -61,7 +61,7 @@ const AddItemPage = () => {
       const cleanedBase64Images = base64Images.map((base64Image) => base64Image.replace(/^data:image\/[a-z]+;base64,/, '') ); 
       console.log('Cleaned Base64 images:', cleanedBase64Images);
 
-      let files = []
+      const files = []
 
       const date = new Date(); 
       const folderName = `${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;

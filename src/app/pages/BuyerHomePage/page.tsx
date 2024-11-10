@@ -18,6 +18,17 @@ interface Item {
   status: string;
 }
 
+interface ItemJson { 
+  ItemID: number; 
+  Name: string; 
+  Description: string; 
+  Images: string;
+  InitialPrice: number; 
+  StartDate: string; 
+  IsComplete: boolean; 
+  IsFrozen: boolean; 
+  }
+
 export default function BuyerPage() {
   const router = useRouter();
   let totalFunds = 0;
@@ -42,7 +53,7 @@ export default function BuyerPage() {
   const [userType,] = useState('buyer');
   const [userID, setUserID] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortChoice, setSortChoice] = useState('timeLeft');
+  const [sortChoice,] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]); 
   
   const handleCloseAccount = () => {
@@ -52,9 +63,11 @@ export default function BuyerPage() {
     }
     instance.post('/buyer/closeAccount', request)
       .then((response) => {
+        console.log('Response:', response);
         setErrorMessage('');
       })
       .catch((error) => {
+        console.log(error);
         setErrorMessage('Error adding item.');
       })
     setWalletAmount(0);
@@ -77,6 +90,7 @@ export default function BuyerPage() {
         };
 
         instance.post(method, request).then((response) => {
+          console.log('Response:', response);
           setWalletAmount(walletAmount + amount);
           // json.success.totalFunds = walletAmount + amount;
           // sessionStorage.setItem('userInfo', JSON.stringify(json));
@@ -102,9 +116,9 @@ export default function BuyerPage() {
         const responseItems = response.data.success.items;
 
         // let parseImages = 
-        let base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
+        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
         
-        const formattedItems: Item[] = responseItems.map((item: any) => ({
+        const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
           id: item.ItemID,
           name: item.Name,
           description: item.Description,
@@ -121,6 +135,7 @@ export default function BuyerPage() {
         setErrorMessage('');
       })
       .catch((error) => {
+        console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
       });
   };

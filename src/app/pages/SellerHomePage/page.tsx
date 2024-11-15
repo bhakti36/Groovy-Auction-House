@@ -7,6 +7,27 @@ const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
+interface Item {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  value: string;
+  timeLeft: string;
+  status: string;
+}
+
+interface ItemJson { 
+  ItemID: number; 
+  Name: string; 
+  Description: string; 
+  Images: string;
+  InitialPrice: number; 
+  StartDate: string; 
+  IsComplete: boolean; 
+  IsFrozen: boolean; 
+  }
+
 export default function SellerPage() {
   let totalFunds = 0;
   useEffect(() => {
@@ -33,11 +54,15 @@ export default function SellerPage() {
   const router = useRouter();
   const [, setErrorMessage] = useState('');
   const [userNameHome, setUserName] = useState('');
+  const [searchQuery, ] = useState('');
+  const [sortChoice,] = useState('timeLeft');
   const [userID, setUserID] = useState(2);
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
+  const [items, setItems] = useState<Item[]>([]); 
 
+  
   const handleCloseAccount = () => {
     const request = {
       sellerID: userID
@@ -55,6 +80,67 @@ export default function SellerPage() {
     alert('Account closed.');
     router.push('/pages/LoginPage');
   };
+  const handleViewItem = () => {
+    const request = {
+      IsPublished: true,
+      IsComplete: false,
+      IsFrozen: false
+    };
+
+    instance.post('/buyer/viewItem', request)
+      .then((response) => {
+        const responseItems = response.data.success.items;
+
+        // let parseImages = 
+        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
+        
+        const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
+          id: item.ItemID,
+          name: item.Name,
+          description: item.Description,
+          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
+          value: `$${item.InitialPrice}`,
+          timeLeft: calculateTimeLeft(item.StartDate), 
+          status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
+        }));
+
+        console.log(formattedItems);
+        console.log("respons", JSON.parse(responseItems[0].Images));
+
+        setItems(formattedItems);
+        setErrorMessage('');
+      })
+      .catch((error) => {
+        console.error('Error response:', error);
+        setErrorMessage('Error retrieving items.');
+      });
+  };
+
+  useEffect(() => {
+    handleViewItem();
+  }, []);
+  const calculateTimeLeft = (startDate: string) => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const diff = start.getTime() - now.getTime();
+
+    if (diff <= 0) return 'Ended';
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ${hours % 24}h`;
+    return `${hours}h ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}m`;
+  };
+
+  const filteredItems = items
+  .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  .sort((a, b) => {
+    if (sortChoice === 'timeLeft') {
+      return a.timeLeft.localeCompare(b.timeLeft);
+    }
+    return 0; 
+});
 
   return (
     <main className="min-h-screen p-6 bg-gray-100">
@@ -78,6 +164,30 @@ export default function SellerPage() {
         >
           Close Account
         </button>
+      </div>
+      <div className="grid-container">
+        {filteredItems.map((item) => (
+          <div key={item.id} className="item-card">
+            <img src={item.image} alt={item.name} className="item-image" />
+            <h3 className="item-name">{item.name}</h3>
+            <div className="item-status-value">
+              <p className="item-time">Time Left</p>
+              <p className="item-time">{item.timeLeft}</p>
+            </div>
+            <div className="item-status-value">
+              <p className="item-status">{item.status}</p>
+              <p className="item-value">{item.value}</p>
+            </div>
+            {/* Action Buttons in Two Rows */}
+            <div className="item-actions">
+              <button className="action-button frozen-button">Frozen</button>
+              <button className="action-button archive-button">Archive</button>
+              <button className="action-button publish-button">Publish</button>
+              <button className="action-button edit-button">Edit</button>
+            </div>
+          </div>
+          
+        ))}
       </div>
     </main>
   );

@@ -1,109 +1,145 @@
-import mysql from 'mysql'
+import mysql from 'mysql';
 
+export const handler = async (event) => {
+    const pool = mysql.createPool({
+        host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
+        user: "admin",
+        password: "8NpElCb61lk8lqVRaYAu",
+        database: "auction_house"
+    });
 
-const pool = mysql.createPool({
-    host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
-    user: "admin",
-    password: "8NpElCb61lk8lqVRaYAu",
-    database: "auction_house"
-});
+    const usernameNotFound = {
+        status: 400,
+        message: "username not found"
+    };
 
-const usernameNotFound = {
-    status: 400,
-    message: "username not found"
-};
+    const dbError = {
+        status: 402,
+        message: "DB Error"
+    };
 
-const dbError = {
-    status: 402,
-    message: "DB Error"
-}
+    const accountClosed = {
+        status: 403,
+        message: "Account Closed"
+    };
 
-const wrongPassword = {
-    status: 401,
-    message: "wrong password"
-};
+    const wrongPassword = {
+        status: 401,
+        message: "wrong password"
+    };
 
-const success = {
-    status: 200,
-    message: "Logged in successfully"
-};
+    const notBuyerAccount = {
+        status: 403,
+        message: "Account is not a Buyer"
+    };
 
-export const handler = async (event) =>  {
+    const success = {
+        status: 200,
+        message: "Logged in successfully"
+    };
 
-    let response = {}
-
-    let CheckPassword = (username, password) => {
+    const executeQuery = (query, params) => {
         return new Promise((resolve, reject) => {
-            pool.query("SELECT * FROM auction_house.Accounts WHERE Username=? AND Password=?", [username, password], (error, rows) => {
-                if (error) { 
-                    response = {
-                        error: dbError,
-                        message: "Account Table Problem"
-                    }
-                    reject(error) 
-                }
-                if ((rows) && (rows.length == 1)) {
-                    pool.query("SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?", [rows[0].AccountID], (error, accountDetails) => {
-                        if (error) {
-                            response = {
-                                error: dbError,
-                                message: "Buyer Table Problem"
-                            }
-                            reject(error)
-                        }
-                        console.log("account", accountDetails)
-                        if ((accountDetails) && (accountDetails.length == 1)) {
-                            console.log(accountDetails)
-                            response = {
-                                success: success,
-                                accountID: rows[0].AccountID,
-                                isFrozen: accountDetails[0].isFrozen,
-                                isClosed: accountDetails[0].isClosed,
-                                funds: accountDetails[0].funds
-                                // items: []
-                            }
-
-
-                            pool.query("SELECT * FROM auction_house.Item", (error, items) => {
-                                if (error) {
-                                    response = {
-                                        error: dbError,
-                                        message: "items_missing"
-                                    }
-                                    reject(error)
-                                }
-                                if (items) {
-                                    response.items = items
-                                    resolve("Done")
-                                }
-                            });
-                        }else{
-                            response = {
-                                error: usernameNotFound,
-                                message: "accountDetails:" + accountDetails
-                            }
-                            reject("unable to locate username")
-                        }
-                    });
+            pool.query(query, params, (error, results) => {
+                if (error) {
+                    reject(error);
                 } else {
-                    response = {
-                        error: usernameNotFound
-                    }
-                    reject("unable to locate username '" + username + "'")
+                    resolve(results);
                 }
             });
         });
-    }
+    };
+
+    const getAccountDetails = async (username, password) => {
+        const accountsQuery = "SELECT * FROM auction_house.Accounts WHERE Username=?";
+        const accounts = await executeQuery(accountsQuery, [username]);
+
+        if (accounts.length === 1) {
+            if (accounts[0].Password !== password) {
+                throw wrongPassword;
+            }
+            const accountID = accounts[0].AccountID;
+            if (accounts[0].IsClosed === 1) {
+                throw accountClosed;
+            }
+            return { accountID, username, accountType: accounts[0].AccountType };
+        }
+        throw usernameNotFound;
+    };
+
+    const getBuyerAccountDetails = async (accountID) => {
+        const buyerAccountQuery = "SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?";
+        const buyerAccount = await executeQuery(buyerAccountQuery, [accountID]);
+
+        if (buyerAccount.length === 1) {
+            return buyerAccount[0];
+        }
+        throw usernameNotFound;
+    };
+
+    const getItemsWithBids = async () => {
+        const itemsQuery = "SELECT * FROM auction_house.Item where IsPublished=1";
+        const items = await executeQuery(itemsQuery);
+
+        const itemsWithBids = await Promise.all(items.map(async (item) => {
+            const bidsQuery = "SELECT * FROM auction_house.Bid WHERE ItemID=?";
+            const bids = await executeQuery(bidsQuery, [item.ItemID]);
+
+            return {
+                ItemID: item.ItemID,
+                Name: item.Name,
+                Description: item.Description,
+                Images: item.Images,
+                InitialPrice: item.InitialPrice,
+                StartDate: item.StartDate,
+                Duration: item.Duration,
+                IsPublished: item.IsPublished,
+                IsFrozen: item.IsFrozen,
+                IsArchived: item.IsArchived,
+                IsComplete: item.IsComplete,
+                IsFailed: item.IsFailed,
+                biddingHistory: bids.map(bid => ({
+                    BidID: bid.BidID,
+                    BuyerID: bid.BuyerID,
+                    ItemID: bid.ItemID,
+                    BidAmount: bid.BidAmount
+                }))
+            };
+        }));
+
+        return itemsWithBids;
+    };
 
     try {
-        let username = event.username
-        let password = event.password
-        await CheckPassword(username, password)
-        return response
-    } catch (error) {
-        return response
-    } finally {
-        pool.end()
-    }
+        const username = event.username || "";
+        const password = event.password || "";
 
+        if (!username || !password) {
+            return { status: 400, message: "Username and password required." };
+        }
+
+        const { accountID, accountType } = await getAccountDetails(username, password);
+
+        if (accountType !== "Buyer") {
+            throw notBuyerAccount;
+        }
+
+        const buyerAccountDetails = await getBuyerAccountDetails(accountID);
+        const itemsWithBids = await getItemsWithBids();
+
+        return {
+            status: 200,
+            success: {
+                message: "logged in successfully!",
+                accountID: accountID,
+                username: username,
+                totalFunds: buyerAccountDetails.TotalFunds,
+                availableFunds: buyerAccountDetails.AvailableFunds,
+                items: itemsWithBids
+            }
+        };
+    } catch (error) {
+        console.error("Handler error:", error);
+        return error;
+    }
 };

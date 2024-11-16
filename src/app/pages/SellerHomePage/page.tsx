@@ -82,31 +82,37 @@ export default function SellerPage() {
   };
   const handleViewItem = () => {
     const request = {
-      IsPublished: true,
-      IsComplete: false,
-      IsFrozen: false
+      sellerID: userID
     };
-
-    instance.post('/buyer/viewItem', request)
+  
+    instance.post('/seller/reviewItems', request)
       .then((response) => {
-        const responseItems = response.data.success.items;
-
-        // let parseImages = 
-        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
-        
+        console.log('Full API response:', JSON.stringify(response, null, 2));
+  
+        // Attempt to access `items` in different possible locations based on the actual response structure
+        let responseItems = null;
+        if (response.data && response.data.success && Array.isArray(response.data.success.items)) {
+          responseItems = response.data.success.items;
+        } else if (response.data && Array.isArray(response.data.items)) {
+          responseItems = response.data.items;
+        } else {
+          console.error("Unexpected response format:", response.data);
+          setErrorMessage('Error: Unexpected response format.');
+          return;
+        }
+  
+        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/";
+  
         const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
           id: item.ItemID,
           name: item.Name,
           description: item.Description,
-          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
+          image: base_html + (JSON.parse(item.Images)[0] || 'default_image.jpg'),
           value: `$${item.InitialPrice}`,
-          timeLeft: calculateTimeLeft(item.StartDate), 
-          status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
+          timeLeft: calculateTimeLeft(item.StartDate),
+          status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available',
         }));
-
-        console.log(formattedItems);
-        console.log("respons", JSON.parse(responseItems[0].Images));
-
+  
         setItems(formattedItems);
         setErrorMessage('');
       })
@@ -115,7 +121,7 @@ export default function SellerPage() {
         setErrorMessage('Error retrieving items.');
       });
   };
-
+  
   useEffect(() => {
     handleViewItem();
   }, []);

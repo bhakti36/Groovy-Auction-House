@@ -85,6 +85,7 @@ export default function SellerPage() {
       sellerID: userID
     };
   
+    
     instance.post('/seller/reviewItems', request)
       .then((response) => {
         console.log('Full API response:', JSON.stringify(response, null, 2));

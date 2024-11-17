@@ -56,7 +56,7 @@ export default function SellerPage() {
   const [userNameHome, setUserName] = useState('');
   const [searchQuery, ] = useState('');
   const [sortChoice,] = useState('timeLeft');
-  const [userID, setUserID] = useState(2);
+  const [userID, setUserID] = useState<number | null>(null);
   const handleAddNewItem = () => {
     router.push('/pages/AddItemPage');
   };
@@ -83,12 +83,12 @@ export default function SellerPage() {
   const handleViewItem = () => {
     const request = {
       sellerID: userID
-    };
+    }
   
-    
+
     instance.post('/seller/reviewItems', request)
       .then((response) => {
-        console.log('Full API response:', JSON.stringify(response, null, 2));
+        console.log('Full API response:', JSON.stringify(response));
   
         // Attempt to access `items` in different possible locations based on the actual response structure
         let responseItems = null;
@@ -125,7 +125,7 @@ export default function SellerPage() {
   
   useEffect(() => {
     handleViewItem();
-  }, []);
+  }, [userID]);
   const calculateTimeLeft = (startDate: string) => {
     const now = new Date();
     const start = new Date(startDate);

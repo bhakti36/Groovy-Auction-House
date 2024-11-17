@@ -15,6 +15,10 @@ interface Item {
   value: string;
   timeLeft: string;
   status: string;
+  startDate: string;
+  durationDays: number;
+  durationHours: number;
+  durationMinutes: number;
 }
 
 interface ItemJson { 
@@ -24,9 +28,12 @@ interface ItemJson {
   Images: string;
   InitialPrice: number; 
   StartDate: string; 
+  DurationDays: number;
+  DurationHours: number;
+  DurationMinutes: number;
   IsComplete: boolean; 
   IsFrozen: boolean; 
-  }
+}
 
 export default function SellerPage() {
   let totalFunds = 0;
@@ -80,12 +87,12 @@ export default function SellerPage() {
     alert('Account closed.');
     router.push('/pages/LoginPage');
   };
+
+
   const handleViewItem = () => {
     const request = {
       sellerID: userID
     }
-  
-
     instance.post('/seller/reviewItems', request)
       .then((response) => {
         console.log('Full API response:', JSON.stringify(response));
@@ -110,7 +117,11 @@ export default function SellerPage() {
           description: item.Description,
           image: base_html + (JSON.parse(item.Images)[0] || 'default_image.jpg'),
           value: `$${item.InitialPrice}`,
-          timeLeft: calculateTimeLeft(item.StartDate),
+          timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
+          startDate: item.StartDate,
+          durationDays: item.DurationDays,
+          durationHours: item.DurationHours,
+          durationMinutes: item.DurationMinutes,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available',
         }));
   
@@ -125,20 +136,42 @@ export default function SellerPage() {
   
   useEffect(() => {
     handleViewItem();
+
+    const interval = setInterval(() => {
+      setItems(prevItems => 
+        prevItems.map(item => ({
+          ...item,
+          timeLeft: calculateTimeLeft(item.startDate, item.durationDays, item.durationHours, item.durationMinutes),
+        }))
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [userID]);
-  const calculateTimeLeft = (startDate: string) => {
+
+  const calculateTimeLeft = (startDate: string, durationDays: number, durationHours: number, durationMinutes: number) => {
     const now = new Date();
     const start = new Date(startDate);
+
+    start.setDate(start.getDate() + durationDays);
+    start.setHours(start.getHours() + durationHours);
+    start.setMinutes(start.getMinutes() + durationMinutes);
+
     const diff = start.getTime() - now.getTime();
 
     if (diff <= 0) return 'Ended';
 
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    if (days > 0) return `${days}d ${hours % 24}h`;
-    return `${hours}h ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}m`;
+    if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
   };
+
 
   const filteredItems = items
   .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))

@@ -1,7 +1,6 @@
 import mysql from 'mysql'
 
 export const handler = async (event) =>  {
-
   const pool = mysql.createPool({
     host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
     user: "admin",
@@ -28,7 +27,67 @@ export const handler = async (event) =>  {
         status: 403,
         message: "Insufficient funds"
     }; 
+
+    const notBuyerAccount = {
+        status: 403,
+        message: "Account is not a Buyer"
+    };
+
+    const executeQuery = (query, params) => {
+        return new Promise((resolve, reject) => {
+            pool.query(query, params, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    };
+
+    const getAccountDetails = async (accountID) => {
+        const accountsQuery = "SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?";
+        const accounts = await executeQuery(accountsQuery, [accountID]);
+
+        if (accounts.length === 1) {
+            return accounts[0];
+        } else {
+            throw accountNotFound;
+        }
+    }
+
+    const getBuyerAccountDetails = async (accountID) => {
+        const accountsQuery = "SELECT * FROM auction_house.BuyerAccount WHERE AccountID=?";
+        const buyerAccount = await executeQuery(accountsQuery, [accountID]);
+
+        if (buyerAccount.length === 1) {
+            return buyerAccount[0];
+        } else {
+            throw accountNotFound;
+        }
+    };
     
+    const getItemDetails = async (itemID) => {
+        const itemQuery = "SELECT * FROM auction_house.Item WHERE ItemID=?";
+        const item = await executeQuery(itemQuery, [itemID]);
+
+        if (item.length === 1) {
+            return item[0];
+        } else {
+            throw accountNotFound;
+        }
+    };
+
+    const getBidsOnItem = async (itemID) => {
+        const bidsQuery = "SELECT * FROM auction_house.Bid WHERE ItemID=?";
+        const bids = await executeQuery(bidsQuery, [itemID]);
+
+        if (bids.length > 0) {
+            return bids;
+        } else {
+            return [];
+        }
+    };
 
 
     let response = {}
@@ -116,6 +175,22 @@ export const handler = async (event) =>  {
         let accountID = event.accountID
         let itemID = event.itemID
         let bidAmount = event.bidAmount
+
+        const accountDetails = await getAccountDetails(accountID);
+
+        if (accountDetails.accountType !== 'Buyer') {
+            throw notBuyerAccount
+        }
+
+        const buyerAccountDetails = await getBuyerAccountDetails(accountID);
+        const itemDetails = await getItemDetails(itemID);
+        const bidsOnItem = await getBidsOnItem(itemID);
+
+        if (itemDetails.IsPublished == 0) {
+            throw itemNotFound
+        }
+
+
         await PlaceBid(accountID, itemID, bidAmount)
         return response
     } catch (error) {

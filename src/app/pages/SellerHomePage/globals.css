@@ -78,7 +78,7 @@ body {
   background-color: white;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   position: relative;
   z-index: 0;
 }
@@ -132,7 +132,7 @@ body {
 
 .item-actions {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* grid-template-columns: repeat(2, 1fr); */
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
@@ -176,4 +176,45 @@ body {
 
 .edit-button:hover {
   background-color: #2563eb;
+}
+
+.unpublish-button {
+  background-color: #f59e0b;
+}
+
+.unpublish-button:hover {
+  background-color: #d97706;
+}
+
+.archive-button {
+  background-color: #4461ef;
+}
+
+.archive-button:hover {
+  background-color: #5461ef;
+}
+
+.fulfill-button {
+  background-color: #10b981;
+}
+
+.fulfill-button:hover {
+  background-color: #059669;
+}
+
+.remove-button {
+  background-color: #ef4444;
+}
+
+.remove-button:hover {
+  background-color: #dc2626;
+}
+
+.request-unfreeze-button {
+  background-color: #f59e0b;
+  z-index: 1;
+}
+
+.request-unfreeze-button:hover {
+  background-color: #d97706;
 }

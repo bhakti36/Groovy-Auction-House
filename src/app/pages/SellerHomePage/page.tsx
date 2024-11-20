@@ -114,6 +114,7 @@ export default function SellerPage() {
             durationHours: item.DurationHours,
             durationMinutes: item.DurationMinutes,
             isFrozen: item.IsFrozen,
+            isPublished: item.IsPublished,
             bids: item.bids.map((bid: BidJson) => ({
               id: bid.BidID,
               buyerID: bid.BuyerID,
@@ -136,6 +137,7 @@ export default function SellerPage() {
             durationHours: item.DurationHours,
             durationMinutes: item.DurationMinutes,
             isFrozen: item.IsFrozen,
+            isPublished: item.IsPublished,
             bids: item.bids.map((bid: BidJson) => ({
               id: bid.BidID,
               buyerID: bid.BuyerID,
@@ -173,6 +175,36 @@ export default function SellerPage() {
 
     return () => clearInterval(interval);
   }, [userID]);
+
+  const doAction = (action: string) => {
+    console.log("Action:", action);
+    switch (action) {
+      case "Publish":
+        console.log("Publishing item");
+        break;
+      case "Unpublish":
+        console.log("Unpublishing item");
+        break;
+      case "Edit":
+        console.log("Editing item");
+        break;
+      case "Remove":
+        console.log("Removing item");
+        break;
+      case "Fulfill":
+        console.log("Fulfilling item");
+        break;
+      case "Archive":
+        console.log("Archiving item");
+        break;
+      case "Request Unfreeze":
+        console.log("Requesting unfreeze");
+        break;
+      default:
+        console.log("Invalid action");
+        break;
+    }
+  };
 
   const calculateTimeLeft = (
     startDate: string,
@@ -248,13 +280,13 @@ export default function SellerPage() {
             </div>
             {item.isFrozen ? (
               <div className="overlay">
-                <button className="single-button">Request Unfreeze</button>
               </div>
-            ) : (
+            ) : <div></div>}
               <div className="item-actions">
                 {item.actions.map((action) => (
                   <button
                     key={action}
+                    onClick={() => doAction(action)}
                     className={`action-button ${action
                       .replace(/\s+/g, "-")
                       .toLowerCase()}-button`}
@@ -263,7 +295,7 @@ export default function SellerPage() {
                   </button>
                 ))}
               </div>
-            )}
+            
           </div>
         ))}
       </div>

@@ -38,7 +38,7 @@ export const handler = async (event) => {
     const getItemsAndBidsBySellerID = async (sellerID) => {
         const query = `
             SELECT 
-                i.ItemID, i.Name, i.Description, i.Images, i.InitialPrice, i.StartDate, i.DurationDays, i.DurationHours, i.DurationMinutes, i.IsComplete, i.IsFrozen,
+                i.ItemID, i.Name, i.Description, i.Images, i.InitialPrice, i.StartDate, i.DurationDays, i.DurationHours, i.DurationMinutes, i.IsComplete, i.IsFrozen, i.IsPublished,
                 b.BidID, b.BuyerID, b.BidAmount, b.BidTimeStamp
             FROM 
                 auction_house.Item i
@@ -69,6 +69,7 @@ export const handler = async (event) => {
                     DurationMinutes: row.DurationMinutes,
                     IsComplete: row.IsComplete,
                     IsFrozen: row.IsFrozen,
+                    IsPublished: row.IsPublished,
                     bids: []
                 };
             }

@@ -23,22 +23,28 @@ const FilterBar: React.FC<FilterBarProps> = ({ setFilter }) => {
         All
       </button>{" "}
       <button
-        className={activeFilter === "Available" ? "active" : ""}
-        onClick={() => handleFilterClick("Available")}
+        className={activeFilter === "Active" ? "active" : ""}
+        onClick={() => handleFilterClick("Active")}
       >
-        Available
+        Active
       </button>{" "}
       <button
-        className={activeFilter === "Sold" ? "active" : ""}
-        onClick={() => handleFilterClick("Sold")}
+        className={activeFilter === "Inactive" ? "active" : ""}
+        onClick={() => handleFilterClick("Inactive")}
       >
-        Sold
+        Inactive
       </button>{" "}
       <button
-        className={activeFilter === "Pending" ? "active" : ""}
-        onClick={() => handleFilterClick("Pending")}
+        className={activeFilter === "Completed" ? "active" : ""}
+        onClick={() => handleFilterClick("Completed")}
       >
-        Pending
+        Completed
+      </button>{" "}
+      <button
+        className={activeFilter === "Failed" ? "active" : ""}
+        onClick={() => handleFilterClick("Failed")}
+      >
+        Failed
       </button>{" "}
       <button
         className={activeFilter === "Frozen" ? "active" : ""}

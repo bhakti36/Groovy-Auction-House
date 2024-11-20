@@ -10,6 +10,7 @@ export interface Item {
   durationDays: number;
   durationHours: number;
   durationMinutes: number;
+  isPublished: boolean;
   isFrozen: boolean;
   actions: string[];
   bids: Bid[];
@@ -34,6 +35,7 @@ export interface ItemJson {
   DurationMinutes: number;
   IsComplete: boolean;
   IsFrozen: boolean;
+  IsPublished: boolean;
   bids: BidJson[];
 }
 

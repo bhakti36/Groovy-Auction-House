@@ -6,16 +6,17 @@ export const determineItemStatusAndActions = (item: Item) => {
     endTime.setDate(endTime.getDate() + item.durationDays);
     endTime.setHours(endTime.getHours() + item.durationHours);
     endTime.setMinutes(endTime.getMinutes() + item.durationMinutes);
+    // console.log("end", endTime);
   
     const timeLeft = endTime.getTime() - now.getTime();
-    let status = "Inactive";
+    let status = "";
     let actions: string[] = [];
   
     if (item.isFrozen) {
       status = "Frozen";
       actions = ["Request Unfreeze"];
     } else if (timeLeft > 0) {
-      if (item.status === "Published") {
+      if (item.isPublished) {
         status = "Active";
         actions = item.bids.length > 0 ? [] : ["Unpublish"];
       } else {
@@ -24,13 +25,14 @@ export const determineItemStatusAndActions = (item: Item) => {
       }
     } else {
       if (item.bids.length > 0) {
-        status = "Fulfill";
-        actions = ["Fulfill Item"];
+        status = "Completed";
+        actions = ["Fulfill"];
       } else {
-        status = "Archive";
-        actions = ["Archive Item"];
+        status = "Failed";
+        actions = ["Archive"];
       }
     }
+    console.log("status", status, item.name);
   
     return { status, actions };
   };

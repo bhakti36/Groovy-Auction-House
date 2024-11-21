@@ -124,6 +124,7 @@ export default function SellerPage() {
             durationMinutes: item.DurationMinutes,
             isFrozen: item.IsFrozen,
             isPublished: item.IsPublished,
+            isArchived: item.IsArchived,
             bids: item.bids.map((bid: BidJson) => ({
               id: bid.BidID,
               buyerID: bid.BuyerID,
@@ -147,6 +148,7 @@ export default function SellerPage() {
             durationMinutes: item.DurationMinutes,
             isFrozen: item.IsFrozen,
             isPublished: item.IsPublished,
+            isArchived: item.IsArchived,
             bids: item.bids.map((bid: BidJson) => ({
               id: bid.BidID,
               buyerID: bid.BuyerID,

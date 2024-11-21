@@ -52,26 +52,35 @@ export default function SellerPage() {
   };
 
   const handleCloseAccount = () => {
-    const request = {
-      sellerID: userID,
-    };
-    instance
-      .post("/seller/closeAccount", request)
-      .then((response) => {
-        console.log("Response:", response.data);
-        setErrorMessage("");
-      })
-      .catch((error) => {
-        console.error(
-          "Error response:",
-          error.response ? error.response.data : error.message
-        );
-        setErrorMessage("Error adding item.");
-      });
-    setWalletAmount(0);
-    alert("Account closed.");
-    router.replace("/pages/LoginPage");
-  };
+    const userConfirmed = window.confirm(
+      "Are you sure you want to close your account? This action cannot be undone."
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        sellerID: userID,
+      };
+  
+      instance
+        .post("/seller/closeAccount", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+          setWalletAmount(0);
+          alert("Account closed.");
+          router.replace("/pages/LoginPage");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error closing account.");
+        });
+    } else {
+      alert("Account closure canceled.");
+    }
+  };  
 
   const handleViewItem = () => {
     const request = { sellerID: userID };
@@ -176,8 +185,41 @@ export default function SellerPage() {
     return () => clearInterval(interval);
   }, [userID]);
 
-  const doAction = (action: string) => {
+  const handleEditItem = (itemID: number) => {
+    router.push("/pages/EditItemPage");
+  };
+
+  const handleFullfillItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to Fullfill this item?"
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        ItemID: itemID,
+      };
+  
+      instance
+        .post("/seller/fullfillItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error fullfill item.");
+        });
+    } else {
+      alert("Item Fullfill canceled.");
+    }
+  };
+
+  const doAction = (action: string, itemID: number) => {
     console.log("Action:", action);
+    console.log("ItemID:", itemID);
     switch (action) {
       case "Publish":
         console.log("Publishing item");
@@ -187,12 +229,14 @@ export default function SellerPage() {
         break;
       case "Edit":
         console.log("Editing item");
+        handleEditItem(itemID);
         break;
       case "Remove":
         console.log("Removing item");
         break;
       case "Fulfill":
         console.log("Fulfilling item");
+        handleFullfillItem(itemID);
         break;
       case "Archive":
         console.log("Archiving item");
@@ -286,7 +330,7 @@ export default function SellerPage() {
                 {item.actions.map((action) => (
                   <button
                     key={action}
-                    onClick={() => doAction(action)}
+                    onClick={() => doAction(action, item.id)}
                     className={`action-button ${action
                       .replace(/\s+/g, "-")
                       .toLowerCase()}-button`}

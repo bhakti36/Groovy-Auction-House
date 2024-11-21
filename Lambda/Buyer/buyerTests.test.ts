@@ -24,6 +24,26 @@ test('should return 401 for invalid credentials', async () => {
     // }
 });
 
+test('should be able to add funds to a buyer account', async () => {
+    const response = await axios.post('https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test/buyer/addFunds', {
+        accountID: 7,
+        funds: 200
+    });
+    console.log(response);
+    expect(response.data.status).toBe(200);
+});
+
+test('should be able to bid on an item that is published', async () => {
+    const response = await axios.post('https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test/buyer/placeBid', {
+        accountID: 3,
+        itemID: 11,
+        bidAmount: 150
+    });
+    console.log(response);
+    expect(response.data.status).toBe(200);
+});
+
+
 // describe('buyerViewItems', () => {
 //     it('should return a list of items available for auction', async () => {
 //         const items = await buyerViewItems();

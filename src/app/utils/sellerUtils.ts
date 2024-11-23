@@ -15,7 +15,7 @@ export const determineItemStatusAndActions = (item: Item) => {
     if (item.isFrozen) {
       status = "Frozen";
       actions = ["Request Unfreeze"];
-    } else if (timeLeft > 0) {
+    } else if (timeLeft > 0 || item.startDate === null) {
       if (item.isPublished) {
         status = "Active";
         actions = item.bids.length > 0 ? [] : ["Unpublish"];

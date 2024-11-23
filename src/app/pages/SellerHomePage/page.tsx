@@ -219,12 +219,42 @@ export default function SellerPage() {
     }
   };
 
+  const handlePublishItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to publish this item?"
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        itemID: itemID,
+        sellerID: userID
+      };
+  
+      instance
+        .post("/seller/publishItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error publishing item.");
+        });
+    } else {
+      alert("Item publish canceled.");
+    }
+  };
+
   const doAction = (action: string, itemID: number) => {
     console.log("Action:", action);
     console.log("ItemID:", itemID);
     switch (action) {
       case "Publish":
         console.log("Publishing item");
+        handlePublishItem(itemID);
         break;
       case "Unpublish":
         console.log("Unpublishing item");
@@ -267,6 +297,7 @@ export default function SellerPage() {
 
     const diff = start.getTime() - now.getTime();
 
+    if (startDate === null) return "Not Started";
     if (diff <= 0) return "Ended";
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

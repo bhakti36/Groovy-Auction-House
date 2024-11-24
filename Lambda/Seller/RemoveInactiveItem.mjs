@@ -52,7 +52,7 @@ export const handler = async (event) => {
       }
 
       const item = results[0];
-      if (item.IsPublished || !item.IsArchived) {
+      if (item.IsPublished ) {
         throw itemNotEligible;
       }
       return item; 

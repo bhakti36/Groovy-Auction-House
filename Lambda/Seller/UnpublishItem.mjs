@@ -56,7 +56,7 @@ export const handler = async (event) => {
 
   // Update the item to unpublish it
   const UpdateItemUnpublish = async (itemID) => {
-    const query = "UPDATE auction_house.Item SET IsPublished = false WHERE ItemID = ?";
+    const query = "UPDATE auction_house.Item SET IsPublished = false, StartDate = null WHERE ItemID = ?";
     await executeQuery(query, [itemID]);
 
     const itemDetailsQuery = "SELECT * FROM auction_house.Item WHERE ItemID = ?";

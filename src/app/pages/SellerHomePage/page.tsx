@@ -46,7 +46,6 @@ export default function SellerPage() {
     
   }, [userID]);
 
-  
   const handleAddNewItem = () => {
     router.push("/pages/AddItemPage");
   };
@@ -188,7 +187,7 @@ export default function SellerPage() {
   }, [userID]);
 
   const handleEditItem = (itemID: number) => {
-    router.push("/pages/EditItemPage");
+    router.push(`/pages/EditItemPage?ItemID=${itemID}`);
   };
 
   const handleFullfillItem = (itemID: number) => {
@@ -199,6 +198,7 @@ export default function SellerPage() {
     if (userConfirmed) {
       const request = {
         ItemID: itemID,
+        SellerID: userID
       };
   
       instance
@@ -219,7 +219,36 @@ export default function SellerPage() {
       alert("Item Fullfill canceled.");
     }
   };
-
+  
+  const handleArchiveItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to Archive this item?"
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        ItemID: itemID,
+        SellerID: userID
+      };
+  
+      instance
+        .post("/seller/archiveItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error archive item.");
+        });
+    } else {
+      alert("Item Archive canceled.");
+    }
+  };
+  
   const handlePublishItem = (itemID: number) => {
     const userConfirmed = window.confirm(
       "Are you sure you want to publish this item?"
@@ -326,7 +355,6 @@ export default function SellerPage() {
     }
   };
   
-
   const doAction = (action: string, itemID: number) => {
     console.log("Action:", action);
     console.log("ItemID:", itemID);
@@ -353,6 +381,7 @@ export default function SellerPage() {
         break;
       case "Archive":
         console.log("Archiving item");
+        handleArchiveItem(itemID);
         break;
       case "Request Unfreeze":
         console.log("Requesting unfreeze");

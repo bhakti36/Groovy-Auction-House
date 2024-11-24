@@ -1,13 +1,14 @@
 import mysql from 'mysql';
 
 export const handler = async (event) => {
+
     const pool = mysql.createPool({
         host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
         user: "admin",
         password: "8NpElCb61lk8lqVRaYAu",
         database: "auction_house"
     });
-
+    
     const successResponse = {
         code: 200,
         message: "Buyer account closed successfully"
@@ -34,19 +35,32 @@ export const handler = async (event) => {
                     return reject("No account found with this ID");
                 }
 
-                response = { success: successResponse };
-                resolve();
+                // response = { success: successResponse };
+                // resolve();
             });
+            response = { 
+                success:{
+                status: 200,
+                message: "Buyer account closed successfully"
+               
+                } 
+            };
+                resolve(result);
         });
     };
 
     try {
-        const { buyerID } = event.request;
-        await closeBuyerAccount(buyerID);
-        return response;
+        const buyerID = event.buyerID;
+        if (!buyerID) {
+            throw new Error("buyerID is missing in the event data.");
+        }
+        response = await closeBuyerAccount(buyerID);
     } catch (error) {
+        console.error("Error during account closure:", error); 
         return response;
     } finally {
-        pool.end(); // Optionally close the pool here; can also be handled at application exit
+        pool.end(); 
     }
+    console.log("Final response:", response);
+    return response;
 };

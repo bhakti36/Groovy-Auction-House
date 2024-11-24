@@ -18,99 +18,77 @@ export const handler = async (event) => {
         message: "Failed to search items"
     };
 
-    let response = {};
-
-    const viewItems = (buyerID, isComplete, isActive, isFrozen) => {
+    const viewItems = async (isComplete, isActive, isFrozen) => {
         return new Promise((resolve, reject) => {
-            const query = `
-                SELECT 
-                    i.ItemID AS ItemId,
-                    i.Name,
-                    i.Description,
-                    i.InitialPrice AS initial_price,
-                    i.Images,
-                    i.StartDate,
-                    i.Duration AS endDate,
-                    i.IsPublished,
-                    i.IsFrozen,
-                    i.IsArchived,
-                    i.IsComplete,
-                    i.IsFailed,
-                    b.BidID AS BidId,
-                    b.BuyerID,
-                    b.BidAmount
-                FROM 
-                    Item i
-                LEFT JOIN 
-                    Bid b ON i.ItemID = b.ItemID
-                WHERE 
-                    i.IsComplete = ? 
-                    AND i.IsFrozen = ? 
-                    AND i.IsPublished = ?
-            `;
-
-            // Determine the active status based on isActive (in this case, you might want to adjust as needed)
-            const isPublished = isActive === "true";
-
-            pool.query(query, [isComplete === "true", isFrozen === "false", isPublished], (error, rows) => {
+            pool.query("SELECT * FROM auction_house.Item WHERE IsComplete=? AND IsPublished=? AND IsFrozen=?", [isComplete, isActive, isFrozen], async (error, items) => {
                 if (error) {
-                    response = { error: errorResponse };
-                    return reject(error);
+                    console.error("Items error:", error);
+                    return reject(errorResponse);
                 }
 
-                // Format the items and bidding history
-                const items = rows.reduce((acc, row) => {
-                    const { ItemId, Name, Description, initial_price, Images, StartDate, endDate, IsPublished, IsFrozen, IsArchived, IsComplete, IsFailed, BidId, BuyerID, BidAmount } = row;
+                const itemsWithBids = await Promise.all(items.map(async (item) => {
+                   
+                    const bidsResponse = await new Promise((resolve, reject) => {
+                        pool.query("SELECT * FROM auction_house.Bid WHERE ItemID=?", [item.ItemID], (error, bids) => {
+                            if (error) {
+                                console.error("Bids query error:", error);
+                                return reject(errorResponse);
+                            }
+                           
+                            resolve(bids);
+                        });
+                    });
 
-                    // Check if item already exists in the accumulator
-                    let item = acc.find(i => i.ItemId === ItemId);
+                    return {
+                        ItemID: item.ItemID,
+                        Name: item.Name,
+                        Description: item.Description,
+                        Images: item.Images,
+                        InitialPrice: item.InitialPrice,
+                        StartDate: item.StartDate,
+                        DurationDays: item.DurationDays,
+                        DurationHours: item.DurationHours,
+                        DurationMinutes: item.DurationMinutes,
+                        IsPublished: item.IsPublished,
+                        IsFrozen: item.IsFrozen,
+                        IsArchived: item.IsArchived,
+                        IsComplete: item.IsComplete,
+                        IsFailed: item.IsFailed,
+                        biddingHistory: bidsResponse.map(bid => ({
+                            BidID: bid.BidID,
+                            BuyerID: bid.BuyerID,
+                            ItemID: bid.ItemID,
+                            BidAmount: bid.BidAmount
+                        }))
+                    };
+                }));
 
-                    if (!item) {
-                        item = {
-                            ItemId,
-                            Name,
-                            Description,
-                            initial_price,
-                            Images,
-                            StartDate,
-                            endDate,
-                            IsPublished,
-                            IsFrozen,
-                            IsArchived,
-                            IsComplete,
-                            IsFailed,
-                            biddingHistory: []
-                        };
-                        acc.push(item);
-                    }
-
-                    // Add bid details if available
-                    if (BidId) {
-                        item.biddingHistory.push({ BidId, BuyerId: BuyerID, ItemID: ItemId, BidAmount });
-                    }
-
-                    return acc;
-                }, []);
-
-                response = {
+                resolve({
                     success: {
-                        ...successResponse,
-                        Items: items
+                        code: 200,
+                        message: "View items successfully!",
+                        items: itemsWithBids,
                     }
-                };
-
-                resolve();
+                });
             });
         });
     };
 
     try {
-        const { buyerID, isComplete, isActive, isFrozen } = event.request;
-        await viewItems(buyerID, isComplete, isActive, isFrozen);
+        // const buyerID = event.BuyerID;
+        const isActive = event.IsPublished;
+        const isComplete = event.IsComplete;
+        const isFrozen = event.IsFrozen;
+
+        const response = await viewItems(isComplete, isActive, isFrozen);
         return response;
     } catch (error) {
-        return response;
+        console.error("Error in handler:", error);
+        return errorResponse; // Return error response here
     } finally {
-        pool.end(); // Optionally close the pool here; can also be handled at application exit
+        pool.end(); 
     }
+    //buyer id itemid 
+    //bid and buyer join
 };
+3

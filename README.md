@@ -24,6 +24,20 @@ Yilu Yang
 10. Admin/UnFreezeItem
 
 
+# Next
+1) Seller UseCases
+1. Edit Item - Tr
+2. Publish Item - Yi
+3. Unpublish Item - Yi
+4. Review Items - Ba
+5. Fulfill Item - Tr
+6. Remove Inactive Item - Yi
+7) Buyer UseCases 
+8. View Item - Bh
+9. Place Bid - Ba
+10. Review Active Bids - Bh
+11. Review Purchases - Bh
+
 # Project Setup and Running the Application
 1. To start the application, simply run the following command:
 npm run dev

@@ -5,17 +5,216 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --default-text-color: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --default-text-color: #000000;
   }
 }
 
 body {
-  color: var(--foreground);
+  color: var(--default-text-color);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.wallet-section {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wallet-amount {
+  font-size: 1.125rem;
+}
+
+.add-money-button {
+  background-color: #10b981;
+}
+
+.add-money-button:hover {
+  background-color: #059669;
+}
+
+.close-account-button {
+  background-color: #ef4444;
+}
+
+.close-account-button:hover {
+  background-color: #dc2626;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.item-card {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  position: relative;
+  z-index: 0;
+}
+
+.item-card.frozen {
+  opacity: 0.5; /* Make the card semi-transparent */
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  border-radius: 8px; /* Match the card's border-radius */
+}
+.single-button {
+  background-color: red; /* Customize the button styling as needed */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.item-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.item-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.item-status-value {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.item-actions {
+  display: grid;
+  /* grid-template-columns: repeat(2, 1fr); */
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.action-button {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.frozen-button {
+  background-color: #6b7280;
+}
+
+.frozen-button:hover {
+  background-color: #4b5563;
+}
+
+.archive-button {
+  background-color: #9ca3af;
+}
+
+.archive-button:hover {
+  background-color: #6b7280;
+}
+
+.publish-button {
+  background-color: #10b981;
+}
+
+.publish-button:hover {
+  background-color: #059669;
+}
+
+.edit-button {
+  background-color: #3b82f6;
+}
+
+.edit-button:hover {
+  background-color: #2563eb;
+}
+
+.unpublish-button {
+  background-color: #f59e0b;
+}
+
+.unpublish-button:hover {
+  background-color: #d97706;
+}
+
+.archive-button {
+  background-color: #4461ef;
+}
+
+.archive-button:hover {
+  background-color: #5461ef;
+}
+
+.fulfill-button {
+  background-color: #10b981;
+}
+
+.fulfill-button:hover {
+  background-color: #059669;
+}
+
+.remove-button {
+  background-color: #ef4444;
+}
+
+.remove-button:hover {
+  background-color: #dc2626;
+}
+
+.request-unfreeze-button {
+  background-color: #f59e0b;
+  z-index: 1;
+}
+
+.request-unfreeze-button:hover {
+  background-color: #d97706;
 }

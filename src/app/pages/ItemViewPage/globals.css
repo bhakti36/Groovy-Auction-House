@@ -1,0 +1,51 @@
+/* ItemDetailPage Styles */
+.item-detail-page {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .image-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .image-container img {
+    width: 600px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+  }
+  
+  .arrow.left-arrow {
+    left: 0;
+  }
+  
+  .arrow.right-arrow {
+    right: 0;
+  }
+  
+  .item-info {
+    margin-top: 20px;
+  }
+  
+  .item-info h1 {
+    font-size: 28px;
+    margin: 10px 0;
+  }
+  
+  .item-info p {
+    font-size: 18px;
+    color: #555;
+  }
+  

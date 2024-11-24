@@ -40,7 +40,7 @@ export default function BuyerPage() {
     if (info != null) {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
-      console.log(json);
+      console.log("bhakti  ",json);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -140,6 +140,30 @@ export default function BuyerPage() {
       });
   };
 
+  const handleItemClick = (itemId: number) => {
+    
+    //console.log("------->>>>>", userID);
+
+    const request = {
+      itemId: itemId,
+      buyerId: userID
+    };
+
+    instance.post('/buyer/detailItem', request)
+    .then((response) => {
+      console.log(":", response);
+      console.log("---->>>>---");
+      const itemDetails = response.data.success.ItemDetails;
+    console.log("Retrieved Item Details:", itemDetails);
+    })
+    .catch((error) => {
+      console.error('Error response:', error);
+      setErrorMessage('Error retrieving items.');
+    });
+
+    router.push('/pages/ItemViewPage');
+  };
+
   useEffect(() => {
     handleViewItem();
   }, []);
@@ -230,7 +254,7 @@ export default function BuyerPage() {
 
       <div className="grid-container">
         {filteredItems.map((item) => (
-          <div key={item.id} className="item-card">
+          <div key={item.id} className="item-card" onClick={() => handleItemClick(item.id)}>
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">

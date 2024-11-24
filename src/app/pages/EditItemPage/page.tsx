@@ -1,31 +1,79 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
-const AddItemPage = () => {
+const s3BaseUrl = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/";
+
+const EditItemPage = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [initialPrice, setInitialPrice] = useState('');
-  const [images, setImages] = useState<File[]>([]); 
-  // const [startTime, setStartTime] = useState('');
+  const [images, setImages] = useState<File[]>([]);
   const [durationDays, setDurationDays] = useState('');
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter(); 
-  
-  const handleAddItem = async () => {
-    console.log('handleAddItem called');
+  const [userID, setUserID] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const itemID = searchParams.get("ItemID");
 
-    // Validate that the duration is within acceptable range
+  useEffect(() => {
+    const fetchData = async () => {
+      const info = sessionStorage.getItem("userInfo");
+      if (info) {
+        const json = JSON.parse(info);
+        const accountID = json.success?.accountID; 
+        setUserID(json.success.accountID);  
+ 
+        if (accountID && itemID) {
+          await handleSellerViewItem(accountID, itemID);
+        }
+      }
+    };
+    fetchData();
+  }, [itemID]);
+  
+  const handleSellerViewItem = async (userID: number, itemID: string) => {
+    const request = { SellerID: userID, ItemID: itemID };
+    
+    try {
+      const response = await instance.post("/seller/viewItem", request);
+      const itemDetails = response.data?.success?.itemDetails;
+      if (itemDetails) {
+        setName(itemDetails.itemName || '');
+        setDescription(itemDetails.itemDescription || '');
+        setInitialPrice(itemDetails.initialPrice?.toString() || '');
+        setDurationDays(itemDetails.DurationDays?.toString() || '');
+        setDurationHours(itemDetails.DurationHours?.toString() || '');
+        setDurationMinutes(itemDetails.DurationMinutes?.toString() || '');
+        
+        const parsedImages = itemDetails.images ? JSON.parse(itemDetails.images) : [];
+        setImages(parsedImages); 
+        
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Error retrieving item details.');
+      }
+    } catch (error) {
+      console.error("Error response:", error);
+      setErrorMessage("Error retrieving items.");
+    }
+  };
+  
+  const handleEditItem = async () => {
+    console.log('handleEditItem called');
+    console.log('SellerID: ',userID);
+
     const hours = parseInt(durationHours);
     const minutes = parseInt(durationMinutes);
+    const days = parseInt(durationDays);
 
     if (hours < 0 || hours > 23) {
       setErrorMessage('Please enter a valid hour between 0 and 23.');
@@ -42,7 +90,6 @@ const AddItemPage = () => {
       return;
     }
 
-    // Convert images to Base64 format
     const imagePromises = images.map((image) =>
       new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -66,40 +113,42 @@ const AddItemPage = () => {
       const date = new Date(); 
       const folderName = `${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
 
-      for(let i = 0; i < cleanedBase64Images.length; i++) {
+      for (let i = 0; i < cleanedBase64Images.length; i++) {
         const upload_request = {
           folderName: folderName,
-          fileName:  i + '.png',
-          imageData: cleanedBase64Images[i]
+          fileName: `${i}.png`,
+          imageData: cleanedBase64Images[i] 
+        };
+        
+        files.push(`${folderName}/${i}.png`);
+      
+        try {
+          const response_upload = await instance.post('/seller/uploadImg', upload_request);
+          console.log('Response:', response_upload.data);
+        } catch (error) {
+          console.error('Upload Error:', error);
         }
-        files.push(`${folderName}` + '/'+  i + '.png')
-  
-        const response_upload = await instance.post('/seller/uploadImg', upload_request);
-        console.log('Response:', response_upload.data);
       }
-      // const upload_request = {
-      //   fileName: name + '.png',
-      //   imageData: cleanedBase64Images[0]
-      // }
-
-      // const response_upload = await instance.post('/seller/uploadImg', upload_request);
-      // console.log('Response:', response_upload.data);
+      
+      const imagesString = JSON.stringify(files);
       
       const request = {
-        Name: name,
-        Description: description,
-        Initial_Price: initialPrice,
-        Images: files,
-        // StartDate: startTime,
-        DurationDays: parseInt(durationDays),
-        DurationHours: hours, 
-        DurationMinutes: minutes, 
-        SellerID: 2, 
+        updates: {
+          name: name,
+          description: description,
+          initial_price: initialPrice,
+          images: imagesString, 
+          durationDays: days,
+          durationHours: hours,
+          durationMinutes: minutes,
+        },
+        sellerID: userID,
+        itemID: itemID
       };
 
       console.log('Request payload:', request);
 
-      const response = await instance.post('/seller/additem', request);
+      const response = await instance.post('/seller/editItem', request);
       console.log('Response:', response.data);
 
       setErrorMessage('');
@@ -114,7 +163,7 @@ const AddItemPage = () => {
         err.response ? `Error adding item: ${err.response.data}` : 'Error adding item.'
       );
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false); 
     }
   };
 
@@ -122,10 +171,10 @@ const AddItemPage = () => {
     const files = Array.from(e.target.files || []); 
     setImages(files);
   };
-
+  
   return (
     <div className="add-item-page">
-      <h1>Add Item</h1>
+      <h1>Edit Item</h1>
       <div>
         <input
           type="text"
@@ -149,6 +198,22 @@ const AddItemPage = () => {
           onChange={(e) => setInitialPrice(e.target.value)}
         />
       </div>
+
+      <div className="images-container">
+        {Array.isArray(images) && images.length > 0 ? (
+          images.map((image, index) => (
+            <img 
+              key={index} 
+              src={`${s3BaseUrl}${image}`} 
+              alt={`Item Image ${index + 1}`} 
+              style={{ maxWidth: '200px', marginBottom: '10px' }} 
+            />
+          ))
+        ) : (
+          <p>No images available.</p>
+        )}
+      </div>
+
       <div>
         <input
           type="file"
@@ -157,6 +222,7 @@ const AddItemPage = () => {
         />
         {images.length > 0 && <p>{images.length} image(s) selected</p>}
       </div>
+
       <div className="duration-container">
         <label>Duration (Days):</label>
         <input
@@ -183,7 +249,7 @@ const AddItemPage = () => {
         />
       </div>
       <div>
-        <button onClick={handleAddItem} disabled={isLoading}>
+        <button onClick={handleEditItem} disabled={isLoading}>
           {isLoading ? 'Submitting...' : 'Submit Changes'}
         </button>
       </div>
@@ -192,4 +258,4 @@ const AddItemPage = () => {
   );
 };
 
-export default AddItemPage;
+export default EditItemPage;

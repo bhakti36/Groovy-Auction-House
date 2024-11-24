@@ -52,6 +52,12 @@ const FilterBar: React.FC<FilterBarProps> = ({ setFilter }) => {
       >
         Frozen
       </button>{" "}
+      <button
+        className={activeFilter === "Archived" ? "active" : ""}
+        onClick={() => handleFilterClick("Archived")}
+      >
+        Archived
+      </button>{" "}
     </div>
   );
 };

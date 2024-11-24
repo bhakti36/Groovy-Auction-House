@@ -206,6 +206,7 @@ export default function SellerPage() {
         .then((response) => {
           console.log("Response:", response.data);
           setErrorMessage("");
+          handleViewItem(); // Refresh 
         })
         .catch((error) => {
           console.error(
@@ -218,7 +219,7 @@ export default function SellerPage() {
       alert("Item Fullfill canceled.");
     }
   };
-
+  
   const handleArchiveItem = (itemID: number) => {
     const userConfirmed = window.confirm(
       "Are you sure you want to Archive this item?"
@@ -247,16 +248,124 @@ export default function SellerPage() {
       alert("Item Archive canceled.");
     }
   };
+  
+  const handlePublishItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to publish this item?"
+    );
 
+    if (userConfirmed) {
+      const request = {
+        itemID: itemID,
+        sellerID: userID
+      };
+  
+      instance
+        .post("/seller/publishItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+          alert("Item published successfully.");
+          handleViewItem(); // Refresh 
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error publishing item.");
+        });
+    } else {
+      alert("Item publish canceled.");
+    }
+  };
+
+  const handleUnpublishItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to unpublish this item?"
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        itemID: itemID,
+        sellerID: userID,
+      };
+  
+      instance
+        .post("/seller/unpublishItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+  
+          if (response.data.status !== 200) {
+            setErrorMessage("Error unpublishing item.");
+            return;
+          }
+  
+          alert("Item unpublished successfully.");
+          handleViewItem(); // Refresh 
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error unpublishing item.");
+        });
+    } else {
+      alert("Item unpublish canceled.");
+    }
+  };
+  
+
+  const handleRemoveItem = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to remove this item?"
+    );
+  
+    if (userConfirmed) {
+      const request = {
+        itemID: itemID,
+        sellerID: userID,
+      };
+  
+      instance
+        .post("/seller/removeInactiveItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+  
+          if (response.data.status !== 200) {
+            setErrorMessage("Error removing item.");
+            return;
+          }
+  
+          alert("Item removed successfully.");
+          handleViewItem(); // Refresh 
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error removing item.");
+        });
+    } else {
+      alert("Item removal canceled.");
+    }
+  };
+  
   const doAction = (action: string, itemID: number) => {
     console.log("Action:", action);
     console.log("ItemID:", itemID);
     switch (action) {
       case "Publish":
         console.log("Publishing item");
+        handlePublishItem(itemID);
         break;
       case "Unpublish":
         console.log("Unpublishing item");
+        handleUnpublishItem(itemID);
         break;
       case "Edit":
         console.log("Editing item");
@@ -264,6 +373,7 @@ export default function SellerPage() {
         break;
       case "Remove":
         console.log("Removing item");
+        handleRemoveItem(itemID);
         break;
       case "Fulfill":
         console.log("Fulfilling item");
@@ -297,6 +407,7 @@ export default function SellerPage() {
 
     const diff = start.getTime() - now.getTime();
 
+    if (startDate === null) return "Not Started";
     if (diff <= 0) return "Ended";
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

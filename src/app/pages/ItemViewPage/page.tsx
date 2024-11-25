@@ -11,13 +11,32 @@ const instance = axios.create({
 
 const base_html = 'https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/';
 
-interface BiddingHistory {
+interface Bid {
   BidID: number;
   BuyerID: number;
   BidAmount: number;
 }
 
-interface ItemDetails {
+// interface ItemDetails {
+//   ItemId: number;
+//   Name: string;
+//   Description: string;
+//   Images: string[];
+//   StartDate: string;
+//   DurationDays: number;
+//   DurationHours: number;
+//   DurationMinutes: number;
+//   timeLeft: string;
+//   IsPublished: number;
+//   IsFrozen: number;
+//   IsArchived: number;
+//   IsComplete: number;
+//   MaxBidAmount: number;
+//   IsFailed: number;
+//   biddingHistory: BiddingHistory[];
+// }
+
+export interface Item {
   ItemId: number;
   Name: string;
   Description: string;
@@ -32,43 +51,137 @@ interface ItemDetails {
   IsArchived: number;
   IsComplete: number;
   MaxBidAmount: number;
-  IsFailed: number;
-  biddingHistory: BiddingHistory[];
+ // IsFailed: number;
+  bids: Bid[];
+}
+
+export interface ItemJson {
+  ItemID: number;
+  Name: string;
+  Description: string;
+  Images: string[];
+  InitialPrice: number;
+  StartDate: string;
+  DurationDays: number;
+  DurationHours: number;
+  DurationMinutes: number;
+  IsComplete: number;
+  IsFrozen: number;
+  MaxBidAmount: number;
+  IsPublished: number;
+  IsArchived: number;
+  bids: BidJson[];
+}
+
+export interface BidJson {
+  BidID: number;
+  BuyerID: number;
+  BidAmount: number;
+  BidTimeStamp: string;
 }
 
 export default function ItemViewPage() {
-  const [item, setItem] = useState<ItemDetails | null>(null);
+  const [item, setItem] = useState<Item | null>(null);
+  //const [items, setItems] = useState<Item[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentBid, setCurrentBid] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
   useEffect(() => {
-    const info = sessionStorage.getItem('itemDetails');
-    if (info) {
-      try {
-        const responseData = JSON.parse(info);
-        const itemDetails = responseData.success.itemDetails;
+    // const info = sessionStorage.getItem('itemDetails');
+    // if (info) {
+    //   // try {
+    //   //   const responseData = JSON.parse(info);
+    //   //   const itemDetails = responseData.success.itemDetails;
 
-        const transformedItem: ItemDetails = {
-          ...itemDetails,
-          Images: JSON.parse(itemDetails.Images).map((key: string) => `${base_html}${key}`),
-          timeLeft: calculateTimeLeft(
-            itemDetails.StartDate,
-            itemDetails.DurationDays,
-            itemDetails.DurationHours,
-            itemDetails.DurationMinutes
-          ),
-        };
-        setItem(transformedItem);
-      } catch (error) {
-        console.error('Error parsing item details:', error);
-      }
 
-      const interval = setInterval(() => {
-        setItem((prevItem) => {
-          if (!prevItem) return null;
+
+
+    // }
+
+
+    handleItemDetail();
+  }, []);
+
+  const handleItemDetail = () => {
+
+    const itemId = sessionStorage.getItem('itemId');
+    //console.log("inside item detail api call item---.",itemId)
+    const buyerId = sessionStorage.getItem('buyerId');
+    //console.log("inside item detail api call buyer-->",buyerId)
+
+    const request = {
+      itemId: itemId,
+      buyerId: buyerId
+    };
+
+    instance
+      .post("/buyer/detailItem", request)
+      .then((response) => {
+        console.log("Response:****", response.data.success.itemDetails);
+        if (response.status !== 200) {
+          setErrorMessage("Error retrieving items.");
+          return;
+        }
+        const responseItem: ItemJson =
+        response.data?.success?.itemDetails  || null;
+        console.log("Response Items:--->", responseItem);
+        if (!responseItem) {
+          console.error("No item found in the response.");
+          return;
+        }
+        const base_html =
+          "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/";
+         // const imageUrl = JSON.parse(responseItem.Images)?.[0] || "default_image.jpg";
+
+          const timeLeft = calculateTimeLeft(
+            responseItem.StartDate,
+            responseItem.DurationDays,
+            responseItem.DurationHours,
+            responseItem.DurationMinutes
+          );
+          
+          const formattedItem: Item = {
+            ItemId: responseItem.ItemID, // Matching the interface property
+            Name: responseItem.Name,
+            Description: responseItem.Description,
+            Images: Array.isArray(responseItem.Images)? responseItem.Images : JSON.parse(responseItem.Images).map((key: string) => `${base_html}${key}`),
+            StartDate: responseItem.StartDate,
+            DurationDays: responseItem.DurationDays,
+            DurationHours: responseItem.DurationHours,
+            DurationMinutes: responseItem.DurationMinutes,
+            timeLeft,
+            IsPublished: responseItem.IsPublished,
+            IsFrozen: responseItem.IsFrozen,
+            IsArchived: responseItem.IsArchived,
+            IsComplete: responseItem.IsComplete,
+            MaxBidAmount: responseItem.MaxBidAmount,
+           // IsFailed: responseItem.IsFailed,
+            bids: (responseItem.bids || []).map((bid: any) => ({
+              BidID: bid.BidID,
+              BuyerID: bid.BuyerID,
+              BidAmount: bid.BidAmount,
+              BidTimeStamp: bid.BidTimeStamp,
+            })),
+          };
+          
+          setItem(formattedItem); 
+         
+      })
+      .catch((error) => {
+        console.error("Error response:", error);
+        setErrorMessage("Error retrieving items.");
+      });
+
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setItem((prevItem) => {
+        // Check if prevItem exists (it could be null)
+        if (prevItem) {
           return {
-            ...prevItem,
+            ...prevItem, 
             timeLeft: calculateTimeLeft(
               prevItem.StartDate,
               prevItem.DurationDays,
@@ -76,12 +189,14 @@ export default function ItemViewPage() {
               prevItem.DurationMinutes
             ),
           };
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
+        }
+        return prevItem; 
+      });
+    }, 1000);
+  
+    return () => clearInterval(interval); 
   }, []);
+  
 
   const handlePlaceBid = () => {
     const itemId = sessionStorage.getItem('itemId');
@@ -116,10 +231,10 @@ export default function ItemViewPage() {
     // API call
     instance.post('/buyer/placeBid', request)
       .then((response) => {
-        console.log("test",response.data.message)
+        console.log("test", response.data.message)
         window.alert(response.data.message);
         router.push("/pages/BuyerHomePage");
-        
+
       })
       .catch((error) => {
         console.error('Error response:', error);
@@ -208,7 +323,7 @@ export default function ItemViewPage() {
               Place Bid
             </button>
 
-            <div className="bidding-history">
+            {/* <div className="bidding-history">
               <h2>Bidding History</h2>
               {item.biddingHistory.length > 0 ? (
                 item.biddingHistory.map((bid, index) => (
@@ -219,7 +334,7 @@ export default function ItemViewPage() {
               ) : (
                 <p>No bids yet.</p>
               )}
-            </div>
+            </div> */}
             <p className="item-time">Time Left: {item.timeLeft}</p>
           </div>
         </>

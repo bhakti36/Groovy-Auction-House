@@ -46,7 +46,6 @@ export default function BuyerPage() {
     if (info != null) {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
-      console.log(json);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -151,6 +150,37 @@ export default function BuyerPage() {
         console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
       });
+  };
+
+  const handleItemClick = (itemId: number) => {
+    
+    //console.log("------->>>>>", userID);
+
+    const request = {
+      itemId: itemId,
+      buyerId: userID
+    };
+
+    sessionStorage.setItem('itemId', JSON.stringify(itemId));
+    sessionStorage.setItem('buyerId', JSON.stringify(userID));
+    
+   // console.log(":", request);
+    instance.post('/buyer/detailItem', request)
+    .then((response) => {
+      console.log(":", response);
+      console.log("---->>>>---");
+      const itemDetails = response.data.success.itemDetails;
+    
+    console.log("Retrieved Item Details:", itemDetails);
+
+    sessionStorage.setItem('itemDetails', JSON.stringify(response.data));
+    })
+    .catch((error) => {
+      console.error('Error response:', error);
+      setErrorMessage('Error retrieving items.');
+    });
+
+    router.push('/pages/ItemViewPage');
   };
 
   useEffect(() => {
@@ -263,7 +293,7 @@ export default function BuyerPage() {
 
       <div className="grid-container">
         {filteredItems.map((item) => (
-          <div key={item.id} className="item-card">
+          <div key={item.id} className="item-card" onClick={() => handleItemClick(item.id)}>
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">

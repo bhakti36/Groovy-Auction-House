@@ -17,132 +17,148 @@ export const handler = async (event) => {
         code: 400,
         message: "Failed to retrieve item details"
     };
+    const dbError = {
+        status: 402,
+        message: "DB Error"
+    };
+    const itemNotFound = {
+        status: 404,
+        message: "Item not found"
+    };
+
+    const itemFrozen = {
+        status: 405,
+        message: "Item is frozen"
+    };
+
+    const itemComplete = {
+        status: 406,
+        message: "Item is complete"
+    };
+
+    const itemArchived = {
+        status: 407,
+        message: "Item is archived"
+    };
 
     let response = {};
 
-    // Function to fetch item details and bidding history
-    const getItemDetails = (itemId, buyerId) => {
+    const executeQuery = (query, params) => {
         return new Promise((resolve, reject) => {
-            const query = `
-            SELECT 
-                i.ItemId,
-                i.Name,
-                i.Description,
-                i.Images,
-                i.InitialPrice,
-                i.StartDate,
-                i.DurationDays,
-                i.DurationHours,
-                i.DurationMinutes,
-                i.IsPublished,
-                i.IsFrozen,
-                i.IsArchived,
-                i.IsComplete,
-                i.IsFailed,
-                b.BidID,
-                b.BuyerID,
-                b.BidAmount
-            FROM 
-                Item i
-            LEFT JOIN 
-                Bid b ON i.ItemID = b.ItemID
-            WHERE 
-                i.ItemID = ? AND 
-                (b.BuyerID = ?)
-        `;
-            pool.query(query, [itemId, buyerId], (error, rows) => {
-                
+            pool.query(query, params, (error, results) => {
                 if (error) {
-                    console.error("Database error:", error);
-                    return reject(errorResponse);
+                    reject(error);
+                } else {
+                    resolve(results);
                 }
-
-                // Format the item details and bidding history
-                let itemDetails = null;
-
-                if (rows.length > 0) {
-                   //console.log("bhaks-->",rows)
-                    const { ItemId, Name, Description, initial_price, Images, StartDate, DurationDays,DurationHours,DurationMinutes, IsPublished, IsFrozen, IsArchived, IsComplete, IsFailed } = rows[0];
-
-                    itemDetails = {
-                        ItemId,
-                        Name,
-                        Description,
-                        initial_price,
-                        Images,
-                        StartDate,
-                        DurationDays,
-                        DurationHours,
-                        DurationMinutes,
-                        IsPublished,
-                        IsFrozen,
-                        IsArchived,
-                        IsComplete,
-                        IsFailed,
-                        biddingHistory: []
-                    };
-
-
-                    rows.forEach(row => {
-                        const { BidID, BuyerID, BidAmount } = row;
-                        // console.log("BidId",BidID);
-                        // console.log("BuyerID",BuyerID);
-                        // console.log("BidAmount",BidAmount);
-                       // console.log("row bhakti-->",row);
-                        if (BidID) {
-                           // console.log("yee");
-                          
-                            itemDetails.biddingHistory.push({ BidID, BuyerID, BidAmount });
-                            //console.log("itemDetails",itemDetails);
-                        }
-                    });
-                }
-                
-                resolve({
-                    success: {
-                        ...successResponse,
-                        ItemDetails: itemDetails || {}
-                    }
-                });
             });
         });
-        
     };
-    let item;
-    try {
-        const { itemId, buyerId } = event; // Extract itemId and buyerId from event request
-       
-        try {
-            response = await getItemDetails(itemId, buyerId);
-            //console.log("item-->",item);
-            return response;
-          } catch (fetchError) {
-            console.error("Error fetching item:", fetchError);
-            return { error: fetchError };
-          }
-        //   response = {
-        //     success: {
-        //         code: 200,
-        //         message: "Item Detail view successfully",
-        //         itemDetails: {
-        //             ItemId: item.ItemId,
-        //             Name: item.Name,
-        //             Description: item.Description,
-        //             initial_price: item.initial_price,
-        //             Images: item.Images,
-        //             StartDate: item.StartDate,
-        //             DurationDays: item.DurationDays,
-        //             DurationHours: item.DurationHours,
-        //             DurationMinutes: item.DurationMinutes,
-        //             IsFrozen: item.IsFrozen,
-        //             IsArchived: item.IsArchived,
-        //             IsComplete: item.IsComplete,
-        //             IsFailed: item.IsFailed,
-        //             biddingHistory:item.biddingHistory
-        //         }
-        //       }
-        //   };
+
+    // Function to fetch item details
+    const getItemDetails = async (itemId) => { 
+        const query = `
+            SELECT ItemId, Name, Description, Images, InitialPrice, StartDate, DurationDays, DurationHours, DurationMinutes, IsPublished, IsFrozen, IsArchived, IsComplete, IsFailed
+            FROM Item WHERE ItemID = ?
+        `;
+        const items = await executeQuery(query, [itemId]);
+        if (items && items.length > 0) {
+            return items[0]; 
+        } else {
+            throw itemNotFound;
+        }
+    };
+
+    const getBidDetails = async (itemId, buyerId) => {
+        const bidsQuery = `
+        WITH RankedBids AS (
+            SELECT
+                b.BidID,
+                CASE
+                    WHEN b.BuyerID = ? THEN b.BuyerID
+                    ELSE -1
+                END AS BuyerID,
+                b.ItemID,
+                b.BidAmount,
+                b.BidTimeStamp,
+                ROW_NUMBER() OVER (
+                    PARTITION BY b.BuyerID 
+                    ORDER BY b.BidAmount DESC, b.BidTimeStamp DESC
+                ) AS RowNum
+            FROM Bid b
+            WHERE b.ItemID = ?
+        )
+        SELECT
+            BidID,
+            BuyerID,
+            BidAmount,
+            BidTimeStamp
+        FROM RankedBids
+        WHERE RowNum = 1
+        ORDER BY BuyerID;
         
+        `;
+        const bids = await executeQuery(bidsQuery, [buyerId, itemId]);
+    
+        if (bids && bids.length > 0) {
+            return bids;
+        } else {
+            throw itemNotFound;
+        }
+    };
+
+    const getMaxBid = async (itemId) => {
+        const maxBidQuery = `
+            SELECT MAX(BidAmount) AS MaxBidAmount
+            FROM Bid
+            WHERE ItemID = ?
+        `;
+        const maxBidResult = await executeQuery(maxBidQuery, [itemId]);
+        return maxBidResult[0]?.MaxBidAmount || 0; 
+    };
+
+    try {
+        const { itemId,buyerId } = event; // Extract itemId from event request
+        const item = await getItemDetails(itemId);
+        const bids = await getBidDetails(itemId);
+        const maxBid = await getMaxBid(itemId);
+
+        // Checks for flags
+        if (item.IsPublished === 0) {
+            throw itemNotFound;
+        } else if (item.IsFrozen === 1) {
+            throw itemFrozen;
+        } else if (item.IsComplete === 1) {
+            throw itemComplete;
+        } else if (item.IsArchived === 1) {
+            throw itemArchived;
+        }
+
+        response = {
+            success: {
+                code: 200,
+                message: "Item Detail view successfully",
+                itemDetails: {
+                    ItemId: item.ItemId,
+                    Name: item.Name,
+                    Description: item.Description,
+                    InitialPrice: item.InitialPrice,
+                    Images: item.Images,
+                    StartDate: item.StartDate,
+                    DurationDays: item.DurationDays,
+                    DurationHours: item.DurationHours,
+                    DurationMinutes: item.DurationMinutes,
+                    IsFrozen: item.IsFrozen,
+                    IsArchived: item.IsArchived,
+                    IsComplete: item.IsComplete,
+                    IsFailed: item.IsFailed,
+                    MaxBidAmount: maxBid,
+                    biddingHistory: bids 
+                }
+            }
+        };
+        return response;
+
     } catch (error) {
         return {
             statusCode: 500,

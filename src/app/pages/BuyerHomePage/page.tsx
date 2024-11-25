@@ -160,12 +160,16 @@ export default function BuyerPage() {
       itemId: itemId,
       buyerId: userID
     };
-    console.log(":", request);
+
+    sessionStorage.setItem('itemId', JSON.stringify(itemId));
+    sessionStorage.setItem('buyerId', JSON.stringify(userID));
+    
+   // console.log(":", request);
     instance.post('/buyer/detailItem', request)
     .then((response) => {
       console.log(":", response);
       console.log("---->>>>---");
-      const itemDetails = response.data.success.ItemDetails;
+      const itemDetails = response.data.success.itemDetails;
     
     console.log("Retrieved Item Details:", itemDetails);
 

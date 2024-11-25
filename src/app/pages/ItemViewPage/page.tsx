@@ -1,16 +1,15 @@
-
 'use client';
 
-import React, { useEffect,useState } from "react";
-import "./globals.css";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import './globals.css';
 import axios from 'axios';
-
-
 
 const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
-const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
+
+const base_html = 'https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/';
 
 interface BiddingHistory {
   BidID: number;
@@ -27,110 +26,129 @@ interface ItemDetails {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  timeLeft: string;
   IsPublished: number;
   IsFrozen: number;
   IsArchived: number;
   IsComplete: number;
+  MaxBidAmount: number;
   IsFailed: number;
   biddingHistory: BiddingHistory[];
 }
 
-interface Item {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  value: string;
-  timeLeft: string;
-  status: string;
-  startDate: string;
-  durationDays: number;
-  durationHours: number;
-  durationMinutes: number;
-}
-interface ItemJson { 
-  ItemID: number; 
-  Name: string; 
-  Description: string; 
-  Images: string;
-  InitialPrice: number; 
-  StartDate: string; 
-  DurationDays: number;
-  DurationHours: number;
-  DurationMinutes: number;
-  IsComplete: boolean; 
-  IsFrozen: boolean; 
-}
-
 export default function ItemViewPage() {
   const [item, setItem] = useState<ItemDetails | null>(null);
-  const [items, setItems] = useState<Item[]>([]); 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  let info = "";
-  // const item = {
-  //   name: "Antique Vase",
-  //   description: "A rare antique vase from the 18th century.",
-  //   images: [
-  //     "https://via.placeholder.com/600x400?text=Image+1",
-  //     "https://via.placeholder.com/600x400?text=Image+2",
-  //     "https://via.placeholder.com/600x400?text=Image+3",
-  //   ],
-    
-  // };
-
- 
+  const [currentBid, setCurrentBid] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const router = useRouter();
   useEffect(() => {
-    info = sessionStorage.getItem('itemDetails')!;
+    const info = sessionStorage.getItem('itemDetails');
     if (info) {
       try {
         const responseData = JSON.parse(info);
+        const itemDetails = responseData.success.itemDetails;
 
-        // Extracting item details from the response
-        const itemDetails = responseData.success.ItemDetails;
         const transformedItem: ItemDetails = {
           ...itemDetails,
-          Images: JSON.parse(itemDetails.Images).map((key: string) => `${base_html}${key}`), 
+          Images: JSON.parse(itemDetails.Images).map((key: string) => `${base_html}${key}`),
+          timeLeft: calculateTimeLeft(
+            itemDetails.StartDate,
+            itemDetails.DurationDays,
+            itemDetails.DurationHours,
+            itemDetails.DurationMinutes
+          ),
         };
-
         setItem(transformedItem);
-        // console.log("Transformed Item Details:-----", transformedItem);
-
-        const formattedItems: Item[] = itemDetails.map((item: ItemJson) => ({
-          id: item.ItemID,
-          name: item.Name,
-          description: item.Description,
-          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
-          value: `$${item.InitialPrice}`,
-          timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
-          startDate: item.StartDate,
-          durationDays: item.DurationDays,
-          durationHours: item.DurationHours,
-          durationMinutes: item.DurationMinutes,
-          // status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
-        }));
-
-        setItems(formattedItems);
-
-        //time left div
-        const interval = setInterval(() => {
-          setItems(prevItems => 
-            prevItems.map(item => ({
-              ...item,
-              timeLeft: calculateTimeLeft(item.startDate, item.durationDays, item.durationHours, item.durationMinutes),
-            }))
-          );
-        }, 1000);
-        console.log("interval-->",interval);
-
-        //
       } catch (error) {
-        console.error("Error parsing item details:-----", error);
+        console.error('Error parsing item details:', error);
       }
+
+      const interval = setInterval(() => {
+        setItem((prevItem) => {
+          if (!prevItem) return null;
+          return {
+            ...prevItem,
+            timeLeft: calculateTimeLeft(
+              prevItem.StartDate,
+              prevItem.DurationDays,
+              prevItem.DurationHours,
+              prevItem.DurationMinutes
+            ),
+          };
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
     }
   }, []);
 
- 
-  const calculateTimeLeft = (startDate: string, durationDays: number, durationHours: number, durationMinutes: number) => {
+  const handlePlaceBid = () => {
+    const itemId = sessionStorage.getItem('itemId');
+    const buyerId = sessionStorage.getItem('buyerId');
+
+    if (!item || !itemId || !buyerId) {
+      setErrorMessage('Missing item or buyer details. Please refresh the page and try again.');
+      return;
+    }
+
+    if (!currentBid || isNaN(Number(currentBid))) {
+      setErrorMessage('Please enter a valid bid amount.');
+      return;
+    }
+
+    const bidAmount = Number(currentBid);
+
+    if (bidAmount <= item.MaxBidAmount) {
+      setErrorMessage(`Your bid must be greater than the current max bid of $${item.MaxBidAmount}.`);
+      return;
+    }
+
+    setErrorMessage('');
+
+    const request = {
+      itemID: itemId,
+      accountID: buyerId,
+      bidAmount,
+    };
+
+    // console.log('Request for placing bid:', request);
+    // API call
+    instance.post('/buyer/placeBid', request)
+      .then((response) => {
+        console.log("test",response.data.message)
+        window.alert(response.data.message);
+        router.push("/pages/BuyerHomePage");
+        
+      })
+      .catch((error) => {
+        console.error('Error response:', error);
+        setErrorMessage('Error retrieving items.');
+      });
+  };
+
+  const handlePrevImage = () => {
+    if (item) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? item.Images.length - 1 : prevIndex - 1
+      );
+    }
+  };
+
+  const handleNextImage = () => {
+    if (item) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === item.Images.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
+  const calculateTimeLeft = (
+    startDate: string,
+    durationDays: number,
+    durationHours: number,
+    durationMinutes: number
+  ) => {
     const now = new Date();
     const start = new Date(startDate);
 
@@ -153,66 +171,56 @@ export default function ItemViewPage() {
     return `${seconds}s`;
   };
 
-  const handlePlaceBid = (itemId: number) => {
-    console.log("Placing a bid for item:", itemId);
-  
-  };
-  
-
-
-  // // Handle image navigation
-  // const handlePrevImage = () => {
-  //   setCurrentImageIndex((prevIndex) =>
-  //     prevIndex === 0 ? item.images.length - 1 : prevIndex - 1
-  //   );
-  // };
-
-  // const handleNextImage = () => {
-  //   setCurrentImageIndex((prevIndex) =>
-  //     prevIndex === item.images.length - 1 ? 0 : prevIndex + 1
-  //   );
-  // };
-
   return (
     <div className="item-detail-page">
       {item ? (
         <>
-          {/* Image Viewer */}
           <div className="image-container">
+            <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
+              &#8249;
+            </button>
             <img
-              src={item.Images[0]} 
+              src={item.Images[currentImageIndex]}
+              alt={`Item image ${currentImageIndex + 1}`}
               className="item-image"
             />
+            <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
+              &#8250;
+            </button>
           </div>
 
-          {/* Item Details */}
           <div className="item-info">
             <h1>{item.Name}</h1>
             <p>{item.Description}</p>
-            <div className="item-status-value">
-              <p className="item-time">Time Left</p>
-              <p className="item-time">checkingg</p>
+            <div className="bid-entry">
+              <label htmlFor="currentBid">Enter Your Bid:</label>
+              <input
+                type="number"
+                id="currentBid"
+                placeholder="Enter your bid"
+                min={item.MaxBidAmount + 1}
+                value={currentBid}
+                onChange={(e) => setCurrentBid(e.target.value)}
+              />
             </div>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            <button className="place-bid-button" onClick={handlePlaceBid}>
+              Place Bid
+            </button>
 
-            {/* Place Bid Button */}
-        <button
-          className="place-bid-button"
-          onClick={() => handlePlaceBid(item.ItemId)}
-        >
-          Place Bid
-        </button>
-          </div>
-
-          {/* Bidding History */}
-          <div className="bidding-history">
-            <h2>Bidding History</h2>
-            {item.biddingHistory.map((bid, index) => (
-              <div key={index}>
-                <p>Bid ID: {bid.BidID}</p>
-                <p>Buyer ID: {bid.BuyerID}</p>
-                <p>Bid Amount: ${bid.BidAmount}</p>
-              </div>
-            ))}
+            <div className="bidding-history">
+              <h2>Bidding History</h2>
+              {item.biddingHistory.length > 0 ? (
+                item.biddingHistory.map((bid, index) => (
+                  <div key={index} className="bid-entry">
+                    <p>Bid Amount: ${bid.BidAmount}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No bids yet.</p>
+              )}
+            </div>
+            <p className="item-time">Time Left: {item.timeLeft}</p>
           </div>
         </>
       ) : (
@@ -220,9 +228,4 @@ export default function ItemViewPage() {
       )}
     </div>
   );
-
 }
-
-
-
-

@@ -46,7 +46,6 @@ export default function BuyerPage() {
     if (info != null) {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
-      console.log("bhakti  ",json);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
     }
@@ -161,13 +160,16 @@ export default function BuyerPage() {
       itemId: itemId,
       buyerId: userID
     };
-
+    console.log(":", request);
     instance.post('/buyer/detailItem', request)
     .then((response) => {
       console.log(":", response);
       console.log("---->>>>---");
       const itemDetails = response.data.success.ItemDetails;
+    
     console.log("Retrieved Item Details:", itemDetails);
+
+    sessionStorage.setItem('itemDetails', JSON.stringify(response.data));
     })
     .catch((error) => {
       console.error('Error response:', error);

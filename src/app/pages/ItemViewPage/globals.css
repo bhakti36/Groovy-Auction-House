@@ -49,3 +49,24 @@
     color: #555;
   }
   
+  .item-image {
+    width: 400px;
+    height: 300px;
+    object-fit: cover; /* Ensures proper scaling */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+  }
+  .place-bid-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .place-bid-button:hover {
+    background-color: #0056b3;
+  }
+  

@@ -98,12 +98,16 @@ export const handler = async (event) => {
         ORDER BY BuyerID;
         
         `;
-        const bids = await executeQuery(bidsQuery, [buyerId, itemId]);
+       
     
-        if (bids && bids.length > 0) {
-            return bids;
-        } else {
-            throw itemNotFound;
+        try {
+            const bids = await executeQuery(bidsQuery, [buyerId, itemId]);
+            
+            return bids && bids.length > 0 ? bids : [];
+        } catch (error) {
+            console.error("Error fetching bids:", error);
+           
+            return [];
         }
     };
 

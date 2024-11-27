@@ -43,12 +43,15 @@ export default function BuyerPage() {
 
   useEffect(() => {
     info = sessionStorage.getItem('userInfo')!;
+    let userName = "";
     if (info != null) {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
       console.log(json);
       totalFunds = parseInt(json.success.totalFunds);
       setWalletAmount(totalFunds);
+      userName = json.success.username;
+      setUserName(userName);
     }
   }, []);
 
@@ -61,6 +64,7 @@ export default function BuyerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice,] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]); 
+  const [userName, setUserName] = useState('');
   
   const handleCloseAccount = () => {
     const isConfirmed = window.confirm("Are you sure you want to close account?");
@@ -119,14 +123,14 @@ export default function BuyerPage() {
 
   const handleViewItem = () => {
     const request = {
-      IsPublished: true,
-      IsComplete: false,
-      IsFrozen: false
+      buyerID: userID,
     };
 
     instance.post('/buyer/viewItem', request)
       .then((response) => {
-        const responseItems = response.data.success.items;
+        console.log('Response:', response);
+        setWalletAmount(response.data.totalFunds);
+        const responseItems = response.data.items;
 
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
         
@@ -156,6 +160,7 @@ export default function BuyerPage() {
   const handleItemClick = (itemId: number) => {
     sessionStorage.setItem('itemId', JSON.stringify(itemId));
     sessionStorage.setItem('buyerId', JSON.stringify(userID));
+    sessionStorage.setItem('username', JSON.stringify(userName));
     router.push('/pages/ItemViewPage');
   };
 

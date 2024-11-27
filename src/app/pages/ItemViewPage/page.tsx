@@ -71,6 +71,7 @@ export default function ItemViewPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentBid, setCurrentBid] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [userName, setUserName] = useState('');
   const router = useRouter();
   useEffect(() => {
     
@@ -82,12 +83,15 @@ export default function ItemViewPage() {
     const itemId = sessionStorage.getItem('itemId');
     //console.log("inside item detail api call item---.",itemId)
     const buyerId = sessionStorage.getItem('buyerId');
+    setUserName(sessionStorage.getItem('userName') || '')
     //console.log("inside item detail api call buyer-->",buyerId)
 
     const request = {
       itemId: itemId,
       buyerId: buyerId
     };
+
+    console.log("Request for item detail:", request);
 
     instance
       .post("/buyer/detailItem", request)
@@ -315,18 +319,18 @@ export default function ItemViewPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Bid ID</th>
+                      <th>Bid TimeStamp</th>
                       <th>Buyer ID</th>
                       <th>Bid Amount</th>
-                      <th>Timestamp</th>
                     </tr>
                   </thead>
                   <tbody>
                     {item.bids.map((bid) => (
                       <tr key={bid.BidID}>
-                       
-                        <td>{bid.BuyerID}</td>
-                        <td>${bid.BidAmount}</td>
+                        <td>{bid.BidTimeStamp}</td>
+                        <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
+                        <td>{bid.BidAmount}</td>
+                        {/* <td>{bid.BuyerID}</td> */}
 
                       </tr>
                     ))}

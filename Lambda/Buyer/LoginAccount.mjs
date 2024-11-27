@@ -141,5 +141,7 @@ export const handler = async (event) => {
     } catch (error) {
         console.error("Handler error:", error);
         return error;
+    } finally {
+        pool.end();
     }
 };

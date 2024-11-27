@@ -45,25 +45,10 @@ interface ItemJson {
 
 export default function BuyerPage() {
   const router = useRouter();
-  let totalFunds = 0;
   let info = "";
   // const [filter, setFilter] = useState<string>("All");
 
-  useEffect(() => {
-    info = sessionStorage.getItem('userInfo')!;
-    let userName = "";
-    if (info != null) {
-      const json = JSON.parse(info);
-      setUserID(json.success.accountID);
-      console.log(json);
-      // totalFunds = parseInt(json.success.totalFunds);
-      // setWalletAmount(totalFunds);
-      userName = json.success.username;
-      setUserName(userName);
-    }
-  }, []);
-
-  const [walletAmount, setWalletAmount] = useState(totalFunds);
+  const [walletAmount, setWalletAmount] = useState(0);
   const [showAddMoneyDialog, setShowAddMoneyDialog] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
   const [, setErrorMessage] = useState('');
@@ -78,6 +63,23 @@ export default function BuyerPage() {
   const [activeButton, setActiveButton] = useState<string | null>("all");
   const [loading, setLoading] = useState(false);
  
+  useEffect(() => {
+    info = sessionStorage.getItem('userInfo')!;
+    let userName = "";
+    if (info != null) {
+      const json = JSON.parse(info);
+      setUserID(json.success.accountID);
+      console.log("test", json);
+      console.log("test", json.success.accountID);
+      console.log("test", userID);
+      console.log(json);
+      // totalFunds = parseInt(json.success.totalFunds);
+      // setWalletAmount(totalFunds);
+      userName = json.success.username;
+      setUserName(userName);
+    }
+  }, [userID]);
+
 
   const handleCloseAccount = () => {
     const isConfirmed = window.confirm("Are you sure you want to close account?");
@@ -162,7 +164,7 @@ export default function BuyerPage() {
     const request = {
       buyerID: userID,
     };
-
+    console.log('request:', request);
     setTimeout(() => {
 
       instance.post('/buyer/viewItem', request)
@@ -317,7 +319,7 @@ export default function BuyerPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userID]);
 
   const calculateTimeLeft = (startDate: string, durationDays: number, durationHours: number, durationMinutes: number) => {
     const now = new Date();

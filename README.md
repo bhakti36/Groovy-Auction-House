@@ -30,14 +30,14 @@ Yilu Yang
 2. Publish Item - Yi
 3. Unpublish Item - Yi
 4. Review Items - Ba
-5. Fulfill Item - Tr --check
+5. Fulfill Item - Tr 
 6. Remove Inactive Item - Yi
 7. Archive Item
-2) Buyer UseCases 
-8. View Item - Bh
-9. Place Bid - Ba
-10. Review Active Bids - Bh
-11. Review Purchases - Bh
+8) Buyer UseCases 
+9. View Item - Bh
+10. Place Bid - Ba
+11. Review Active Bids - Bh
+12. Review Purchases - Bh
 
 # Project Setup and Running the Application
 1. To start the application, simply run the following command:
@@ -59,5 +59,3 @@ UserID: Admin Password: Admin123
 # Improvements:
     AWS Screen Refresh Issue
     Avoid clicking the refresh button and using browser back button, as this may cause display disturbances or unexpected behavior.
-
-    In the Seller → Add Item use case, while images are successfully uploaded to the S3 bucket, there currently isn't a way to view them within the application. As the Items when Added are not published, they cannot be viewed in the buyer home page. Currently while testing them, they are set as published as default so the added items are visible in the buyer account home page

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import FilterBar from "@/app/component/FilterBar";
 import { determineItemStatusAndActions } from "@/app/utils/sellerUtils";
-import { Item, ItemJson, Bid, BidJson } from "@/app/models/item";
+import { Item, ItemJson, BidJson } from "@/app/models/item";
 import axios from "axios";
 import "@/app/component/FilterBar.css";
 
@@ -12,14 +12,14 @@ const instance = axios.create({
 });
 
 export default function SellerPage() {
-  let totalFunds = 0;
+  // let totalFunds = 0;
   const [walletAmount, setWalletAmount] = useState(0);
   // const [showNewItemDialog, setShowNewItemDialog] = useState(false);
   // const [newItemName, setNewItemName] = useState('');
   const router = useRouter();
   const [, setErrorMessage] = useState("");
   const [userNameHome, setUserName] = useState("");
-  const [searchQuery] = useState("");
+  // const [] = useState("");
   const [sortChoice] = useState("timeLeft");
   const [userID, setUserID] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>("All");

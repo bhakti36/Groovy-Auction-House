@@ -42,26 +42,12 @@ interface ItemJson {
   PurchasePrice: number;
 }
 
-interface PurchaseItemJson {
-  PurchaseID: number;
-  ItemID: number;
-  Name: string;
-  Description: string;
-  Images: string;
-  PurchasePrice: number;
-  StartDate: string;
-  DurationDays: number;
-  DurationHours: number;
-  DurationMinutes: number;
-  IsComplete: boolean;
-  IsFrozen: boolean;
-}
 
 export default function BuyerPage() {
   const router = useRouter();
   let totalFunds = 0;
   let info = "";
-  const [filter, setFilter] = useState<string>("All");
+  // const [filter, setFilter] = useState<string>("All");
 
   useEffect(() => {
     info = sessionStorage.getItem('userInfo')!;
@@ -70,8 +56,8 @@ export default function BuyerPage() {
       const json = JSON.parse(info);
       setUserID(json.success.accountID);
       console.log(json);
-      totalFunds = parseInt(json.success.totalFunds);
-      setWalletAmount(totalFunds);
+      // totalFunds = parseInt(json.success.totalFunds);
+      // setWalletAmount(totalFunds);
       userName = json.success.username;
       setUserName(userName);
     }
@@ -157,7 +143,7 @@ export default function BuyerPage() {
         };
 
         instance.post(method, request).then((response) => {
-          //console.log('Response:', response);
+          console.log('Response:', response);
           setWalletAmount(walletAmount + amount);
         }).catch((error) => {
           console.log(error);

@@ -88,6 +88,7 @@ export default function BuyerPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [userName, setUserName] = useState('');
   const [reviewPurchaseFlag, setreviewPurchaseFlag] = useState(false);
+  const [allMaxBidFlag, setallMaxBidFlag] = useState(false);
   const [activeButton, setActiveButton] = useState<string | null>("all");
   const [loading, setLoading] = useState(false);
  
@@ -170,6 +171,7 @@ export default function BuyerPage() {
 
   const handleViewItem = () => {
     setreviewPurchaseFlag(true);
+    setallMaxBidFlag(false);
     setLoading(true);
     const request = {
       buyerID: userID,
@@ -217,6 +219,7 @@ export default function BuyerPage() {
 
   const handleReviewBids = () => {
     setLoading(true);
+    setallMaxBidFlag(true);
     const request = {
       buyerID: userID
     };
@@ -263,6 +266,7 @@ export default function BuyerPage() {
 
   const handleReviewPurchases = () => {
     setLoading(true);
+    setallMaxBidFlag(true);
     const request = {
       buyerID: userID
     };
@@ -447,12 +451,14 @@ export default function BuyerPage() {
               <p className="item-time">Initial Price:</p>
               <p className="item-time">{item.value}</p>
             </div>
+            {allMaxBidFlag && (
             <div className="item-status-value">
               <p className="item-time">
                 {reviewPurchaseFlag ? "MaxBid Amount" : "Sale Price:"}
               </p>
               <p className="item-time">{item.MaxBidAmount}</p>
             </div>
+            )}
 
             {reviewPurchaseFlag && (
               <div className="item-status-value">

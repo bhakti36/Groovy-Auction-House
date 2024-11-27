@@ -222,19 +222,25 @@ export default function ItemViewPage() {
     setErrorMessage('');
 
     const request = {
-      itemID: itemId,
-      accountID: buyerId,
+      itemID: parseInt(itemId),
+      accountID: parseInt(buyerId),
       bidAmount,
     };
 
-    // console.log('Request for placing bid:', request);
+    console.log('Request for placing bid:', request);
     // API call
     instance.post('/buyer/placeBid', request)
       .then((response) => {
-        console.log("test", response.data.message)
-        window.alert(response.data.message);
-        router.push("/pages/BuyerHomePage");
-
+        console.log('Response:', response);
+        if(response.data.status === 200) {
+          window.alert('Bid placed successfully!');
+          router.push('/pages/BuyerHomePage');
+        }else{
+          setErrorMessage(response.data.message);
+        }
+        // console.log("test", response.data.message)
+        // window.alert(response.data.message);
+        // router.push("/pages/BuyerHomePage");
       })
       .catch((error) => {
         console.error('Error response:', error);

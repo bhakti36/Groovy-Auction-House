@@ -26,7 +26,7 @@ Yilu Yang
 
 # Next
 1) Seller UseCases
-1. Edit Item - Tr --check
+1. Edit Item - Tr
 2. Publish Item - Yi
 3. Unpublish Item - Yi
 4. Review Items - Ba

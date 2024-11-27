@@ -1,66 +1,38 @@
 import mysql from 'mysql';
 
+let pool;
+
+const initPool = () => {
+    if (!pool) {
+        pool = mysql.createPool({
+            host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
+            user: "admin",
+            password: "8NpElCb61lk8lqVRaYAu",
+            database: "auction_house",
+            connectionLimit: 10
+        });
+    }
+};
+
 export const handler = async (event) => {
-    const pool = mysql.createPool({
-        host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
-        user: "admin",
-        password: "8NpElCb61lk8lqVRaYAu",
-        database: "auction_house"
-    });
-
-    const accountNotFound = {
-        status: 400,
-        message: "Account not found"
-    };
-
-    const bidFailed = {
-        status: 401,
-        message: "Failed to bid on the Item"
-    };
+    initPool();
 
     const dbError = {
-        status: 402,
-        message: "DB Error"
-    };
-
-    const insufficientFunds = {
-        status: 403,
-        message: "Insufficient funds"
-    };
-
-    const notBuyerAccount = {
-        status: 403,
-        message: "Account is not a Buyer"
+        status: 500,
+        message: "Database Error"
     };
 
     const itemNotFound = {
         status: 404,
-        message: "Item not found"
+        message: "No active bids found for this buyer."
     };
-
-    const itemFrozen = {
-        status: 405,
-        message: "Item is frozen"
-    };
-
-    const itemComplete = {
-        status: 406,
-        message: "Item is complete"
-    };
-
-    const itemArchived = {
-        status: 407,
-        message: "Item is archived"
-    };
-
-    
-    let response = {}
 
     const executeQuery = (query, params) => {
         return new Promise((resolve, reject) => {
             pool.query(query, params, (error, results) => {
                 if (error) {
-                    reject(error);
+                    console.error("Query execution error:", error);
+                    reject(dbError);
                 } else {
                     resolve(results);
                 }
@@ -68,27 +40,85 @@ export const handler = async (event) => {
         });
     };
 
-    const getActiveBids = async (accountID) => {
-       
+    const reviewActiveBids = async (buyerID) => {
+        
+        const itemQuery = `
+            SELECT 
+                i.*,
+                COALESCE(MAX(b.BidAmount), NULL) AS MaxBidAmount
+            FROM 
+                auction_house.Item i
+            LEFT JOIN 
+                auction_house.Bid b ON i.ItemID = b.ItemID
+            WHERE 
+                b.BuyerID = ? 
+                AND i.IsPublished = TRUE
+            GROUP BY 
+                i.ItemID;
+        `;
+        const items = await executeQuery(itemQuery, [buyerID]);
+
+        if (items.length === 0) {
+            throw itemNotFound;
+        }
+
+      
+        const bidsQuery = `
+            SELECT 
+                b.*
+            FROM 
+                auction_house.Bid b
+            JOIN 
+                auction_house.Item i ON b.ItemID = i.ItemID
+            WHERE 
+                b.BuyerID = ?
+                AND i.IsPublished = TRUE;
+        `;
+        const bids = await executeQuery(bidsQuery, [buyerID]);
+
+        // Group bid history by ItemID
+        const bidHistoryMap = {};
+        bids.forEach(bid => {
+            if (!bidHistoryMap[bid.ItemID]) {
+                bidHistoryMap[bid.ItemID] = [];
+            }
+            bidHistoryMap[bid.ItemID].push({
+                BidID: bid.BidID,
+                BuyerID: bid.BuyerID,
+                BidAmount: bid.BidAmount,
+                BidTimeStamp: bid.BidTimeStamp
+            });
+        });
+
+        // Merge items with their respective bid histories
+        return items.map(item => ({
+            ...item,
+            BidHistory: bidHistoryMap[item.ItemID] || []
+        }));
     };
 
     try {
-        const { accountID, itemID, bidAmount } = event;
+        const { buyerID } = event;
 
-        const accountDetails = await getActiveBids(accountID);
-        
+        if (!buyerID) {
+            throw {
+                status: 400,
+                message: "Buyer ID is required."
+            };
+        }
 
-        return response;
+        const reviewBidsList = await reviewActiveBids(buyerID);
+
+        return {
+            status: 200,
+            message: "Retrieved bids successfully.",
+            reviewBidsList
+        };
     } catch (error) {
-        console.error(error);
-        return error;
-    } finally {
-        pool.end((err) => {
-            if (err) {
-                console.error('Error closing the pool', err);
-            } else {
-                console.log('Pool was closed.');
-            }
-        });
+        console.error("Error:", error);
+        return {
+            status: error.status || 500,
+            message: error.message || "An unknown error occurred."
+        };
     }
 };

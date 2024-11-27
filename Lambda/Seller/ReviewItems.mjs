@@ -13,6 +13,11 @@ export const handler = async (event) => {
         message: "DB Error"
     };
 
+    const sellerNotFound = {
+        status: 404,
+        message: "Seller not found"
+    };
+
     const noItemsFound = (sellerID) => ({
         status: 404,
         message: `No items found for seller id ${sellerID}`
@@ -33,6 +38,16 @@ export const handler = async (event) => {
                 }
             });
         });
+    };
+
+    const getSellerAccountDetails = async (sellerID) => {
+        const query = "SELECT * FROM auction_house.SellerAccount WHERE AccountID=?";
+        const rows = await executeQuery(query, [sellerID]);
+        if (rows.length === 1) {
+            return rows[0];
+        } else {
+            throw sellerNotFound
+        }
     };
 
     const getItemsAndBidsBySellerID = async (sellerID) => {
@@ -89,8 +104,9 @@ export const handler = async (event) => {
     };
 
     try {
+        const seller = await getSellerAccountDetails(event.sellerID);
         const items = await getItemsAndBidsBySellerID(event.sellerID);
-        return { status: 200, items: items };
+        return { status: 200, items: items, totalFunds: seller.Funds };
     } catch (error) {
         console.error("Handler error:", error);
         return { error: dbError };

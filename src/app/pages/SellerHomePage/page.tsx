@@ -34,9 +34,6 @@ export default function SellerPage() {
       const json = JSON.parse(info);
       console.log("json", json);
       console.log("username", json.success.username);
-      totalFunds = parseInt(json.success.funds);
-      console.log(totalFunds);
-      setWalletAmount(totalFunds);
       userName = json.success.username;
       setUserName(userName);
       setUserID(json.success.accountID);  
@@ -88,11 +85,12 @@ export default function SellerPage() {
     instance
       .post("/seller/reviewItems", request)
       .then((response) => {
-        // console.log("Response:", response.data);
+        console.log("Response:", response);
         if (response.data.status !== 200) {
           setErrorMessage("Error retrieving items.");
           return;
         }
+        setWalletAmount(response.data.totalFunds);
         const responseItems: ItemJson[] =
           response.data?.success?.items || response.data.items || [];
         console.log("Response Items:", responseItems);
@@ -235,6 +233,8 @@ export default function SellerPage() {
         .post("/seller/archiveItem", request)
         .then((response) => {
           console.log("Response:", response.data);
+          alert("Item Archived successfully.");
+          handleViewItem(); // Refresh 
           setErrorMessage("");
         })
         .catch((error) => {

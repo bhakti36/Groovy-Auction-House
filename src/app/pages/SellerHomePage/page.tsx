@@ -89,7 +89,7 @@ export default function SellerPage() {
       .post("/seller/reviewItems", request)
       .then((response) => {
         // console.log("Response:", response.data);
-        if (response.data.status !== 200) {
+        if (response.data.statusCode !== 200) {
           setErrorMessage("Error retrieving items.");
           return;
         }

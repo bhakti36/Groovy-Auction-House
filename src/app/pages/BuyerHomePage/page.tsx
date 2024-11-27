@@ -153,6 +153,24 @@ export default function BuyerPage() {
       });
   };
 
+  const handleItemClick = (itemId: number) => {
+    
+    //console.log("------->>>>>", userID);
+
+    const request = {
+      itemId: itemId,
+      buyerId: userID
+    };
+
+    sessionStorage.setItem('itemId', JSON.stringify(itemId));
+    sessionStorage.setItem('buyerId', JSON.stringify(userID));
+    
+   
+    
+
+    router.push('/pages/ItemViewPage');
+  };
+
   useEffect(() => {
     handleViewItem();
 

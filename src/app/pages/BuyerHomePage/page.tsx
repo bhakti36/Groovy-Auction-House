@@ -197,7 +197,7 @@ export default function BuyerPage() {
       .then((response) => {
         const responseItems = response.data.reviewBidsList;
        
-
+console.log("hi",response);
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
 
         const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
@@ -380,6 +380,10 @@ export default function BuyerPage() {
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">
+              <p className="item-time">Initial Price:</p>
+              <p className="item-time">MaxBid Amount:</p>
+            </div>
+            <div className="item-status-value">
               <p className="item-time">Time Left</p>
               <p className="item-time">{item.timeLeft}</p>
             </div>
@@ -387,6 +391,9 @@ export default function BuyerPage() {
               <p className="item-status">{item.status}</p>
               <p className="item-value">{item.value}</p>
             </div>
+            {/* <div className="item-status-value">
+            <p className="item-status">Bid History..</p>
+            </div> */}
           </div>
         ))}
       </div>

@@ -13,7 +13,7 @@ const EditItemPage = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [initialPrice, setInitialPrice] = useState('');
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<(string | File)[]>([]);
   const [durationDays, setDurationDays] = useState('');
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
@@ -69,108 +69,113 @@ const EditItemPage = () => {
   
   const handleEditItem = async () => {
     console.log('handleEditItem called');
-    console.log('SellerID: ',userID);
-
+    console.log('SellerID: ', userID);
+  
     const hours = parseInt(durationHours);
     const minutes = parseInt(durationMinutes);
     const days = parseInt(durationDays);
-
+  
     if (hours < 0 || hours > 23) {
       setErrorMessage('Please enter a valid hour between 0 and 23.');
       return;
     }
-
+  
     if (minutes < 0 || minutes > 59) {
       setErrorMessage('Please enter a valid minute between 0 and 59.');
       return;
     }
-
+  
     if (!name || !description || !initialPrice || !durationDays || !durationHours || !durationMinutes) {
       setErrorMessage('Please fill out all fields.');
       return;
     }
-
-    const imagePromises = images.map((image) =>
-      new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(image);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      })
-    );
-
+  
     try {
-      setIsLoading(true); 
-
-      const base64Images = await Promise.all(imagePromises);
-      console.log('Base64 images:', base64Images);
-
-      const cleanedBase64Images = base64Images.map((base64Image) => base64Image.replace(/^data:image\/[a-z]+;base64,/, '') ); 
-      console.log('Cleaned Base64 images:', cleanedBase64Images);
-
-      const files = []
-
-      const date = new Date(); 
+      setIsLoading(true);
+  
+      const base64Images: string[] = [];
+      const uploadedImages: string[] = [];
+  
+      for (const image of images) {
+        if (image instanceof File) {
+          const reader = new FileReader();
+          const base64 = await new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(image);
+          });
+          base64Images.push(base64.replace(/^data:image\/[a-z]+;base64,/, ''));
+        } else if (typeof image === 'string') {
+          uploadedImages.push(image);
+        }
+      }
+  
+      const files = [];
+      const date = new Date();
       const folderName = `${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
-
-      for (let i = 0; i < cleanedBase64Images.length; i++) {
-        const upload_request = {
-          folderName: folderName,
+  
+      for (let i = 0; i < base64Images.length; i++) {
+        const uploadRequest = {
+          folderName,
           fileName: `${i}.png`,
-          imageData: cleanedBase64Images[i] 
+          imageData: base64Images[i],
         };
-        
+  
         files.push(`${folderName}/${i}.png`);
-      
+  
         try {
-          const response_upload = await instance.post('/seller/uploadImg', upload_request);
-          console.log('Response:', response_upload.data);
+          const responseUpload = await instance.post('/seller/uploadImg', uploadRequest);
+          console.log('Upload Response:', responseUpload.data);
         } catch (error) {
           console.error('Upload Error:', error);
         }
       }
-      
-      const imagesString = JSON.stringify(files);
-      
+  
+      const allImages = [...uploadedImages, ...files];
+      const imagesString = JSON.stringify(allImages);
+  
       const request = {
         updates: {
           name: name,
           description: description,
           initial_price: initialPrice,
-          images: imagesString, 
+          images: imagesString,
           durationDays: days,
           durationHours: hours,
           durationMinutes: minutes,
         },
         sellerID: userID,
-        itemID: itemID
+        itemID: itemID,
       };
-
+  
       console.log('Request payload:', request);
-
+  
       const response = await instance.post('/seller/editItem', request);
       console.log('Response:', response.data);
-
+  
       setErrorMessage('');
-      
-      window.alert("Item added successfully!");
-      router.push('/pages/SellerHomePage'); 
-      
+  
+      window.alert('Item edited successfully!');
+      router.push('/pages/SellerHomePage');
     } catch (error) {
       const err = error as AxiosError;
       console.error('Error response:', err.response ? err.response.data : err.message);
       setErrorMessage(
-        err.response ? `Error adding item: ${err.response.data}` : 'Error adding item.'
+        err.response ? `Error editing item: ${err.response.data}` : 'Error editing item.'
       );
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
-
+  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []); 
     setImages(files);
   };
+
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };  
   
   return (
     <div className="add-item-page">
@@ -202,12 +207,16 @@ const EditItemPage = () => {
       <div className="images-container">
         {Array.isArray(images) && images.length > 0 ? (
           images.map((image, index) => (
-            <img 
-              key={index} 
-              src={`${s3BaseUrl}${image}`} 
-              alt={`Item Image ${index + 1}`} 
-              style={{ maxWidth: '200px', marginBottom: '10px' }} 
-            />
+            <div className="image-wrapper" key={index}>
+              <img
+                src={image instanceof File ? URL.createObjectURL(image) : `${s3BaseUrl}${image}`}
+                alt={`Preview ${index + 1}`}
+                className="image-preview"
+              />
+              <button className="deleteIcon" onClick={() => removeImage(index)} >
+                🗑️
+              </button>
+            </div>
           ))
         ) : (
           <p>No images available.</p>

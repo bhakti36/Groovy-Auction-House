@@ -89,7 +89,7 @@ export default function SellerPage() {
       .post("/seller/reviewItems", request)
       .then((response) => {
         // console.log("Response:", response.data);
-        if (response.data.statusCode !== 200) {
+        if (response.data.status !== 200) {
           setErrorMessage("Error retrieving items.");
           return;
         }
@@ -235,6 +235,8 @@ export default function SellerPage() {
         .post("/seller/archiveItem", request)
         .then((response) => {
           console.log("Response:", response.data);
+          alert("Item Archived successfully.");
+          handleViewItem(); // Refresh 
           setErrorMessage("");
         })
         .catch((error) => {

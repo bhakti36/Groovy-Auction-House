@@ -1,5 +1,28 @@
-/* ItemDetailPage Styles */
-.item-detail-page {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --default-text-color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --default-text-color: #000000;
+  }
+}
+
+body {
+  color: var(--default-text-color);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;

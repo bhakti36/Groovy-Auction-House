@@ -235,6 +235,8 @@ export default function SellerPage() {
         .post("/seller/archiveItem", request)
         .then((response) => {
           console.log("Response:", response.data);
+          alert("Item Archived successfully.");
+          handleViewItem(); // Refresh 
           setErrorMessage("");
         })
         .catch((error) => {

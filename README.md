@@ -26,13 +26,14 @@ Yilu Yang
 
 # Next
 1) Seller UseCases
-1. Edit Item - Tr
+1. Edit Item - Tr --check
 2. Publish Item - Yi
 3. Unpublish Item - Yi
 4. Review Items - Ba
-5. Fulfill Item - Tr
+5. Fulfill Item - Tr --check
 6. Remove Inactive Item - Yi
-7) Buyer UseCases 
+7. Archive Item
+2) Buyer UseCases 
 8. View Item - Bh
 9. Place Bid - Ba
 10. Review Active Bids - Bh

@@ -270,7 +270,7 @@ export default function BuyerPage() {
     const request = {
       buyerID: userID
     };
-
+//timeout
     setTimeout(() => {
       instance.post('/buyer/reviewPurchases', request)
       .then((response) => {

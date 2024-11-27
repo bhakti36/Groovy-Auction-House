@@ -21,7 +21,8 @@ interface Item {
   durationDays: number;
   durationHours: number;
   durationMinutes: number;
-  purchaseprice:number;
+  MaxBidAmount: number;
+  purchaseprice: number;
 
 }
 
@@ -35,6 +36,7 @@ interface ItemJson {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  MaxBidAmount: number;
   IsComplete: boolean;
   IsFrozen: boolean;
   PurchasePrice: number;
@@ -85,11 +87,15 @@ export default function BuyerPage() {
   const [sortChoice,] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]);
   const [userName, setUserName] = useState('');
+  const [reviewPurchaseFlag, setreviewPurchaseFlag] = useState(false);
+  const [activeButton, setActiveButton] = useState<string | null>("all");
+  const [loading, setLoading] = useState(false);
+ 
 
   const handleCloseAccount = () => {
     const isConfirmed = window.confirm("Are you sure you want to close account?");
     if (isConfirmed) {
-      console.log('handleCloseAccount called' + userID);
+      //console.log('handleCloseAccount called' + userID);
       const request = {
         buyerID: userID
       }
@@ -108,16 +114,22 @@ export default function BuyerPage() {
   };
 
   const handleAll = () => {
-    console.log("all");
+    //console.log("all");
+    setreviewPurchaseFlag(true);
+    setActiveButton("all");
     handleViewItem();
   }
   const handleReviewBidsList = () => {
     //console.log("review bids");
+    setActiveButton("reviewBids");
+    setreviewPurchaseFlag(true);
     handleReviewBids();
 
   }
   const handleReviewPurchasesList = () => {
     //console.log("test 123");
+    setActiveButton("reviewPurchases");
+    setreviewPurchaseFlag(false);
     handleReviewPurchases();
   }
 
@@ -134,7 +146,7 @@ export default function BuyerPage() {
     const amount = parseFloat(inputAmount);
     if (!isNaN(amount) && amount > 0) {
       if (info != null) {
-        console.log("info", info)
+        //console.log("info", info)
         const accountid = userID
 
         const method = '/' + userType + '/addFunds';
@@ -144,7 +156,7 @@ export default function BuyerPage() {
         };
 
         instance.post(method, request).then((response) => {
-          console.log('Response:', response);
+          //console.log('Response:', response);
           setWalletAmount(walletAmount + amount);
         }).catch((error) => {
           console.log(error);
@@ -157,13 +169,17 @@ export default function BuyerPage() {
   };
 
   const handleViewItem = () => {
+    setreviewPurchaseFlag(true);
+    setLoading(true);
     const request = {
       buyerID: userID,
     };
 
-    instance.post('/buyer/viewItem', request)
+    setTimeout(() => {
+
+      instance.post('/buyer/viewItem', request)
       .then((response) => {
-        console.log('Response:', response);
+        console.log('Response of all-->:', response);
         setWalletAmount(response.data.totalFunds);
         const responseItems = response.data.items;
 
@@ -178,6 +194,7 @@ export default function BuyerPage() {
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,
+          MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
@@ -185,23 +202,31 @@ export default function BuyerPage() {
 
         setItems(formattedItems);
         setErrorMessage('');
+        setLoading(false); 
       })
       .catch((error) => {
+        setLoading(false);
         console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
       });
+     
+    }, 1000); 
+
+   
   };
 
   const handleReviewBids = () => {
+    setLoading(true);
     const request = {
-      buyerID:userID
+      buyerID: userID
     };
 
-    instance.post('/buyer/reviewBids', request)
+    setTimeout(() => {
+      instance.post('/buyer/reviewBids', request)
       .then((response) => {
         const responseItems = response.data.reviewBidsList;
-       
-console.log("hi",response);
+
+        //console.log("response", response);
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
 
         const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
@@ -213,30 +238,41 @@ console.log("hi",response);
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,
+          MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
 
         setItems(formattedItems);
         setErrorMessage('');
+        setLoading(false); 
       })
       .catch((error) => {
         console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
+        setLoading(false); 
       });
+     
+    }, 1000); 
+
+
+   
   };
 
   const handleReviewPurchases = () => {
+    setLoading(true);
     const request = {
-      buyerID:userID
+      buyerID: userID
     };
 
-    instance.post('/buyer/reviewPurchases', request)
+    setTimeout(() => {
+      instance.post('/buyer/reviewPurchases', request)
       .then((response) => {
-        
+
         const responseItems = response.data.reviewPurchasesList;
-        console.log("review purchase ka response",responseItems);
+        console.log("responseItems", responseItems);
 
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
 
@@ -251,17 +287,24 @@ console.log("hi",response);
           durationDays: item.DurationDays,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+          MaxBidAmount: item.MaxBidAmount,
           purchaseprice: item.PurchasePrice,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
 
         setItems(formattedItems);
         setErrorMessage('');
+        setLoading(false); 
       })
       .catch((error) => {
         console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
+        setLoading(false); 
       });
+     
+    }, 1000);
+
+   
   };
 
   const handleItemClick = (itemId: number) => {
@@ -318,6 +361,10 @@ console.log("hi",response);
       return 0;
     });
 
+    const getButtonClass = (button: string) => {
+      return button === activeButton ? "active-button" : "";
+    };
+
   return (
     <main className="min-h-screen p-6 bg-gray-100">
       <header className="header">
@@ -328,6 +375,12 @@ console.log("hi",response);
           </button>
         </div>
       </header>
+
+      {loading && (
+        <div className="loader">
+          <div className="spinner"></div> {/* Add your spinner here */}
+        </div>
+      )}
 
       <div className="wallet-section">
         <div className="search-sort-container">
@@ -380,33 +433,48 @@ console.log("hi",response);
       )}
 
       <div className="filter-bar">
-        <button onClick={() => handleAll()}> All </button>
-        <button onClick={() => handleReviewBidsList()}> Review Active Bids </button>
-        <button onClick={() => handleReviewPurchasesList()}> Review Purchases </button>
-        
+        <button  className={getButtonClass("all")} onClick={() => handleAll()}> All </button>
+        <button className={getButtonClass("reviewBids")} onClick={() => handleReviewBidsList()}> Review Active Bids </button>
+        <button className={getButtonClass("reviewPurchases")} onClick={() => handleReviewPurchasesList()}> Review Purchases </button>
+
       </div>
       <div className="grid-container">
         {filteredItems.map((item) => (
-          <div key={item.id} className="item-card" onClick={() => {if(item.timeLeft != "Ended") handleItemClick(item.id)}}>
+          <div key={item.id} className="item-card" onClick={() => { if (item.timeLeft != "Ended") handleItemClick(item.id) }}>
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">
               <p className="item-time">Initial Price:</p>
-              <p className="item-time">MaxBid Amount:</p>
+              <p className="item-time">{item.value}</p>
             </div>
             <div className="item-status-value">
-              <p className="item-time">Time Left</p>
-              <p className="item-time">{item.timeLeft}</p>
+              <p className="item-time">
+                {reviewPurchaseFlag ? "MaxBid Amount" : "Sale Price:"}
+              </p>
+              <p className="item-time">{item.MaxBidAmount}</p>
             </div>
+
+            {reviewPurchaseFlag && (
+              <div className="item-status-value">
+                <p className="item-time">Time Left</p>
+                <p className="item-time">{item.timeLeft}</p>
+              </div>
+            )}
+            {/* <div className="item-status-value">
+              <p className="item-time">Purchased By</p>
+              <p className="item-time">{userName}</p>
+            </div> */}
             <div className="item-status-value">
-              <p className="item-status">{item.status}</p>
-              <p className="item-value">{item.value}</p>
+              <p className="item-status">Status:</p>
+              <p className="item-time">{item.status}</p>
             </div>
             {/* <div className="item-status-value">
             <p className="item-status">Bid History..</p>
             </div> */}
           </div>
         ))}
+
+
       </div>
     </main>
   );

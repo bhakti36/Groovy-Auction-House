@@ -147,3 +147,29 @@ body {
 .time-history {
   padding: 10px 0;
 }
+
+.item-detail-page {
+  display: flex; 
+}
+.image-container,
+.item-info {
+  flex: 1; 
+  max-width: 50%; 
+}
+
+table {
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+th,
+td {
+  width: 33.33%; 
+  text-align: left; 
+  border: 1px solid #ddd; 
+  padding: 8px; 
+}
+
+th {
+  background-color: #f2f2f2; 
+}

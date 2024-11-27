@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import axios, { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -25,6 +25,9 @@ const EditItemPage = () => {
   const itemID = searchParams.get("ItemID");
 
   useEffect(() => {
+    // const searchParams = useSearchParams();
+    // const itemIDParam = searchParams.get("ItemID");
+    // itemID = itemIDParam ? itemIDParam : "1";
     const fetchData = async () => {
       const info = sessionStorage.getItem("userInfo");
       if (info) {
@@ -178,6 +181,7 @@ const EditItemPage = () => {
   };  
   
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="add-item-page">
       <h1>Edit Item</h1>
       <div>
@@ -264,6 +268,7 @@ const EditItemPage = () => {
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
     </div>
+    </Suspense>
   );
 };
 

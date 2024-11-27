@@ -9,7 +9,6 @@ const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
-const base_html = 'https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/';
 
 interface Bid {
   BidID: number;
@@ -96,7 +95,7 @@ export default function ItemViewPage() {
     instance
       .post("/buyer/detailItem", request)
       .then((response) => {
-        console.log("Response:****", response.data.success.itemDetails);
+        // console.log("Response:****", response.data.success.itemDetails);
         if (response.status !== 200) {
           setErrorMessage("Error retrieving items.");
           return;
@@ -136,7 +135,7 @@ export default function ItemViewPage() {
           IsComplete: responseItem.IsComplete,
           MaxBidAmount: responseItem.MaxBidAmount,
           // IsFailed: responseItem.IsFailed,
-          bids: (responseItem.biddingHistory || []).map((bid: any) => ({
+          bids: (responseItem.biddingHistory || []).map((bid: BidJson) => ({
             BidID: bid.BidID,
             BuyerID: bid.BuyerID,
             BidAmount: bid.BidAmount,

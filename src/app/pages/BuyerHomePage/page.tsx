@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import './globals.css';
 
+
 const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
@@ -20,26 +21,45 @@ interface Item {
   durationDays: number;
   durationHours: number;
   durationMinutes: number;
+  purchaseprice:number;
+
 }
 
-interface ItemJson { 
-  ItemID: number; 
-  Name: string; 
-  Description: string; 
+interface ItemJson {
+  ItemID: number;
+  Name: string;
+  Description: string;
   Images: string;
-  InitialPrice: number; 
-  StartDate: string; 
+  InitialPrice: number;
+  StartDate: string;
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
-  IsComplete: boolean; 
-  IsFrozen: boolean; 
+  IsComplete: boolean;
+  IsFrozen: boolean;
+  PurchasePrice: number;
+}
+
+interface PurchaseItemJson {
+  PurchaseID: number;
+  ItemID: number;
+  Name: string;
+  Description: string;
+  Images: string;
+  PurchasePrice: number;
+  StartDate: string;
+  DurationDays: number;
+  DurationHours: number;
+  DurationMinutes: number;
+  IsComplete: boolean;
+  IsFrozen: boolean;
 }
 
 export default function BuyerPage() {
   const router = useRouter();
   let totalFunds = 0;
   let info = "";
+  const [filter, setFilter] = useState<string>("All");
 
   useEffect(() => {
     info = sessionStorage.getItem('userInfo')!;
@@ -60,28 +80,43 @@ export default function BuyerPage() {
   const [userID, setUserID] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice,] = useState('timeLeft');
-  const [items, setItems] = useState<Item[]>([]); 
-  
+  const [items, setItems] = useState<Item[]>([]);
+
   const handleCloseAccount = () => {
     const isConfirmed = window.confirm("Are you sure you want to close account?");
-    if(isConfirmed){
+    if (isConfirmed) {
       console.log('handleCloseAccount called' + userID);
-        const request = {
-          buyerID: userID
-        }
-        instance.post('/buyer/closeAccount', request)
-          .then((response) => {
-            console.log('Response:', response);
-            setErrorMessage('');
-          })
-          .catch((error) => {
-            console.log(error);
-            setErrorMessage('Error adding item.');
-          })
-        setWalletAmount(0);
-        router.push('/pages/LoginPage');
+      const request = {
+        buyerID: userID
+      }
+      instance.post('/buyer/closeAccount', request)
+        .then((response) => {
+          console.log('Response:', response);
+          setErrorMessage('');
+        })
+        .catch((error) => {
+          console.log(error);
+          setErrorMessage('Error adding item.');
+        })
+      setWalletAmount(0);
+      router.push('/pages/LoginPage');
     }
   };
+
+  const handleAll = () => {
+    console.log("all");
+    handleViewItem();
+  }
+  const handleReviewBidsList = () => {
+    //console.log("review bids");
+    handleReviewBids();
+
+  }
+  const handleReviewPurchasesList = () => {
+    //console.log("test 123");
+    handleReviewPurchases();
+  }
+
 
   const handleLogOut = () => {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
@@ -89,7 +124,7 @@ export default function BuyerPage() {
       console.log('handleLogOut called ' + userID);
       router.push('/pages/LoginPage');
     }
-  };  
+  };
 
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
@@ -129,7 +164,7 @@ export default function BuyerPage() {
         const responseItems = response.data.success.items;
 
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
-        
+
         const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
           id: item.ItemID,
           name: item.Name,
@@ -153,11 +188,83 @@ export default function BuyerPage() {
       });
   };
 
+  const handleReviewBids = () => {
+    const request = {
+      buyerID:userID
+    };
+
+    instance.post('/buyer/reviewBids', request)
+      .then((response) => {
+        const responseItems = response.data.reviewBidsList;
+       
+
+        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
+
+        const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
+          id: item.ItemID,
+          name: item.Name,
+          description: item.Description,
+          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
+          value: `$${item.InitialPrice}`,
+          timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
+          startDate: item.StartDate,
+          durationDays: item.DurationDays,
+          durationHours: item.DurationHours,
+          durationMinutes: item.DurationMinutes,
+          status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
+        }));
+
+        setItems(formattedItems);
+        setErrorMessage('');
+      })
+      .catch((error) => {
+        console.error('Error response:', error);
+        setErrorMessage('Error retrieving items.');
+      });
+  };
+
+  const handleReviewPurchases = () => {
+    const request = {
+      buyerID:userID
+    };
+
+    instance.post('/buyer/reviewPurchases', request)
+      .then((response) => {
+        
+        const responseItems = response.data.reviewPurchasesList;
+        console.log("review purchase ka response",responseItems);
+
+        const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
+
+        const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
+          id: item.ItemID,
+          name: item.Name,
+          description: item.Description,
+          image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
+          value: `$${item.InitialPrice}`,
+          timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
+          startDate: item.StartDate,
+          durationDays: item.DurationDays,
+          durationHours: item.DurationHours,
+          durationMinutes: item.DurationMinutes,
+          purchaseprice: item.PurchasePrice,
+          status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
+        }));
+
+        setItems(formattedItems);
+        setErrorMessage('');
+      })
+      .catch((error) => {
+        console.error('Error response:', error);
+        setErrorMessage('Error retrieving items.');
+      });
+  };
+
   useEffect(() => {
     handleViewItem();
 
     const interval = setInterval(() => {
-      setItems(prevItems => 
+      setItems(prevItems =>
         prevItems.map(item => ({
           ...item,
           timeLeft: calculateTimeLeft(item.startDate, item.durationDays, item.durationHours, item.durationMinutes),
@@ -197,8 +304,8 @@ export default function BuyerPage() {
       if (sortChoice === 'timeLeft') {
         return a.timeLeft.localeCompare(b.timeLeft);
       }
-      return 0; 
-  });
+      return 0;
+    });
 
   return (
     <main className="min-h-screen p-6 bg-gray-100">
@@ -261,6 +368,12 @@ export default function BuyerPage() {
         </div>
       )}
 
+      <div className="filter-bar">
+        <button onClick={() => handleAll()}> All </button>
+        <button onClick={() => handleReviewBidsList()}> Review Active Bids </button>
+        <button onClick={() => handleReviewPurchasesList()}> Review Purchases </button>
+        
+      </div>
       <div className="grid-container">
         {filteredItems.map((item) => (
           <div key={item.id} className="item-card">

@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px; /* Optional: Add space between the two sections */
+  gap: 20px; 
 }
   
   .image-container {
@@ -69,32 +69,34 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* Space between the image and buttons */
+    gap: 10px; 
   }
   
   .prev-button,
   .next-button {
     background-color: transparent;
     border: none;
-    font-size: 2rem; /* Adjust the size of the arrows */
+    font-size: 2rem; 
+    min-width: 50px; 
+    min-height: 50px;
     cursor: pointer;
-    color: #333; /* Adjust the arrow color */
+    color: #333; 
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 10px; /* Optional: Add padding */
+    padding: 0 10px; 
   }
   
   .prev-button:hover,
   .next-button:hover {
-    color: #000; /* Change color on hover */
+    color: #000; 
   }
   
   .item-image {
     max-width: 100%;
     height: auto;
-    display: block; /* Ensure proper alignment */
-    object-fit: contain; /* Maintain aspect ratio */
+    display: block; 
+    object-fit: contain; 
   }
   
   .place-bid-button {

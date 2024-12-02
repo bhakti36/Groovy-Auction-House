@@ -33,11 +33,29 @@ Yilu Yang
 5. Fulfill Item - Tr 
 6. Remove Inactive Item - Yi
 7. Archive Item
-8) Buyer UseCases 
-9. View Item - Bh
-10. Place Bid - Ba
-11. Review Active Bids - Bh
-12. Review Purchases - Bh
+2) Buyer UseCases 
+8. View Item - Bh
+9. Place Bid - Ba
+10. Review Active Bids - Bh
+11. Review Purchases - Bh
+
+# Next
+1) Admin UseCases
+1. Generate Auction Report -Bh
+2. Generate Forensics Report -Bh
+2) Buyer UseCases
+3. Search Recently Sold -Ba
+4. Sort Recently Sold -Ba
+5. Buy Now -Ba
+3) Customer UseCases
+6. Search Items -Tr
+7. Sort Items -Tr
+8. View Item -Yi
+4) Seller UseCases
+9. Request Unfreeze item - Yi
+
+
+
 
 # Project Setup and Running the Application
 1. To start the application, simply run the following command:
@@ -59,3 +77,5 @@ UserID: Admin Password: Admin123
 # Improvements:
     AWS Screen Refresh Issue
     Avoid clicking the refresh button and using browser back button, as this may cause display disturbances or unexpected behavior.
+
+Query too complex for buyerItemDetail Also, -1 is not working, and why only 2 bids?

@@ -44,6 +44,7 @@ export default function SellerPage() {
   }, [userID]);
 
   const handleAddNewItem = () => {
+    sessionStorage.setItem('sellerID', JSON.stringify(userID));
     router.push("/pages/AddItemPage");
   };
 

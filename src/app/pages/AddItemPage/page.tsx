@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 
@@ -18,7 +18,14 @@ const AddItemPage = () => {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userID, setUserID] = useState(2);
   const router = useRouter(); 
+
+  useEffect(() => {
+    const sellerID = sessionStorage.getItem('sellerID');
+    setUserID(sellerID? parseInt(sellerID) : 2)
+    console.log('Seller ID:', sellerID);
+  }, [userID]);
   
   const handleAddItem = async () => {
     console.log('handleAddItem called');
@@ -94,7 +101,7 @@ const AddItemPage = () => {
         DurationDays: parseInt(durationDays),
         DurationHours: hours, 
         DurationMinutes: minutes, 
-        SellerID: 2, 
+        SellerID: userID, 
       };
 
       console.log('Request payload:', request);

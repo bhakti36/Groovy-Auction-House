@@ -19,10 +19,20 @@ const EditItemPage = () => {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [itemID, setItemID] = useState('0');
   const router = useRouter(); 
   const [userID, setUserID] = useState<number | null>(null);
-  const searchParams = useSearchParams();
-  const itemID = searchParams.get("ItemID");
+  // const searchParams = useSearchParams();
+  // const itemID = searchParams.get("ItemID");
+
+  function Loading() {
+    const searchParams = useSearchParams()
+    const itemID = searchParams.get("ItemID")
+    console.log("ItemID: ", itemID)
+    setItemID(itemID || '0');
+   
+    return <div />
+  }
 
   useEffect(() => {
     // const searchParams = useSearchParams();
@@ -182,6 +192,7 @@ const EditItemPage = () => {
   
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      <Loading />
     <div className="add-item-page">
       <h1>Edit Item</h1>
       <div>

@@ -55,7 +55,7 @@ export default function BuyerPage() {
   const [userType,] = useState('buyer');
   const [userID, setUserID] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortChoice,] = useState('timeLeft');
+  const [sortChoice,setSortChoice] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]);
   const [userName, setUserName] = useState('');
   const [reviewPurchaseFlag, setreviewPurchaseFlag] = useState(false);
@@ -345,11 +345,11 @@ export default function BuyerPage() {
   };
 
   const filteredItems = items
-    .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
-      if (sortChoice === 'timeLeft') {
-        return a.timeLeft.localeCompare(b.timeLeft);
-      }
+      if (sortChoice === "timeLeft") return a.timeLeft.localeCompare(b.timeLeft);
+      if (sortChoice === "value") return a.value.localeCompare(b.value);
+      if (sortChoice === "name") return a.name.localeCompare(b.name);
       return 0;
     });
 
@@ -383,14 +383,18 @@ export default function BuyerPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-box"
           />
-          <select className="sort-choice">
+          <select
+            className="sort-choice"
+            value={sortChoice}
+            onChange={(e) => setSortChoice(e.target.value)}
+          >
             <option value="name">Sort by Name</option>
             <option value="value">Sort by Value</option>
-            <option value="time">Sort by Time Left</option>
+            <option value="timeLeft">Sort by Time Left</option>
           </select>
-          <button onClick={() => alert('Search button clicked')} className="search-button">
+          {/* <button onClick={() => console.log(`Searching for: ${searchQuery}`)} className="search-button">
             Search
-          </button>
+          </button> */}
         </div>
         <div className="wallet-amount">Wallet: ${walletAmount}</div>
         <button onClick={() => setShowAddMoneyDialog(true)} className="add-money-button">
@@ -425,7 +429,7 @@ export default function BuyerPage() {
       )}
 
       <div className="filter-bar">
-        <button  className={getButtonClass("all")} onClick={() => handleAll()}> All </button>
+        <button className={getButtonClass("all")} onClick={() => handleAll()}> All </button>
         <button className={getButtonClass("reviewBids")} onClick={() => handleReviewBidsList()}> Review Active Bids </button>
         <button className={getButtonClass("reviewPurchases")} onClick={() => handleReviewPurchasesList()}> Review Purchases </button>
 

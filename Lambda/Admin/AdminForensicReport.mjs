@@ -233,7 +233,7 @@ LIMIT 10;
     }
 
     try {
-        const { username, password } = event;
+       // const { username, password } = event;
         
        // const forensicReport = await getForensicItemReport();
         const topProfitItems = await getTopTenProfitItemsDetails();

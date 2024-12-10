@@ -99,7 +99,7 @@ export const handler = async (event) => {
     }
 
     try {
-        const { username, password } = event;
+      //  const { username, password } = event;
         const item = await getCompletedItemReport();
 
         const itemIDs = item.map((item) => item.ItemID);

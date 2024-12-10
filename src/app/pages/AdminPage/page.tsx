@@ -87,13 +87,20 @@ const AdminPage : React.FC = () => {
 
 
   
-  const handleReport = () => {}
+  const handleAuctionReport = () => {
+
+  }
+
+  const handleForensicReport = () => {
+    
+  }
   
 
   return (
     <div >
       <h1>XXX Auction - Admin</h1>
-      <div><button onClick={() => handleReport()}>Generate Report</button></div>
+      <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
+      <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
       <table>
         <thead>
           <tr>

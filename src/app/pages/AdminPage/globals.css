@@ -60,3 +60,9 @@ button:nth-child(1) {
 button:nth-child(2) {
   background-color: #7c7c7c; /* Green for Unfreeze */
 }
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Adjust the gap value for the desired space between buttons */
+}

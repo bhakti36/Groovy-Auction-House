@@ -88,19 +88,38 @@ const AdminPage : React.FC = () => {
 
   
   const handleAuctionReport = () => {
-
+    console.log("ggg");
+    instance.post('/admin/getauctionreport')
+    .then((response) => {
+      console.log('Response:', response);
+      
+    })
+    .catch((error) => {
+      console.log(error);
+      
+    })
   }
 
   const handleForensicReport = () => {
-    
+    instance.post('/admin/getforensicsreport')
+    .then((response) => {
+      console.log('Response:', response);
+      
+    })
+    .catch((error) => {
+      console.log(error);
+      
+    })
   }
   
 
   return (
     <div >
       <h1>XXX Auction - Admin</h1>
-      <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
-      <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
+      <div className="button-container">
+  <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
+  <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
+</div>
       <table>
         <thead>
           <tr>

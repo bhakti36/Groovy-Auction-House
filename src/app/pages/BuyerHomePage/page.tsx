@@ -21,6 +21,7 @@ interface Item {
   durationDays: number;
   durationHours: number;
   durationMinutes: number;
+  IsBuyNow: number;
   MaxBidAmount: number;
   purchaseprice: number;
 
@@ -36,6 +37,7 @@ interface ItemJson {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  IsBuyNow: number;
   MaxBidAmount: number;
   IsComplete: boolean;
   IsFrozen: boolean;
@@ -187,6 +189,7 @@ export default function BuyerPage() {
           MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+          isBuyNow: item.IsBuyNow,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
 
@@ -232,6 +235,7 @@ export default function BuyerPage() {
           MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+          IsBuyNow: item.IsBuyNow,
 
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
@@ -279,6 +283,7 @@ export default function BuyerPage() {
           durationDays: item.DurationDays,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+          IsBuyNow: item.IsBuyNow,
           MaxBidAmount: item.MaxBidAmount,
           purchaseprice: item.PurchasePrice,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'

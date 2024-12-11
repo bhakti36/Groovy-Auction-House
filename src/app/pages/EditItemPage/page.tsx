@@ -17,13 +17,12 @@ const EditItemPage = () => {
   const [durationDays, setDurationDays] = useState('');
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
+  const [IsBuyNow, setIsBuyNow] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [itemID, setItemID] = useState('0');
   const router = useRouter(); 
   const [userID, setUserID] = useState<number | null>(null);
-  // const searchParams = useSearchParams();
-  // const itemID = searchParams.get("ItemID");
 
   function Loading() {
     const searchParams = useSearchParams()
@@ -35,9 +34,6 @@ const EditItemPage = () => {
   }
 
   useEffect(() => {
-    // const searchParams = useSearchParams();
-    // const itemIDParam = searchParams.get("ItemID");
-    // itemID = itemIDParam ? itemIDParam : "1";
     const fetchData = async () => {
       const info = sessionStorage.getItem("userInfo");
       if (info) {
@@ -72,7 +68,7 @@ const EditItemPage = () => {
         
         setErrorMessage('');
       } else {
-        setErrorMessage('Error retrieving item details.');
+        setErrorMessage('');//Error retrieving item details.
       }
     } catch (error) {
       console.error("Error response:", error);
@@ -189,12 +185,43 @@ const EditItemPage = () => {
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };  
+
+  const handleBuyNow = () => {
+    const isConfirmed = window.confirm("Are you sure you want to set item BuyNow?");
+    if (isConfirmed) {
+      setIsBuyNow(true);
+    }
+  };
   
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Loading />
     <div className="add-item-page">
-      <h1>Edit Item</h1>
+      <h1>
+        Edit Item
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="radio"
+              name="isBuyNow"
+              value="true"
+              checked={IsBuyNow === true}
+              onChange={handleBuyNow}
+            />
+            Buy
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="radio"
+              name="isBuyNow"
+              value="false"
+              checked={IsBuyNow === false}
+              onChange={() => setIsBuyNow(false)}
+            />
+            Bid
+          </label>
+        </div>
+      </h1>
       <div>
         <input
           type="text"

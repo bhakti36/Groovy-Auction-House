@@ -29,6 +29,7 @@ export interface Item {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  IsBuyNow: number;
   timeLeft: string;
   IsPublished: number;
   IsFrozen: number;
@@ -49,6 +50,7 @@ export interface ItemJson {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  IsBuyNow: number;
   IsComplete: number;
   IsFrozen: number;
   MaxBidAmount: number;
@@ -128,6 +130,7 @@ export default function ItemViewPage() {
           DurationHours: responseItem.DurationHours,
           DurationMinutes: responseItem.DurationMinutes,
           timeLeft,
+          IsBuyNow: responseItem.IsBuyNow,
           InitialPrice: responseItem.InitialPrice,
           IsPublished: responseItem.IsPublished,
           IsFrozen: responseItem.IsFrozen,
@@ -227,6 +230,41 @@ export default function ItemViewPage() {
       });
   };
 
+  const handleBuyNow = () => {
+    const isConfirmed = window.confirm("Are you sure you want to buy now?");
+    if (isConfirmed) {
+      const itemId = sessionStorage.getItem('itemId');
+      const buyerId = sessionStorage.getItem('buyerId');
+
+      if (!item || !itemId || !buyerId) {
+        setErrorMessage('Missing item or buyer details. Please refresh the page and try again.');
+        return;
+      }
+
+      const request = {
+        itemID: parseInt(itemId),
+        accountID: parseInt(buyerId),
+      };
+
+      console.log('Request for Buy Now:', request);
+      instance.post('/buyer/buynow', request)
+        .then((response) => {
+          console.log('Response:', response);
+          if(response.data.status === 200) {
+            window.alert('Buy now successfully!');
+            router.push('/pages/BuyerHomePage');
+          }else{
+            setErrorMessage(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error('Error response:', error);
+          setErrorMessage('Error retrieving items.');
+        });
+        router.push('/pages/BuyerHomePage');
+    }
+  };
+
   const handlePrevImage = () => {
     if (item) {
       setCurrentImageIndex((prevIndex) =>
@@ -293,50 +331,61 @@ export default function ItemViewPage() {
             <h1>{item.Name}</h1>
             <p>{item.Description}</p>
             <p>Initial Price: {item.InitialPrice}</p>
-            <p>Current Bid Price: {item.MaxBidAmount}</p>
 
-            <div className="bid-entry">
-              <label htmlFor="currentBid">Enter Your Bid:</label>
-              <input
-                type="number"
-                id="currentBid"
-                placeholder="Enter your bid"
-                min={item.MaxBidAmount + 1}
-                value={currentBid}
-                onChange={(e) => setCurrentBid(e.target.value)}
-              />
-            </div>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-            <button className="place-bid-button" onClick={handlePlaceBid}>
-              Place Bid
-            </button>
+            {item.IsBuyNow === 0 && (
+              <>
+                <p>Current Bid Price: {item.MaxBidAmount}</p>
+                <div className="bid-entry">
+                  <label htmlFor="currentBid">Enter Your Bid:</label>
+                  <input
+                    type="number"
+                    id="currentBid"
+                    placeholder="Enter your bid"
+                    min={item.MaxBidAmount + 1}
+                    value={currentBid}
+                    onChange={(e) => setCurrentBid(e.target.value)}
+                  />
+                </div>
+                {errorMessage && <p className="error-message">{errorMessage}</p>}
+                <button className="place-bid-button" onClick={handlePlaceBid}>
+                  Place Bid
+                </button>
 
-            {/* Bidding History */}
-            {item?.bids?.length > 0 && (
-              <div className="bidding-history">
-                <h2>Bidding History</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Bid TimeStamp</th>
-                      <th>Buyer ID</th>
-                      <th>Bid Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {item.bids.map((bid) => (
-                      <tr key={bid.BidID}>
-                        <td>{bid.BidTimeStamp}</td>
-                        <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
-                        <td>{bid.BidAmount}</td>
-                        {/* <td>{bid.BuyerID}</td> */}
-
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                {/* Bidding History */}
+                {item?.bids?.length > 0 && (
+                  <div className="bidding-history">
+                    <h2>Bidding History</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Bid TimeStamp</th>
+                          <th>Buyer ID</th>
+                          <th>Bid Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {item.bids.map((bid) => (
+                          <tr key={bid.BidID}>
+                            <td>{bid.BidTimeStamp}</td>
+                            <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
+                            <td>{bid.BidAmount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
+
+            {item.IsBuyNow === 1 && (
+              <>
+                <button className="place-bid-button" onClick={handleBuyNow}>
+                  Buy Now
+                </button>
+              </>
+            )}
+            
             <p className="item-time">Time Left: {item.timeLeft}</p>
           </div>
         </>

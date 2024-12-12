@@ -50,7 +50,7 @@ interface Participant {
 }
 
 export default function ForensicReportPage() {
-    const [item, setItem] = useState<Item | null>(null);
+   
 
     const [topProfitItems, setTopProfitItems] = useState([]);
     const [totalProfit, setTotalProfit] = useState<number | null>(null);
@@ -59,15 +59,15 @@ export default function ForensicReportPage() {
     const [isModalOpen, setModalOpen] = useState(false);
     const [topMostBids, setTopMostBids] = useState([]);
     const [isBidsPopupOpen, setBidsPopupOpen] = useState(false);
-    const [userName, setUserName] = useState('');
+    
     const [topHighestBidItems, setTopHighestBidItems] = useState([]);
     const [isHighestBidsPopupOpen, setHighestBidsPopupOpen] = useState(false);
     const [topBidderItems, setTopBidderItems] = useState<BidderItem[]>([]);
     const [istopBidderItemsPopupOpen, settopBidderItemsPopupOpen] = useState(false);
     const [participants, setParticipants] = useState<Participant[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
+    
     const [showPopup, setShowPopup] = useState(false);
-    const participantsPerPage = 5;
+   
     const router = useRouter();
     useEffect(() => {
 
@@ -120,47 +120,34 @@ export default function ForensicReportPage() {
                 }
                 //participants data
                 if (response.data && response.data.participants) {
+                    //console.log("size",response.data.participants.length);
                     setParticipants(response.data.participants);
                 }
 
             })
             .catch((error) => {
                 console.log(error);
-
+                setErrorMessage('Error retrieving items.');
             })
     }
-    const totalPages = Math.ceil(participants.length / participantsPerPage);
+   
 
-    const handlePageChange = (page: number) => {
-        if (page > 0 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
-
-    const indexOfLastParticipant = currentPage * participantsPerPage;
-    const indexOfFirstParticipant = indexOfLastParticipant - participantsPerPage;
-    const currentParticipants = participants.slice(indexOfFirstParticipant, indexOfLastParticipant);
-
+ 
     return (
         <div className="forensic-report-container">
-            <button
-                type="button"
-                className="admin-page-button"
-                onClick={() => router.push('/pages/AdminPage')}>
-                Go to Admin Page
-            </button>
+             <div> <button type="button" onClick={() => router.push('/pages/AdminPage')}>Go to Admin Page</button></div>
             {/* Top Profit Items Section */}
             <div>
                 <div className="section" id="top-profit-items">
-                    <h2>Top Profit Items</h2>
-                    <p>Data for Top Profit Items will be displayed here.</p>
-                    <button className="admin-page-button" onClick={() => handleItemModel()}>View Chart</button>
+                    <h2>Top 10 Most Profitable Items</h2>
+
+                    <button className="section-button" onClick={() => handleItemModel()}>View Chart</button>
                 </div>
 
                 {isModalOpen && (
                     <div className="modal-overlay" onClick={() => setModalOpen(false)}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <button className="modal-close" onClick={() => setModalOpen(false)}>
+                            <button className="popup-close" onClick={() => setModalOpen(false)}>
                                 &times;
                             </button>
                             <h3 className="chart-title">Top Profit Items</h3>
@@ -181,9 +168,9 @@ export default function ForensicReportPage() {
             </div>
             {/* Total Profit Section */}
             <div className="section" id="total-profit">
-                <h2>Total Profit</h2>
-                <p>Data for Total Profit will be displayed here.</p>
-                <button className="admin-page-button" onClick={() => handleProfitModel()}>View Total Profit</button>
+                <h2>Total Profit Earned by Auction House</h2>
+
+                <button className="section-button" onClick={() => handleProfitModel()}>View Total Profit</button>
             </div>
             {isProfitPopupOpen && (
                 <div className="small-popup-overlay" onClick={() => setProfitPopupOpen(false)}>
@@ -198,16 +185,16 @@ export default function ForensicReportPage() {
 
             {/* Top Most Bids Section */}
             <div className="section" id="top-most-bids">
-                <h2>Top Most Bids</h2>
-                <p>Data for Top Most Bids will be displayed here.</p>
-                <button className="admin-page-button" onClick={() => setBidsPopupOpen(true)}>View Top Most Bids</button>
+                <h2>Top 10 Items with the Most Bids</h2>
+
+                <button className="section-button" onClick={() => setBidsPopupOpen(true)}>View Top Most Bids</button>
                 {isBidsPopupOpen && (
                     <div className="chart-popup-overlay" onClick={() => setBidsPopupOpen(false)}>
                         <div className="chart-popup-content" onClick={(e) => e.stopPropagation()}>
                             <button className="popup-close" onClick={() => setBidsPopupOpen(false)}>
                                 &times;
                             </button>
-                            <h3 className="chart-title">Top Most Bids</h3>
+                            <h3 className="chart-title">Top 10 Items with the Most Bids</h3>
                             <div className="chart-container">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={topMostBids} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -225,9 +212,9 @@ export default function ForensicReportPage() {
             </div>
             {/* Top Highest Bid Items Section */}
             <div className="section" id="top-highest-bid-items">
-                <h2>Top Highest Bid Items</h2>
-                <p>Data for Top Highest Bid Items will be displayed here.</p>
-                <button className="admin-page-button" onClick={() => setHighestBidsPopupOpen(true)}>View Top Highest Bid Items</button>
+                <h2>Top 10 Items with the Highest Bid Values</h2>
+
+                <button className="section-button" onClick={() => setHighestBidsPopupOpen(true)}>View Top Highest Bid Items</button>
             </div>
 
             {isHighestBidsPopupOpen && (
@@ -236,7 +223,7 @@ export default function ForensicReportPage() {
                         <button className="popup-close" onClick={() => setHighestBidsPopupOpen(false)}>
                             &times;
                         </button>
-                        <h3 className="line-title">Top Highest Bid Items</h3>
+                        <h3 className="line-title">Top 10 Items with the Highest Bid Values</h3>
                         <div className="chart-container">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
@@ -255,91 +242,70 @@ export default function ForensicReportPage() {
                 </div>
             )}
             {/* Top number of Bidder Items Section */}
-             <div className="section" id="top-bidder-items">
-            <h2>Top Bidder Items</h2>
-            <p>Data for Top Bidder Items will be displayed here.</p>
-            <button className="admin-page-button" onClick={() => settopBidderItemsPopupOpen(true)}>View Top Highest Bid Items</button>
-            { istopBidderItemsPopupOpen && topBidderItems.length > 0 && (
-                <div className="popup">
-                     <button className="popup-close" onClick={() => settopBidderItemsPopupOpen(false)}>
+            <div className="section" id="top-bidder-items">
+                <h2>Top 10 Items with the Most Bidders</h2>
+
+                <button className="section-button" onClick={() => settopBidderItemsPopupOpen(true)}>View Top Highest Bid Items</button>
+                {istopBidderItemsPopupOpen && topBidderItems.length > 0 && (
+                    <div className="popup">
+                        <button className="popup-close" onClick={() => settopBidderItemsPopupOpen(false)}>
                             &times;
                         </button>
-                    <h3 className="chart-title">Top Bidder Items</h3>
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height={400}>
-                            <LineChart
-                                data={topBidderItems}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="ItemName" />
-                                <YAxis />
-                                <Tooltip />
-                                <Line type="monotone" dataKey="DistinctBidders" stroke="#8884d8" />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            )}
-        
-        </div>
-         {/* Participants report */}
-        <div className="sectionparticipants" id="participants-report">
-            <h2>Participants Report</h2>
-            <button onClick={() => setShowPopup(true)}>Show Participants</button>
-
-            {showPopup && (
-                <div className="popupparticipants">
-                    <div className="popup-contentparticipants">
-                        <h2>Participants Report</h2>
-                        <table className="participants-table">
-                            <thead>
-                                <tr>
-                                    <th>Buyer Name</th>
-                                    <th>Item Name</th>
-                                    <th>Sale Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentParticipants.map((participant) => (
-                                    <tr key={participant.AccountID}>
-                                        <td>{participant.BuyerName}</td>
-                                        <td>{participant.ItemName}</td>
-                                        <td>${participant.SaleValue}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="pagination">
-                            <button 
-                                disabled={currentPage === 1} 
-                                onClick={() => handlePageChange(currentPage - 1)}
-                            >
-                                Previous
-                            </button>
-                            {[...Array(totalPages)].map((_, index) => (
-                                <button
-                                    key={index}
-                                    className={currentPage === index + 1 ? "active" : ""}
-                                    onClick={() => handlePageChange(index + 1)}
+                        <h3 className="chart-title">Top 10 Items with the Most Bidders</h3>
+                        <div className="chart-container">
+                            <ResponsiveContainer width="100%" height={400}>
+                                <LineChart
+                                    data={topBidderItems}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                                 >
-                                    {index + 1}
-                                </button>
-                            ))}
-                            <button 
-                                disabled={currentPage === totalPages} 
-                                onClick={() => handlePageChange(currentPage + 1)}
-                            >
-                                Next
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="ItemName" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Line type="monotone" dataKey="DistinctBidders" stroke="#8884d8" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
+
+            </div>
+            {/* Participants report */}
+            <div className="sectionparticipants" id="participants-report">
+                <h2>Participants Report for Each Item</h2>
+                <button className="section-button" onClick={() => setShowPopup(true)}>Show Participants</button>
+
+                {showPopup && (
+                    <div className="popupparticipants">
+                        <div className="popup-contentparticipants">
+                            <h2>Participants Report</h2>
+                            <div className="table-container">
+                                <table className="participants-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Buyer Name</th>
+                                            <th>Item Name</th>
+                                            <th>Sale Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {participants.map((participant) => (
+                                            <tr key={participant.AccountID}>
+                                                <td>{participant.BuyerName}</td>
+                                                <td>{participant.ItemName}</td>
+                                                <td>${participant.SaleValue}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button className="close-popup" onClick={() => setShowPopup(false)}>
+                                Close
                             </button>
                         </div>
-                        <button className="close-popup" onClick={() => setShowPopup(false)}>
-                            Close
-                        </button>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
         </div>
     );
 

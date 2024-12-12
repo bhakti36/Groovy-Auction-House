@@ -23,7 +23,7 @@ export interface Item {
     BidTime: string;
     HighestBidAmount: number,
     ParticipantsList: ParticipantsList[],
-    InitialPrice:number;
+    InitialPrice: number;
 
 }
 export interface ParticipantsList {
@@ -37,13 +37,10 @@ export interface ParticipantsList {
 
 
 export default function ReportPage() {
-    const [item, setItem] = useState<Item | null>(null);
-
     const [auctionReport, setAuctionReport] = useState<Item[]>([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-    const [userName, setUserName] = useState('');
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = auctionReport.slice(startIndex, startIndex + itemsPerPage);
     const router = useRouter();
@@ -107,8 +104,8 @@ export default function ReportPage() {
                                 <Divider sx={{ margin: "10px 0" }} />
 
                                 <Box>
-                                <Typography variant="subtitle2">
-                                InitialPrice: ${item.InitialPrice}
+                                    <Typography variant="subtitle2">
+                                        InitialPrice: ${item.InitialPrice}
                                     </Typography>
                                     <Typography variant="subtitle2">
                                         Auction House Profit: ${item.AuctionHouseProfit}

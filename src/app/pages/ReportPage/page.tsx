@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import './globals.css';
 import axios from 'axios';
 import { Grid, Card, CardContent, Typography, Divider, Box, Button, Pagination } from '@mui/material';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const instance = axios.create({
     baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
@@ -40,6 +42,7 @@ export default function ReportPage() {
     const [auctionReport, setAuctionReport] = useState<Item[]>([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const itemsPerPage = 5;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = auctionReport.slice(startIndex, startIndex + itemsPerPage);
@@ -50,35 +53,110 @@ export default function ReportPage() {
     }, []);
 
     const handleItemDetail = () => {
-        instance.post('/admin/getauctionreport')
-            .then((response) => {
 
-                console.log('Response:', response.data);
-                setAuctionReport(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-                setErrorMessage('Failed to load auction report.');
-            })
+        try {
+            setLoading(true);
+            instance.post('/admin/getauctionreport')
+                .then((response) => {
+                    if (response.data) {
+                        console.log('Response:', response.data);
+                        
+
+                        setAuctionReport(response.data);
+                    }
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setErrorMessage('Failed to load auction report.');
+                    setLoading(false);
+                })
+        }
+        catch (error) {
+            setErrorMessage('Failed to load auction report');
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
+
     }
+
+    const downloadAuctionReportPDF = (auctionReport: Item[]) => {
+        try {
+            const doc = new jsPDF();
+
+
+            doc.setFontSize(16);
+            doc.text('Auction Report', 14, 15);
+
+            let currentY = 25;
+
+            auctionReport.forEach((item, index) => {
+
+                if (currentY + 60 > doc.internal.pageSize.height) {
+                    doc.addPage();
+                    currentY = 15;
+                }
+
+                const { Name, Description, PurchasePrice, AuctionHouseProfit, InitialPrice, BuyerName, ParticipantsList } = item;
+
+
+                doc.setFontSize(12);
+                doc.text(`Item ${index + 1}: ${Name}`, 14, currentY);
+                doc.setFontSize(10);
+                doc.text(`Description: ${Description}`, 14, currentY + 8);
+                doc.text(`Initial Price: $${InitialPrice}`, 14, currentY + 16);
+                doc.text(`Purchase Price: $${PurchasePrice}`, 14, currentY + 24);
+                doc.text(`Auction House Profit: $${AuctionHouseProfit}`, 14, currentY + 32);
+                doc.text(`Buyer: ${BuyerName}`, 14, currentY + 40);
+
+                currentY += 48;
+
+
+                if (ParticipantsList && ParticipantsList.length > 0) {
+
+                    if (currentY + 30 > doc.internal.pageSize.height) {
+                        doc.addPage();
+                        currentY = 15;
+                    }
+
+                    autoTable(doc, {
+                        startY: currentY,
+                        head: [['Buyer Name', 'Total Bids', 'Max Bid Amount', 'Bid Timestamp']],
+                        body: ParticipantsList.map(participant => [
+                            participant.BuyerName,
+                            participant.TotalBids.toString(),
+                            `$${participant.MaxBidAmount.toFixed(2)}`,
+                            new Date(participant.BidTimeStamp).toLocaleString(),
+                        ]),
+                        styles: { fontSize: 8 },
+                        margin: { left: 14 },
+                    });
+
+
+                    const rowsHeight = ParticipantsList.length * 10;
+                    currentY += rowsHeight + 20;
+                }
+            });
+
+            // Save the PDF
+            doc.save('Auction_Report.pdf');
+            console.log('PDF generated successfully!');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+        }
+    };
+
 
     const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
         setCurrentPage(page);
     };
-    const handleSuccessfulAuction = () => {
-        console.log('Successful Auction clicked!');
-        // Add logic for successful auction here
-    };
 
-    const handleFailedItem = () => {
-        console.log('Failed Item clicked!');
-        // Add logic for failed items here
-    };
 
     return (
         <div style={{ padding: '20px' }}>
 
-            <div> <button type="button" onClick={() => router.push('/pages/AdminPage')}>Go to Admin Page</button></div>
+            <div> <button className='pdf-button' type="button" onClick={() => router.push('/pages/AdminPage')}>Go to Admin Page</button></div>
 
             <Typography variant="h4" gutterBottom>
                 Auction Report
@@ -90,7 +168,16 @@ export default function ReportPage() {
                 </Typography>
             )}
 
+            <button className='pdf-button'
+                onClick={() => downloadAuctionReportPDF(auctionReport)} disabled={auctionReport.length === 0}>
+                Download Auction Report
+            </button>
 
+            {loading && (
+                <div className="loader">
+                    <div className="spinner"></div>
+                </div>
+            )}
 
             <Grid container spacing={2} sx={{ padding: 2 }}>
                 {currentItems.map((item, index) => (
@@ -145,6 +232,8 @@ export default function ReportPage() {
                     color="primary"
                 />
             </Box>
+
+
         </div>
     );
 

@@ -30,7 +30,7 @@ const AdminPage: React.FC = () => {
   // const [username, setUsername] = useState('');
   // const [password, setPassword] = useState('');
   const [itemList, setItemList] = useState<{ accountName: string; item: string; status: string; id: number }[]>([]);
-
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const AdminPage: React.FC = () => {
 
 
   const handleAuctionReport = () => {
-    console.log("ggg");
+    //console.log("ggg");
 
     router.push('/pages/ReportPage');
 
@@ -102,8 +102,8 @@ const AdminPage: React.FC = () => {
   }
 
   const handleForensicReport = () => {
-    console.log("forensic");
-
+    //console.log("forensic");
+    setLoading(true);
     router.push('/pages/ForensicReportPage');
   }
 
@@ -114,6 +114,11 @@ const AdminPage: React.FC = () => {
       <div className="button-container">
         <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
         <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
+        {loading && (
+                <div className="loader">
+                    <div className="spinner"></div>
+                </div>
+            )}
       </div>
       <table>
         <thead>

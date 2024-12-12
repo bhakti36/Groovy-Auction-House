@@ -152,6 +152,7 @@ const EditItemPage = () => {
           durationDays: days,
           durationHours: hours,
           durationMinutes: minutes,
+          isBuyNow: IsBuyNow,
         },
         sellerID: userID,
         itemID: itemID,
@@ -199,28 +200,6 @@ const EditItemPage = () => {
     <div className="add-item-page">
       <h1>
         Edit Item
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              type="radio"
-              name="isBuyNow"
-              value="true"
-              checked={IsBuyNow === true}
-              onChange={handleBuyNow}
-            />
-            Buy
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              type="radio"
-              name="isBuyNow"
-              value="false"
-              checked={IsBuyNow === false}
-              onChange={() => setIsBuyNow(false)}
-            />
-            Bid
-          </label>
-        </div>
       </h1>
       <div>
         <input
@@ -298,6 +277,12 @@ const EditItemPage = () => {
           max="59"
           onChange={(e) => setDurationMinutes(e.target.value)}
         />
+      </div>
+      <div>
+        <label style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ marginRight: '8px' }}>IsBuyNow?</span>
+          <input type="checkbox" onChange={()=>setIsBuyNow(!IsBuyNow)} style={{ marginLeft: '-260px' }}/>
+        </label>
       </div>
       <div>
         <button onClick={handleEditItem} disabled={isLoading}>

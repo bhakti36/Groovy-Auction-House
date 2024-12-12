@@ -100,7 +100,7 @@ export default function BuyerPage() {
           setErrorMessage('Error adding item.');
         })
       setWalletAmount(0);
-      router.push('/pages/LoginPage');
+      router.push('/');
     }
   };
 
@@ -129,7 +129,7 @@ export default function BuyerPage() {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
     if (isConfirmed) {
       console.log('handleLogOut called ' + userID);
-      router.push('/pages/LoginPage');
+      router.push('/');
     }
   };
 
@@ -350,7 +350,10 @@ export default function BuyerPage() {
   };
 
   const filteredItems = items
-    .filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((item) => 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     .sort((a, b) => {
       if (sortChoice === "timeLeft") return a.timeLeft.localeCompare(b.timeLeft);
       if (sortChoice === "value") return a.value.localeCompare(b.value);

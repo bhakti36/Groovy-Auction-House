@@ -95,7 +95,7 @@ const AdminPage: React.FC = () => {
 
   const handleAuctionReport = () => {
     //console.log("ggg");
-
+    setLoading(true);
     router.push('/pages/ReportPage');
 
 

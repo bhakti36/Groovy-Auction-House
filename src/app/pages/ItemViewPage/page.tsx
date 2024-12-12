@@ -68,6 +68,7 @@ export interface BidJson {
 
 export default function ItemViewPage() {
   const [item, setItem] = useState<Item | null>(null);
+  const [userType, setUserType] = useState('Customer')
   //const [items, setItems] = useState<Item[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentBid, setCurrentBid] = useState('');
@@ -77,14 +78,20 @@ export default function ItemViewPage() {
   useEffect(() => {
     
     handleItemDetail();
-  }, []);
+  }, [userType]);
 
   const handleItemDetail = () => {
 
     const itemId = sessionStorage.getItem('itemId');
     //console.log("inside item detail api call item---.",itemId)
     const buyerId = sessionStorage.getItem('buyerId');
+    if (buyerId!== null){
+      setUserType('Buyer')
+    }
+    console.log("id", buyerId)
     setUserName(sessionStorage.getItem('userName') || '')
+    console.log("uSERtYPE", userType);
+    console.log("hello", (item?.bids?.length === 0 || userType === "Customer") );
     //console.log("inside item detail api call buyer-->",buyerId)
 
     const request = {
@@ -281,6 +288,13 @@ export default function ItemViewPage() {
     }
   };
 
+  const handleLogin = () => {
+    const isConfirmed = window.confirm("Do you wanna Login before Purchase?");
+    if (isConfirmed) {
+      router.push('/pages/LoginPage');
+    }
+  };
+
   const calculateTimeLeft = (
     startDate: string,
     durationDays: number,
@@ -347,40 +361,61 @@ export default function ItemViewPage() {
                   />
                 </div>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
-                <button className="place-bid-button" onClick={handlePlaceBid}>
+                <button
+                  className="place-bid-button"
+                  onClick={() => {
+                    const buyerId = sessionStorage.getItem('buyerId');
+                    if (buyerId && buyerId!='' && JSON.parse(buyerId)) {
+                      handlePlaceBid();
+                    } else {
+                      handleLogin();
+                    }
+                  }}
+                >
                   Place Bid
                 </button>
 
                 {/* Bidding History */}
-                {item?.bids?.length > 0 && (
-                  <div className="bidding-history">
-                    <h2>Bidding History</h2>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Bid TimeStamp</th>
-                          <th>Buyer ID</th>
-                          <th>Bid Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {item.bids.map((bid) => (
-                          <tr key={bid.BidID}>
-                            <td>{bid.BidTimeStamp}</td>
-                            <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
-                            <td>{bid.BidAmount}</td>
+                {
+                  
+                  (item?.bids?.length === 0 || userType === "Customer") ? <div></div> : (
+                    <div className="bidding-history">
+                      <h2>Bidding History</h2>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Bid TimeStamp</th>
+                            <th>Buyer ID</th>
+                            <th>Bid Amount</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </thead>
+                        <tbody>
+                          {item.bids.map((bid) => (
+                            <tr key={bid.BidID}>
+                              <td>{bid.BidTimeStamp}</td>
+                              <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
+                              <td>{bid.BidAmount}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) 
+                }
               </>
             )}
 
             {item.IsBuyNow === 1 && (
               <>
-                <button className="place-bid-button" onClick={handleBuyNow}>
+                <button className="place-bid-button" 
+                onClick={() => {
+                  const buyerId = sessionStorage.getItem('buyerId');
+                  if (buyerId && buyerId!='' && JSON.parse(buyerId)) {
+                    handleBuyNow();
+                  } else {
+                    handleLogin();
+                  }
+                }}>
                   Buy Now
                 </button>
               </>

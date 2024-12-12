@@ -129,7 +129,7 @@ export default function ForensicReportPage() {
 
                     if (response.data) {
                         setforensicReport(response.data);
-                        // console.log("duggo", forensicReport);
+                       
                     }
                     if (response.data && response.data.topProfitItems) {
                         const parsedItems = response.data.topProfitItems.map((item: any) => ({

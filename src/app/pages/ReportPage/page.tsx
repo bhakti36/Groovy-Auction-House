@@ -60,7 +60,7 @@ export default function ReportPage() {
                 .then((response) => {
                     if (response.data) {
                         console.log('Response:', response.data);
-                        //pdf doc formatting
+                        
 
                         setAuctionReport(response.data);
                     }

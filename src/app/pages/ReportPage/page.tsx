@@ -22,15 +22,17 @@ export interface Item {
     BuyerID: number;
     BidTime: string;
     HighestBidAmount: number,
-    ParticipantsList: ParticipantsList[]
+    ParticipantsList: ParticipantsList[],
+    InitialPrice:number;
 
 }
 export interface ParticipantsList {
     ItemID: number;
     BuyerID: number;
     BuyerName: string;
-    BidAmount: number;
+    TotalBids: number;
     MaxBidAmount: number;
+    BidTimeStamp: string;
 }
 
 
@@ -91,14 +93,7 @@ export default function ReportPage() {
                 </Typography>
             )}
 
-<Box sx={{ display: 'flex', gap: 2, marginBottom: 2 }}>
-                <Button variant="contained" color="success" onClick={handleSuccessfulAuction}>
-                    Successful Auction
-                </Button>
-                <Button variant="contained" color="error" onClick={handleFailedItem}>
-                    Failed Item
-                </Button>
-            </Box>
+
 
             <Grid container spacing={2} sx={{ padding: 2 }}>
                 {currentItems.map((item, index) => (
@@ -112,8 +107,8 @@ export default function ReportPage() {
                                 <Divider sx={{ margin: "10px 0" }} />
 
                                 <Box>
-                                    <Typography variant="subtitle2">
-                                        Purchase Price: ${item.PurchasePrice}
+                                <Typography variant="subtitle2">
+                                InitialPrice: ${item.InitialPrice}
                                     </Typography>
                                     <Typography variant="subtitle2">
                                         Auction House Profit: ${item.AuctionHouseProfit}
@@ -131,9 +126,10 @@ export default function ReportPage() {
                                 <Box>
                                     {item.ParticipantsList.map((participant, pIndex) => (
                                         <Typography key={pIndex} variant="body2">
-                                            - {participant.BuyerName} (Bid: $
-                                            {participant.BidAmount}, Max Bid: $
-                                            {participant.MaxBidAmount})
+                                            - {participant.BuyerName} (<strong>Number of Bids: </strong>
+                                            {participant.TotalBids}, <strong>Max Bid $  </strong>
+                                            {participant.MaxBidAmount},<strong>Bid TimeStamp : </strong>
+                                            {participant.BidTimeStamp})
                                         </Typography>
                                     ))}
                                 </Box>

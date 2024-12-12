@@ -261,7 +261,7 @@ export default function ItemViewPage() {
           console.error('Error response:', error);
           setErrorMessage('Error retrieving items.');
         });
-        router.push('/pages/BuyerHomePage');
+        // router.push('/pages/BuyerHomePage');
     }
   };
 

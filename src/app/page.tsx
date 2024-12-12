@@ -15,6 +15,9 @@ export default function Home() {
       <p>
         <button type="button" onClick={() => router.push('/pages/LoginPage')}>Go to Login</button>
       </p>
+      <p>
+        <button type="button" onClick={() => router.push('/pages/CustomerHomePage')}>Go to Customer Page</button>
+      </p>
       {/* <img src="https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/Hammer_2024-11-08T00%3A13%3A20.687Z/1.png" alt="Sample" /> */}
       {/* <img src="" alt="Sample" /> */}
       {/* <div data-testid="gameOverImage" id="image gameOverImage">

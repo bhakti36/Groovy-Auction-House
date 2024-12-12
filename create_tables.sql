@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS Purchase;
 DROP TABLE IF EXISTS Item;
 DROP TABLE IF EXISTS BuyerAccount;
 DROP TABLE IF EXISTS SellerAccount;
+DROP TABLE IF EXISTS AdminAccount;
 DROP TABLE IF EXISTS Accounts;
 
 CREATE TABLE Accounts
@@ -31,6 +32,13 @@ CREATE TABLE SellerAccount
     FOREIGN KEY (AccountID) REFERENCES Accounts (AccountID)
 );
 
+CREATE TABLE AdminAccount
+(
+    AccountID INT PRIMARY KEY,
+    Funds     DECIMAL(10, 2),
+    FOREIGN KEY (AccountID) REFERENCES Accounts (AccountID)
+);
+
 CREATE TABLE Item
 (
     ItemID       INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,7 +50,8 @@ CREATE TABLE Item
     DurationDays INT,
     DurationHours INT,
     DurationMinutes INT,
-    IsPublished  BOOLEAN DEFAULT TRUE,
+    IsBuyNow BOOLEAN DEFAULT FALSE,
+    IsPublished  BOOLEAN DEFAULT FALSE,
     IsFrozen     BOOLEAN DEFAULT FALSE,
     IsArchived   BOOLEAN DEFAULT FALSE,
     IsComplete   BOOLEAN DEFAULT FALSE,
@@ -54,7 +63,7 @@ CREATE TABLE Item
 CREATE TABLE Purchase
 (
     PurchaseID         INT PRIMARY KEY AUTO_INCREMENT,
-    ItemID             INT,
+    ItemID             INT UNIQUE,
     Name               VARCHAR(255),
     Description        TEXT,
     Images             JSON,
@@ -75,20 +84,25 @@ CREATE TABLE Bid
 );
 
 # CREATE TABLE AuctionHouse (
-#                               Funds DECIMAL(10, 2) PRIMARY KEY,
-#                               SuccessfulPurchaseID INT,
-#                               FOREIGN KEY (SuccessfulPurchaseID) REFERENCES Purchase(PurchaseID)
-#     );
+#               Profit DECIMAL(10, 2) PRIMARY KEY,
+#               SuccessfulPurchaseID INT,
+#               FOREIGN KEY (SuccessfulPurchaseID) REFERENCES Purchase(PurchaseID)
+# );
 
 INSERT INTO Accounts (Username, Password, accountType)
 VALUES ('buyer1', 'buyer123', 'Buyer'),
        ('seller1', 'seller123', 'Seller'),
        ('buyer2', 'buyer456', 'Buyer'),
        ('seller2', 'seller456', 'Seller'),
-       ('Admin', 'Admin123', 'Admin');
+       ('Admin', 'Admin123', 'Admin'),
+    ('thelittleshop','littleshop','Seller'),
+    ('somegenzuser','genz','Buyer');
+
+
+
 
 INSERT INTO BuyerAccount (AccountID, AvailableFunds, TotalFunds)
-VALUES (1, 1000.00, 1500.00),
+VALUES (1, 1150.00, 1500.00),
        (3, 2000.00, 3000.00);
 
 INSERT INTO SellerAccount (AccountID, Funds)
@@ -98,7 +112,8 @@ VALUES (2, 500.00),
 INSERT INTO Item (ItemID, Name, Description, Images, InitialPrice, StartDate, DurationDays, DurationHours, DurationMinutes, IsPublished, IsFrozen,
                   IsArchived, IsComplete, IsFailed, SellerID)
 VALUES (1, 'Antique Vase', 'A rare antique vase from the 18th century.', '["20241110_001036/0.png", "20241110_001036/1.png"]', 300.00, '2024-10-22 10:00:00', 3, 20, 10, TRUE, FALSE, FALSE, FALSE, FALSE, 2),
-       (2, 'Vintage Painting', 'An original painting from the 19th century.', '["20241110_001134/0.png"]', 500.00, '2024-10-21 12:00:00', 2, 5, 20, TRUE, FALSE, FALSE, FALSE, FALSE, 4);
+       (2, 'Vintage Painting', 'An original painting from the 19th century.', '["20241110_001134/0.png"]', 500.00, '2024-10-21 12:00:00', 2, 5, 20, TRUE, FALSE, FALSE, FALSE, FALSE, 4),
+        (3,'my bucket','a completely empty bucket','["20241111_014817/0.png"]',5.00,'2024-11-11 01:48:00',3,2,1,0,0,1,0,0,2);
 
 INSERT INTO Bid (BidID, BuyerID, ItemID, BidAmount)
 VALUES (1, 1, 1, 350.00),
@@ -129,4 +144,13 @@ SELECT * FROM Accounts;
 SELECT * FROM BuyerAccount;
 SELECT * FROM SellerAccount;
 SELECT * FROM Item;
+SELECT * FROM Bid;
+SELECT * FROM Purchase;
 
+# UPDATE Accounts SET IsClosed = FALSE where AccountID=2;
+#
+UPDATE Item SET IsPublished = FALSE where ItemID = 4;
+# UPDATE BuyerAccount SET AvailableFunds = AvailableFunds + 100, TotalFunds = TotalFunds + 100 where AccountID = 1;
+
+DELETE FROM Purchase WHERE PurchaseID = 1;
+DELETE FROM Purchase WHERE PurchaseID = 2;

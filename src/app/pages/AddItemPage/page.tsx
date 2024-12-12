@@ -12,10 +12,10 @@ const AddItemPage = () => {
   const [description, setDescription] = useState('');
   const [initialPrice, setInitialPrice] = useState('');
   const [images, setImages] = useState<File[]>([]); 
-  // const [startTime, setStartTime] = useState('');
   const [durationDays, setDurationDays] = useState('');
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
+  const [IsBuyNow, setIsBuyNow] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userID, setUserID] = useState(2);
@@ -23,14 +23,13 @@ const AddItemPage = () => {
 
   useEffect(() => {
     const sellerID = sessionStorage.getItem('sellerID');
-    setUserID(sellerID? parseInt(sellerID) : 2)
+    setUserID(sellerID ? parseInt(sellerID) : 2);
     console.log('Seller ID:', sellerID);
   }, [userID]);
-  
+
   const handleAddItem = async () => {
     console.log('handleAddItem called');
 
-    // Validate that the duration is within acceptable range
     const hours = parseInt(durationHours);
     const minutes = parseInt(durationMinutes);
 
@@ -44,12 +43,11 @@ const AddItemPage = () => {
       return;
     }
 
-    if (!name || !description || !initialPrice || !durationDays || !durationHours || !durationMinutes) {
+    if (!name || !description || !initialPrice || !durationDays || !durationHours || !durationMinutes || IsBuyNow === null) {
       setErrorMessage('Please fill out all fields.');
       return;
     }
 
-    // Convert images to Base64 format
     const imagePromises = images.map((image) =>
       new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -65,42 +63,35 @@ const AddItemPage = () => {
       const base64Images = await Promise.all(imagePromises);
       console.log('Base64 images:', base64Images);
 
-      const cleanedBase64Images = base64Images.map((base64Image) => base64Image.replace(/^data:image\/[a-z]+;base64,/, '') ); 
+      const cleanedBase64Images = base64Images.map((base64Image) => base64Image.replace(/^data:image\/[a-z]+;base64,/, ''));
       console.log('Cleaned Base64 images:', cleanedBase64Images);
 
-      const files = []
+      const files = [];
 
       const date = new Date(); 
       const folderName = `${date.getFullYear()}${('0' + (date.getMonth() + 1)).slice(-2)}${('0' + date.getDate()).slice(-2)}_${('0' + date.getHours()).slice(-2)}${('0' + date.getMinutes()).slice(-2)}${('0' + date.getSeconds()).slice(-2)}`;
 
-      for(let i = 0; i < cleanedBase64Images.length; i++) {
+      for (let i = 0; i < cleanedBase64Images.length; i++) {
         const upload_request = {
           folderName: folderName,
-          fileName:  i + '.png',
+          fileName: i + '.png',
           imageData: cleanedBase64Images[i]
-        }
-        files.push(`${folderName}` + '/'+  i + '.png')
-  
+        };
+        files.push(`${folderName}` + '/' + i + '.png');
+
         const response_upload = await instance.post('/seller/uploadImg', upload_request);
         console.log('Response:', response_upload.data);
       }
-      // const upload_request = {
-      //   fileName: name + '.png',
-      //   imageData: cleanedBase64Images[0]
-      // }
-
-      // const response_upload = await instance.post('/seller/uploadImg', upload_request);
-      // console.log('Response:', response_upload.data);
       
       const request = {
-        Name: name,
-        Description: description,
-        Initial_Price: initialPrice,
-        Images: files,
-        // StartDate: startTime,
-        DurationDays: parseInt(durationDays),
-        DurationHours: hours, 
-        DurationMinutes: minutes, 
+        name: name,
+        description: description,
+        initialPrice: initialPrice,
+        images: files,
+        durationDay: parseInt(durationDays),
+        durationHour: hours, 
+        durationMinute: minutes, 
+        IsBuyNow: IsBuyNow,
         SellerID: userID, 
       };
 
@@ -121,7 +112,7 @@ const AddItemPage = () => {
         err.response ? `Error adding item: ${err.response.data}` : 'Error adding item.'
       );
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false); 
     }
   };
 
@@ -130,9 +121,40 @@ const AddItemPage = () => {
     setImages(files);
   };
 
+  const handleBuyNow = () => {
+    const isConfirmed = window.confirm("Are you sure you want to set item BuyNow?");
+    if (isConfirmed) {
+      setIsBuyNow(true);
+    }
+  };
+
   return (
     <div className="add-item-page">
-      <h1>Add Item</h1>
+      <h1>
+        Add Item
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="radio"
+              name="isBuyNow"
+              value="true"
+              checked={IsBuyNow === true}
+              onChange={handleBuyNow}
+            />
+            Buy
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="radio"
+              name="isBuyNow"
+              value="false"
+              checked={IsBuyNow === false}
+              onChange={() => setIsBuyNow(false)}
+            />
+            Bid
+          </label>
+        </div>
+      </h1>
       <div>
         <input
           type="text"
@@ -191,7 +213,7 @@ const AddItemPage = () => {
       </div>
       <div>
         <button onClick={handleAddItem} disabled={isLoading}>
-          {isLoading ? 'Submitting...' : 'Submit Changes'}
+          {isLoading ? 'Submitting...' : 'Submit'}
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}

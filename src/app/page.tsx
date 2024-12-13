@@ -45,28 +45,19 @@ interface ItemJson {
 
 export default function CustomerPage() {
   const router = useRouter();
-  let info = "";
-  // const [filter, setFilter] = useState<string>("All");
 
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('customer');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice,setSortChoice] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]);
-  const [activeButton, setActiveButton] = useState<string | null>("all");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
  
   const handleLogIn = () => {
     sessionStorage.clear();
     router.push('/pages/LoginPage');
   };
-  
-  const handleAll = () => {
-    //console.log("all");
-    setActiveButton("all");
-    handleViewItem();
-  }
-  
+
 
   const handleViewItem = () => {
     setLoading(true);
@@ -130,7 +121,7 @@ export default function CustomerPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userType]);
 
   const calculateTimeLeft = (startDate: string, durationDays: number, durationHours: number, durationMinutes: number) => {
     const now = new Date();
@@ -164,9 +155,6 @@ export default function CustomerPage() {
       return 0;
     });
 
-    const getButtonClass = (button: string) => {
-      return button === activeButton ? "active-button" : "";
-    };
 
   return (
     <main className="min-h-screen p-6 bg-gray-100">
@@ -235,9 +223,6 @@ export default function CustomerPage() {
               <p className="item-status">Status:</p>
               <p className="item-time">{item.status}</p>
             </div>
-            {/* <div className="item-status-value">
-            <p className="item-status">Bid History..</p>
-            </div> */}
           </div>
         ))}
 

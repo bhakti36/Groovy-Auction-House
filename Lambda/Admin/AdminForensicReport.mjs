@@ -47,6 +47,20 @@ export const handler = async (event) => {
         });
     };
 
+    const getPurchasesReport = async () => {
+        const query = `
+            SELECT 
+                p.*, 
+                a.Username AS BuyerName 
+            FROM 
+                Purchase p
+            JOIN 
+                Accounts a 
+            ON 
+                Purchase.BuyerID = a.AccountID;        `;
+        return await executeQuery(query);
+    };
+
     //get item details on profit on that item
     const getForensicItemReport = async () => {
         const itemQuery = `
@@ -233,19 +247,21 @@ LIMIT 10;
     }
 
     try {
-       // const { username, password } = event;
+        //const { username, password } = event;
         
        // const forensicReport = await getForensicItemReport();
+       const purchasesReport = await getPurchasesReport();
         const topProfitItems = await getTopTenProfitItemsDetails();
         const totalProfit = await getTotalProfit();
         const topMostBids = await getTopTenMostBids();
         const topHeighestBidItems = await getTopTenHeighestBidItems();
         const topBidderItems = await getTopTenNumberOfBidderItems();
         const participants = await getParticipantsDetails();
-
+console.log("size table",participants.length);
         // Construct the response object with the results
         response = {
             //forensicReport,
+            purchasesReport,
             topProfitItems,
             totalProfit,
             topMostBids,

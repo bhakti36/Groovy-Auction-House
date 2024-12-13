@@ -1,155 +1,134 @@
-'use client'
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from "next/navigation";
-
-
-// import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const instance = axios.create({
   baseURL: 'https://mtlda2oa5d.execute-api.us-east-2.amazonaws.com/Test',
 });
 
-interface Seller {
-  Username: string;
-  Name: string | null;
-  IsFrozen: number;
-  ItemID: number;
-}
-
 interface ItemDetail {
-  accountName: string;
-  item: string;
+  name: string;
   status: string;
   id: number;
+  requestUnfreeze: boolean;
 }
 
-const AdminPage: React.FC = () => {
-  const [userType] = useState('admin');
-  const router = useRouter();
-  // const [username, setUsername] = useState('');
-  // const [password, setPassword] = useState('');
-  const [itemList, setItemList] = useState<{ accountName: string; item: string; status: string; id: number }[]>([]);
+const AdminPage = () => {
+  const [itemList, setItemList] = useState<ItemDetail[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const [accountID, setAccountID] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
-    const storedUserInfo = sessionStorage.getItem('userInfo');
-    if (storedUserInfo) {
-      const parsedUserInfo = JSON.parse(storedUserInfo);
-      //console.log('Loaded userInfo:', parsedUserInfo);
-      if (Array.isArray(parsedUserInfo.sellers)) {
-        const itemDetailList: ItemDetail[] = parsedUserInfo.sellers.map((seller: Seller) => ({
-          accountName: seller.Username,
-          item: seller.Name || "Unnamed Item",
-          status: seller.IsFrozen ? "Frozen" : "Unfrozen",
-          id: seller.ItemID
+    let info = sessionStorage.getItem('userInfo');
+    if (info != null) {
+      const json = JSON.parse(info);
+      setAccountID(json.success.accountID);
+    }
+    console.log('Account ID:', accountID);
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const response = await instance.post('/admin/freeze_unfreeze', {
+          accountID: accountID,
+        });
+        console.log(response.data);
+        const itemDetailList = response.data.items.map((item: any) => ({
+          name: item.Name || 'Unnamed Item',
+          status: item.IsFrozen ? 'Frozen' : 'Unfrozen',
+          requestUnfreeze: item.UnFreezeRequested,
+          id: item.ItemID,
         }));
 
-        // // Corrected forEach with explicit typing of 't' as ItemDetail
-        // itemDetailList.forEach((t: ItemDetail) => {
-        //   console.log('id:', t.id);
-        // });
-
-        // console.log('itemDetailList:', itemDetailList);  
         setItemList(itemDetailList);
-
-
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-  }, []);
+    };
 
+    fetchItems();
+  }, [accountID]);
 
-
-
-
-  // Handle Freeze action
-  const handleFreezeUnfreeze = (id: number, freeze: boolean) => {
+  const handleFreezeUnfreeze = async (id: number, freeze: boolean) => {
     setItemList((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, status: freeze ? 'Frozen' : 'Unfrozen' } : item
+        item.id === id ? { ...item, requestUnfreeze: freeze && item.requestUnfreeze? true: false, status: freeze ? 'Frozen' : 'Unfrozen' } : item
       )
     );
 
-
-    const method = '/' + userType + '/freeze_unfreeze';
-    const request = {
-      admin_credential: {
-        username: "Admin",
-        password: "Admin123"
-      },
-      freeze: freeze,
-      itemID: id
-    };
-
-    instance.post(method, request).then((response) => {
-      console.log(response);
-
-    }).catch((error) => {
-      console.log(error);
-    });
-    // setErrorMessage('');
+    try {
+      const response = await instance.post('/admin/freeze_unfreeze', {
+        accountID: accountID,
+        freeze,
+        itemID: id,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error updating item status:', error);
+    }
   };
 
-
-
   const handleAuctionReport = () => {
-    //console.log("ggg");
-
+    setLoading(true);
     router.push('/pages/ReportPage');
-
-
-  }
+  };
 
   const handleForensicReport = () => {
-    //console.log("forensic");
     setLoading(true);
     router.push('/pages/ForensicReportPage');
-  }
-
+  };
 
   return (
-    <div >
+    <div className="admin-page">
       <h1>XXX Auction - Admin</h1>
       <div className="button-container">
-        <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
-        <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
-        {loading && (
-                <div className="loader">
-                    <div className="spinner"></div>
-                </div>
-            )}
+        <button onClick={handleAuctionReport}>Generate Auction Report</button>
+        <button onClick={handleForensicReport}>Generate Forensic Report</button>
       </div>
-      <table>
+      {loading && (
+        <div className="loader">
+          <div className="spinner"></div>
+        </div>
+      )}
+      <table className="admin-table">
         <thead>
           <tr>
-            <th>Account</th>
-            <th>Item</th>
+            <th>Item Name</th>
             <th>Status</th>
-            <th>Freeze</th>
-            <th>Unfreeze</th>
+            <th>Requested Unfreeze</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {itemList.map((item) => (
             <tr key={item.id}>
-              <td>{item.accountName}</td>
-              <td>{item.item}</td>
+              <td>{item.name}</td>
               <td>{item.status}</td>
+              <td>{item.requestUnfreeze ? 'Yes' : 'No'}</td>
               <td>
-                <button onClick={() => handleFreezeUnfreeze(item.id, true)} disabled={item.status === 'Frozen'}>Freeze</button>
-              </td>
-              <td>
-                <button onClick={() => handleFreezeUnfreeze(item.id, false)} disabled={item.status === 'Unfrozen'}>Unfreeze</button>
+                <button
+                  onClick={() => handleFreezeUnfreeze(item.id, true)}
+                  disabled={item.status === 'Frozen'}
+                >
+                  Freeze
+                </button>
+                <button
+                  onClick={() => handleFreezeUnfreeze(item.id, false)}
+                  disabled={item.status === 'Unfrozen'}
+                >
+                  Unfreeze
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
     </div>
-  )
-}
-
+  );
+};
 
 export default AdminPage;

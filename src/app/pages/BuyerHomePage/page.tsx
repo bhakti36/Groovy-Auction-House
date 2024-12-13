@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import './globals.css';
@@ -377,9 +378,11 @@ export default function BuyerPage() {
     };
 
   return (
-    <main className="min-h-screen p-6 bg-gray-100">
+    <main className="min-h-screen p-6 bg-red-700">
+      {/* Snowfall Effect */}
+      <Snowfall color="white" snowflakeCount={150} />
       <header className="header">
-        <h1 className="title">Buyer home page</h1>
+        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE - Buyer</h1>
         <div className="flex items-center space-x-4">
           <h1>{userName}</h1>
           <button className="button" onClick={handleLogOut}>

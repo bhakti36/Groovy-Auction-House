@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import { useRouter } from "next/navigation";
 import FilterBar from "@/app/component/FilterBar";
 import { determineItemStatusAndActions } from "@/app/utils/sellerUtils";
@@ -474,18 +475,16 @@ export default function SellerPage() {
     });
 
   return (
-    <main className="min-h-screen p-6 bg-gray-100">
-      <header className="flex justify-between items-center p-4 bg-white shadow-md">
-        <h1 className="text-xl font-semibold">Seller Home Page</h1>
-        <div className="flex items-center space-x-4">
-          <h1>{userName}</h1>
-          <button className="button" onClick={handleLogOut}>
-            Log Out
-          </button>
-        </div>
+    <main className="min-h-screen p-6 bg-red-700">
+      {/* Snowfall Effect */}
+      <Snowfall color="white" snowflakeCount={150} />
+
+      <header className="flexjustify-between">
+        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE - Seller</h1>
+        <h1>{userNameHome}</h1>
       </header>
       <div className="mt-10 flex justify-end items-center space-x-4">
-        <div className="text-lg">Wallet: ${walletAmount}</div>
+        <div className="text-white">Wallet: ${walletAmount}</div>
         <button
           onClick={() => handleAddNewItem()}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"

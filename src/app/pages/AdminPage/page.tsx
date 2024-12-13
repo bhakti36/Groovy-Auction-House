@@ -1,6 +1,6 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+'use client'
+import React, { useState, useEffect  } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -83,18 +83,17 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="admin-page">
-      <h1>XXX Auction - Admin</h1>
+
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+        <div >
+        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE</h1>
       <div className="button-container">
-        <button onClick={handleAuctionReport}>Generate Auction Report</button>
-        <button onClick={handleForensicReport}>Generate Forensic Report</button>
+        <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
+        <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
       </div>
-      {loading && (
-        <div className="loader">
-          <div className="spinner"></div>
-        </div>
-      )}
-      <table className="admin-table">
+      <table>
         <thead>
           <tr>
             <th>Item Name</th>
@@ -128,7 +127,13 @@ const AdminPage = () => {
         </tbody>
       </table>
     </div>
-  );
-};
+    </div>
+  )}
+      
+       
+
+      
+ 
+
 
 export default AdminPage;

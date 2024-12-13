@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import { useRouter } from "next/navigation";
 import './globals.css';
 import axios from 'axios';
@@ -324,22 +325,25 @@ export default function ItemViewPage() {
   };
 
   return (
-    <div className="item-detail-page">
-      {item ? (
-        <>
-          <div className="image-container">
-            <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
-              &#8249;
-            </button>
-            <img
-              src={item.Images[currentImageIndex]}
-              alt={`Item image ${currentImageIndex + 1}`}
-              className="item-image"
-            />
-            <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
-              &#8250;
-            </button>
-          </div>
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+      <div className="item-detail-page">
+        {item ? (
+          <>
+            <div className="image-container">
+              <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
+                &#8249;
+              </button>
+              <img
+                src={item.Images[currentImageIndex]}
+                alt={`Item image ${currentImageIndex + 1}`}
+                className="item-image"
+              />
+              <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
+                &#8250;
+              </button>
+            </div>
 
           <div className="item-info">
             <h1>{item.Name}</h1>

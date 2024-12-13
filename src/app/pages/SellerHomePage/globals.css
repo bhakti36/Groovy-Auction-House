@@ -31,6 +31,16 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.flexjustify-between
+{
+  display: flex; /* Ensures children are laid out in a row */
+  justify-content: space-between; /* Pushes items to the edges */
+  align-items: center; /* Aligns items vertically in the center */
+  padding: 1rem; /* Adds padding around the header */
+  background-color: rgb(103, 220, 103); /* Sets the background color to green */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+}
+
 .title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -46,6 +56,7 @@ body {
 
 .wallet-amount {
   font-size: 1.125rem;
+  
 }
 
 .add-money-button {

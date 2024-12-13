@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState, Suspense } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import axios, { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -196,7 +197,10 @@ const EditItemPage = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Loading />
-    <div className="add-item-page">
+      <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+      <div className="add-item-page">
       <h1>
         Edit Item
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
@@ -305,6 +309,7 @@ const EditItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
+    </div>
     </div>
     </Suspense>
   );

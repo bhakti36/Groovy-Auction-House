@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import { useRouter } from "next/navigation";
 import './globals.css';
 import axios from 'axios';
@@ -310,88 +311,92 @@ export default function ItemViewPage() {
   };
 
   return (
-    <div className="item-detail-page">
-      {item ? (
-        <>
-          <div className="image-container">
-            <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
-              &#8249;
-            </button>
-            <img
-              src={item.Images[currentImageIndex]}
-              alt={`Item image ${currentImageIndex + 1}`}
-              className="item-image"
-            />
-            <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
-              &#8250;
-            </button>
-          </div>
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+      <div className="item-detail-page">
+        {item ? (
+          <>
+            <div className="image-container">
+              <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
+                &#8249;
+              </button>
+              <img
+                src={item.Images[currentImageIndex]}
+                alt={`Item image ${currentImageIndex + 1}`}
+                className="item-image"
+              />
+              <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
+                &#8250;
+              </button>
+            </div>
 
-          <div className="item-info">
-            <h1>{item.Name}</h1>
-            <p>{item.Description}</p>
-            <p>Initial Price: {item.InitialPrice}</p>
+            <div className="item-info">
+              <h1>{item.Name}</h1>
+              <p>{item.Description}</p>
+              <p>Initial Price: {item.InitialPrice}</p>
 
-            {item.IsBuyNow === 0 && (
-              <>
-                <p>Current Bid Price: {item.MaxBidAmount}</p>
-                <div className="bid-entry">
-                  <label htmlFor="currentBid">Enter Your Bid:</label>
-                  <input
-                    type="number"
-                    id="currentBid"
-                    placeholder="Enter your bid"
-                    min={item.MaxBidAmount + 1}
-                    value={currentBid}
-                    onChange={(e) => setCurrentBid(e.target.value)}
-                  />
-                </div>
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
-                <button className="place-bid-button" onClick={handlePlaceBid}>
-                  Place Bid
-                </button>
-
-                {/* Bidding History */}
-                {item?.bids?.length > 0 && (
-                  <div className="bidding-history">
-                    <h2>Bidding History</h2>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Bid TimeStamp</th>
-                          <th>Buyer ID</th>
-                          <th>Bid Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {item.bids.map((bid) => (
-                          <tr key={bid.BidID}>
-                            <td>{bid.BidTimeStamp}</td>
-                            <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
-                            <td>{bid.BidAmount}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+              {item.IsBuyNow === 0 && (
+                <>
+                  <p>Current Bid Price: {item.MaxBidAmount}</p>
+                  <div className="bid-entry">
+                    <label htmlFor="currentBid">Enter Your Bid:</label>
+                    <input
+                      type="number"
+                      id="currentBid"
+                      placeholder="Enter your bid"
+                      min={item.MaxBidAmount + 1}
+                      value={currentBid}
+                      onChange={(e) => setCurrentBid(e.target.value)}
+                    />
                   </div>
-                )}
-              </>
-            )}
+                  {errorMessage && <p className="error-message">{errorMessage}</p>}
+                  <button className="place-bid-button" onClick={handlePlaceBid}>
+                    Place Bid
+                  </button>
 
-            {item.IsBuyNow === 1 && (
-              <>
-                <button className="place-bid-button" onClick={handleBuyNow}>
-                  Buy Now
-                </button>
-              </>
-            )}
-            
-            <p className="item-time">Time Left: {item.timeLeft}</p>
-          </div>
-        </>
-      ) : (
-        <p>Loading item details...</p>
-      )}
+                  {/* Bidding History */}
+                  {item?.bids?.length > 0 && (
+                    <div className="bidding-history">
+                      <h2>Bidding History</h2>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Bid TimeStamp</th>
+                            <th>Buyer ID</th>
+                            <th>Bid Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {item.bids.map((bid) => (
+                            <tr key={bid.BidID}>
+                              <td>{bid.BidTimeStamp}</td>
+                              <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
+                              <td>{bid.BidAmount}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {item.IsBuyNow === 1 && (
+                <>
+                  <button className="place-bid-button" onClick={handleBuyNow}>
+                    Buy Now
+                  </button>
+                </>
+              )}
+              
+              <p className="item-time">Time Left: {item.timeLeft}</p>
+            </div>
+          </>
+        ) : (
+          <p>Loading item details...</p>
+        )}
+      </div>
     </div>
   );
 }

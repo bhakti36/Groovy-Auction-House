@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect  } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import axios from 'axios';
 // import { useNavigate } from 'react-router-dom';
 
@@ -114,12 +115,16 @@ const AdminPage : React.FC = () => {
   
 
   return (
-    <div >
-      <h1>XXX Auction - Admin</h1>
+
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+        <div >
+        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE</h1>
       <div className="button-container">
-  <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
-  <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
-</div>
+        <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
+        <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -147,6 +152,7 @@ const AdminPage : React.FC = () => {
         </tbody>
       </table>
         
+    </div>
     </div>
   )}
       

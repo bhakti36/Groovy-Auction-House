@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 
@@ -129,7 +130,13 @@ const AddItemPage = () => {
   };
 
   return (
-    <div className="add-item-page">
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    {/* Snowfall Effect */}
+    <Snowfall color="white" snowflakeCount={150} />
+
+      <div className="add-item-page ">
+     
+
       <h1>
         Add Item
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
@@ -217,6 +224,7 @@ const AddItemPage = () => {
         </button>
       </div>
       {errorMessage && <p className="error">{errorMessage}</p>}
+    </div>
     </div>
   );
 };

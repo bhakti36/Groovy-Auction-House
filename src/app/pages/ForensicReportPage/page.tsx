@@ -79,8 +79,21 @@ interface Item {
     AuctionHouseProfit: number
 }
 
+interface Purchase{
+    PurchaseID: number;
+    ItemID: number;
+    Name: string;
+    Description: string;
+    Images: string[];
+    PurchasePrice: number;
+    AuctionHouseProfit: number;
+    BuyerName: string;
+    BuyerID: number;
+}
+
 
 interface ForensicReportData {
+    purchasesReport: Purchase[];
     totalProfit: { TotalProfit: number }[];
     topProfitItems: Item[];
     topMostBids: TopBidItem[];
@@ -104,6 +117,7 @@ export default function ForensicReportPage() {
     const [topBidderItems, setTopBidderItems] = useState<BidderItem[]>([]);
     const [istopBidderItemsPopupOpen, settopBidderItemsPopupOpen] = useState(false);
     const [participants, setParticipants] = useState<Participant[]>([]);
+    const [, setPurchases] = useState<Purchase[]>([]);
     const [forensicReport, setforensicReport] = useState<ForensicReportData>();
     const [showPopup, setShowPopup] = useState(false);
 
@@ -131,6 +145,10 @@ export default function ForensicReportPage() {
                         setforensicReport(response.data);
                        
                     }
+                    if (response.data && response.data.purchasesReport) {
+                        setPurchases(response.data.purchasesReport);
+                    }
+
                     if (response.data && response.data.topProfitItems) {
                         const parsedItems = response.data.topProfitItems.map((item: any) => ({
                             Name: item.Name,
@@ -195,6 +213,26 @@ export default function ForensicReportPage() {
             doc.setFontSize(16);
             doc.text('Forensic Auction Report', 14, currentY);
             currentY += 20; 
+            console.log('data', data);
+            if (data.purchasesReport.length > 0) {
+                autoTable(doc, {
+                    startY: currentY,
+                    head: [['#', 'Item Name', 'Initial Price', 'Purchase Price', 'Profit']],
+                    body: data.purchasesReport.map((item, index) => [
+                        (index + 1).toString(),
+                        item.Name,
+                        item.BuyerName,
+                        item.PurchasePrice != null ? `$${item.PurchasePrice.toFixed(2)}` : '$0.00',
+                        `$${item.AuctionHouseProfit.toFixed(2)}`
+                    ]),
+                    styles: { fontSize: 8 },
+                    margin: { left: 14 },
+                });
+    
+                
+                const rowsHeight = data.topProfitItems.length * 10;
+                currentY += rowsHeight + 20; 
+            }
     
             // Total Profit Section
             doc.setFontSize(12);
@@ -352,7 +390,7 @@ export default function ForensicReportPage() {
 
     return (
         <div className="forensic-report-container">
-            <div> <button type="button" onClick={() => router.push('/pages/AdminPage')}>Go to Admin Page</button></div>
+            <div> <button type="button" onClick={() => router.back()}>Go to Admin Page</button></div>
             <button onClick={() => forensicReport && downloadForensicReportPDF(forensicReport)}>
                 Download Forensic Report PDF
             </button>
@@ -361,7 +399,7 @@ export default function ForensicReportPage() {
                     <div className="spinner"></div>
                 </div>
             )}
-
+            
             {/* Top Profit Items Section */}
             <div>
                 <div className="section" id="top-profit-items">
@@ -532,8 +570,6 @@ export default function ForensicReportPage() {
                     </div>
                 )}
             </div>
-            //idher
-
         </div>
     );
 

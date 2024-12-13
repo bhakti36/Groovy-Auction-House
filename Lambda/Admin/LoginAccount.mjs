@@ -1,68 +1,64 @@
 import mysql from 'mysql';
 
-const pool = mysql.createPool({
-    host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
-    user: "admin",
-    password: "8NpElCb61lk8lqVRaYAu",
-    database: "auction_house"
-});
-
-const responses = {
-    usernameNotFound: { status: 400, message: "username not found" },
-    dbError: { status: 402, message: "DB Error" },
-    wrongPassword: { status: 401, message: "wrong password" },
-    success: { status: 200, message: "Logged in successfully" }
-};
-
-const CheckPassword = (username, password) => {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            "SELECT * FROM auction_house.Accounts WHERE Username = ? AND Password = ?",
-            [username, password],
-            (error, rows) => {
-                if (error) return reject ( {"response":(responses.dbError), "error": error});
-
-                if (rows && rows.length === 1) {
-                    const account = rows[0];
-
-                  
-                    if (account.accountType === 'Admin') {
-                        pool.query(`
-                            SELECT Accounts.AccountID, Accounts.Username, SellerAccount.Funds, Item.*
-                            FROM auction_house.Accounts
-                            JOIN auction_house.SellerAccount ON Accounts.AccountID = SellerAccount.AccountID
-                            LEFT JOIN auction_house.Item ON SellerAccount.AccountID = Item.SellerID
-                        `, (error, sellerItems) => {
-                            if (error) return reject( {"response":(responses.dbError), "error": error});
-
-                            resolve({
-                                ...responses.success,
-                                admin: true,
-                                sellers: sellerItems // All sellers and their published items with statuses
-                            });
-                        });
-                    } else {
-                        reject(responses.usernameNotFound);
-                    }
-                } else {
-                    reject(responses.usernameNotFound);
-                }
-            }
-        );
-    });
-};
 export const handler = async (event) => {
+    const pool = mysql.createPool({
+        host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
+        user: "admin",
+        password: "8NpElCb61lk8lqVRaYAu",
+        database: "auction_house"
+    });
+
+    const responses = {
+        usernameNotFound: { status: 400, message: "username not found" },
+        dbError: { status: 402, message: "DB Error" },
+        success: { status: 200, message: "Logged in successfully" },
+        notAdmin: { status: 401, message: "Not an admin account" }
+    };
+
+    const executeQuery = (query, params) => {
+        return new Promise((resolve, reject) => {
+            pool.query(query, params, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    };
+
+    const checkPassword = async (username, password) => {
+        const accountQuery = "SELECT * FROM auction_house.Accounts WHERE Username = ? AND Password = ?";
+        const accounts = await executeQuery(accountQuery, [username, password]);
+
+        if (!accounts || accounts.length !== 1) {
+            throw responses.usernameNotFound;
+        }
+        
+        if (accounts[0].AccountID === null) {
+            throw responses.dbError;
+        }
+
+        if (accounts[0].AccountType !== "Admin") {
+            throw responses.notAdmin;
+        }
+
+        return {
+            ...responses.success,
+            accountId: accounts[0].AccountID
+        };
+    };
+
     let response = {};
+
     try {
         const { username, password } = event;
-        const userDetails = await CheckPassword(username, password);
-        response = userDetails;
+        response = await checkPassword(username, password);
     } catch (error) {
         response = error;
     } finally {
         pool.end();
     }
+
     return response;
 };
-
-

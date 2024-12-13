@@ -69,6 +69,7 @@ export default function CustomerPage() {
     router.push('/pages/LoginPage');
   };
 
+
   const handleViewItem = () => {
     setLoading(true);
     
@@ -129,7 +130,7 @@ export default function CustomerPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userType]);
 
   const calculateTimeLeft = (startDate: string, durationDays: number, durationHours: number, durationMinutes: number) => {
     const now = new Date();

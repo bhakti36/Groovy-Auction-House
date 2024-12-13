@@ -21,7 +21,7 @@ export const determineItemStatusAndActions = (item: Item) => {
         actions = item.bids.length > 0 ? [] : ["Unpublish"];
       } else {
         status = "Inactive";
-        actions = ["Publish", "Edit", "Remove"];
+        actions = ["Publish", "Edit", "Remove", "Archive"];
       }
     } else {
         if (item.isArchived) {

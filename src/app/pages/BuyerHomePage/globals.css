@@ -33,7 +33,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: rgb(100, 214, 92);
+  /* background-color: rgb(100, 214, 92); */
+  background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -283,4 +284,15 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.button{
+  background-color: white;
+  color: black;
+  border: 1px solid #000000;
+}
+
+.button:hover {
+  background-color: #000000;
+  color: white;
 }

@@ -382,7 +382,7 @@ export default function BuyerPage() {
       {/* Snowfall Effect */}
       <Snowfall color="white" snowflakeCount={150} />
       <header className="header">
-        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE - Buyer</h1>
+        <h1 className="title">Groovy Auction House - Buyer</h1>
         <div className="flex items-center space-x-4">
           <h1>{userName}</h1>
           <button className="button" onClick={handleLogOut}>

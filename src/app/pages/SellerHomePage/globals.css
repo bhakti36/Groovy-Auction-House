@@ -227,5 +227,16 @@ body {
 }
 
 .request-unfreeze-button:hover {
-  background-color: #d97706;
+  background-color: #fbaea7;
+}
+
+.button{
+  background-color: white;
+  color: black;
+  border: 1px solid #000000;
+}
+
+.button:hover {
+  background-color: #000000;
+  color: white;
 }

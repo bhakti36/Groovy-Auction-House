@@ -325,50 +325,69 @@ export default function ItemViewPage() {
   };
 
   return (
-    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
+    <div style={{ position: 'relative', height: '100vh', justifyContent: "center", alignItems: "center", display: 'flex', backgroundColor: '#dc2626' }}>
     {/* Snowfall Effect */}
     <Snowfall color="white" snowflakeCount={150} />
-      <div className="item-detail-page">
-        {item ? (
-          <>
-            <div className="image-container">
-              <button className="prev-button" onClick={handlePrevImage} aria-label="Previous Image">
-                &#8249;
-              </button>
-              <img
-                src={item.Images[currentImageIndex]}
-                alt={`Item image ${currentImageIndex + 1}`}
-                className="item-image"
-              />
-              <button className="next-button" onClick={handleNextImage} aria-label="Next Image">
-                &#8250;
-              </button>
-            </div>
+    <div className="item-detail-page">
+      {item ? (
+        <div className="item-container">
+          {/* Image Carousel */}
+          <div className="image-carousel">
+            <button
+              className="arrow left-arrow"
+              onClick={handlePrevImage}
+              aria-label="Previous Image"
+            >
+              &#8249;
+            </button>
+            <img
+              src={item.Images[currentImageIndex]}
+              alt={`Item image ${currentImageIndex + 1}`}
+              className="item-image"
+            />
+            <button
+              className="arrow right-arrow"
+              onClick={handleNextImage}
+              aria-label="Next Image"
+            >
+              &#8250;
+            </button>
+          </div>
 
-          <div className="item-info">
-            <h1>{item.Name}</h1>
-            <p>{item.Description}</p>
-            {/* <p>Initial Price: {item.InitialPrice}</p> */}
+          {/* Item Details */}
+          <div className="item-details">
+            <h1 className="item-name">{item.Name}</h1>
+            <p className="item-description">{item.Description}</p>
+
             {item.IsBuyNow === 0 && (
-              <>
-                <p className="item-time">{item.MaxBidAmount!==0? "Maximum Bid:" : "Initial Price:"} ${item.MaxBidAmount!==0?item.MaxBidAmount:item.InitialPrice}</p>
+              <div className="auction-section">
+                <p className="item-price">
+                  {item.MaxBidAmount !== 0 ? "Maximum Bid:" : "Initial Price:"} ${" "}
+                  {item.MaxBidAmount !== 0 ? item.MaxBidAmount : item.InitialPrice}
+                </p>
+
                 <div className="bid-entry">
-                  <label htmlFor="currentBid">Enter Your Bid:</label>
+                  <label htmlFor="currentBid" className="bid-label">
+                    Enter Your Bid:
+                  </label>
                   <input
                     type="number"
                     id="currentBid"
+                    className="bid-input"
                     placeholder="Enter your bid"
                     min={item.MaxBidAmount + 1}
                     value={currentBid}
                     onChange={(e) => setCurrentBid(e.target.value)}
                   />
                 </div>
+
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
+
                 <button
-                  className="place-bid-button"
+                  className="action-button place-bid-button"
                   onClick={() => {
-                    const buyerId = sessionStorage.getItem('buyerId');
-                    if (buyerId && buyerId!='' && JSON.parse(buyerId)) {
+                    const buyerId = sessionStorage.getItem("buyerId");
+                    if (buyerId && buyerId !== "" && JSON.parse(buyerId)) {
                       handlePlaceBid();
                     } else {
                       handleLogin();
@@ -379,58 +398,62 @@ export default function ItemViewPage() {
                 </button>
 
                 {/* Bidding History */}
-                {
-                  
-                  (item?.bids?.length === 0 || userType === "Customer") ? <div></div> : (
-                    <div className="bidding-history">
-                      <h2>Bidding History</h2>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Bid TimeStamp</th>
-                            <th>Buyer ID</th>
-                            <th>Bid Amount</th>
+                {item?.bids?.length > 0 && userType !== "Customer" && (
+                  <div className="bidding-history">
+                    <h2>Bidding History</h2>
+                    <table className="bidding-table">
+                      <thead>
+                        <tr>
+                          <th>Bid TimeStamp</th>
+                          <th>Buyer ID</th>
+                          <th>Bid Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {item.bids.map((bid) => (
+                          <tr key={bid.BidID}>
+                            <td>{bid.BidTimeStamp}</td>
+                            <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
+                            <td>${bid.BidAmount}</td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {item.bids.map((bid) => (
-                            <tr key={bid.BidID}>
-                              <td>{bid.BidTimeStamp}</td>
-                              <td>{bid.BuyerID === -1 ? "Unknown" : userName}</td>
-                              <td>{bid.BidAmount}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) 
-                }
-              </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             )}
 
             {item.IsBuyNow === 1 && (
-              <>
-                <p className="item-time">{item.MaxBidAmount!==0? "Maximum Bid:" : "Initial Price:"} ${item.MaxBidAmount!==0?item.MaxBidAmount:item.InitialPrice}</p>
-                <button className="place-bid-button" 
-                onClick={() => {
-                  const buyerId = sessionStorage.getItem('buyerId');
-                  if (buyerId && buyerId!='' && JSON.parse(buyerId)) {
-                    handleBuyNow();
-                  } else {
-                    handleLogin();
-                  }
-                }}>
+              <div className="buy-now-section">
+                <p className="item-price">
+                  {item.MaxBidAmount !== 0 ? "Maximum Bid:" : "Initial Price:"} ${" "}
+                  {item.MaxBidAmount !== 0 ? item.MaxBidAmount : item.InitialPrice}
+                </p>
+
+                <button
+                  className="action-button buy-now-button"
+                  onClick={() => {
+                    const buyerId = sessionStorage.getItem("buyerId");
+                    if (buyerId && buyerId !== "" && JSON.parse(buyerId)) {
+                      handleBuyNow();
+                    } else {
+                      handleLogin();
+                    }
+                  }}
+                >
                   Buy Now
                 </button>
-              </>
+              </div>
             )}
-            
-            <p className="item-time">Time Left: {item.timeLeft}</p>
+
+            <p className="time-left">Time Left: {item.timeLeft}</p>
           </div>
-        </>
+        </div>
       ) : (
-        <p>Loading item details...</p>
+        <p className="loading-message">Loading item details...</p>
       )}
+    </div>
     </div>
   );
 }

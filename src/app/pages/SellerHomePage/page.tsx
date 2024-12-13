@@ -25,6 +25,8 @@ export default function SellerPage() {
   const [userID, setUserID] = useState<number | null>(null);
   const [filter, setFilter] = useState<string>("All");
   const [items, setItems] = useState<Item[]>([]);
+  // detect any active items
+  const [canBeClose, setCanBeClose] = useState(true);
   
   useEffect(() => {
     // const info = sessionStorage.getItem("userInfo");
@@ -54,7 +56,7 @@ export default function SellerPage() {
       "Are you sure you want to close your account? This action cannot be undone."
     );
   
-    if (userConfirmed) {
+    if (userConfirmed && canBeClose) {
       const request = {
         sellerID: userID,
       };
@@ -75,8 +77,8 @@ export default function SellerPage() {
           );
           setErrorMessage("Error closing account.");
         });
-    } else {
-      alert("Account closure canceled.");
+    } else if (canBeClose===false){
+      alert("Please Make Sure No Item Is Active!");
     }
   };  
 
@@ -161,11 +163,19 @@ export default function SellerPage() {
         console.log("Formated Items:", formattedItems);
         setItems(formattedItems);
         setErrorMessage("");
+
+        checkCanBeClose(formattedItems);
       })
       .catch((error) => {
         console.error("Error response:", error);
         setErrorMessage("Error retrieving items.");
       });
+  };
+
+  const checkCanBeClose = (items: Item[]) => {
+    const canBeClose = !items.some((item) => item.isPublished);
+    setCanBeClose(canBeClose);
+    console.log("Can Be Close:", canBeClose); 
   };
 
   useEffect(() => {
@@ -479,9 +489,14 @@ export default function SellerPage() {
       {/* Snowfall Effect */}
       <Snowfall color="white" snowflakeCount={150} />
 
-      <header className="flexjustify-between">
-        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE - Seller</h1>
-        <h1>{userNameHome}</h1>
+      <header className="header">
+        <h1 className="title">Groovy Auction House - Seller</h1>
+        <div className="flex items-center space-x-4">
+          <h1>{userName}</h1>
+          <button className="button" onClick={handleLogOut}>
+            Log Out
+          </button>
+        </div>
       </header>
       <div className="mt-10 flex justify-end items-center space-x-4">
         <div className="text-white">Wallet: ${walletAmount}</div>

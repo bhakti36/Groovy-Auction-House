@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import './globals.css';
 import MultiRangeSlider from "multi-range-slider-react";
+import Snowfall from 'react-snowfall';
 
 
 const instance = axios.create({
@@ -175,7 +176,8 @@ export default function CustomerPage() {
     });
 
   return (
-    <main className="min-h-screen p-6 bg-gray-100">
+    <main className="min-h-screen p-6 bg-red-700">
+      <Snowfall color="white" snowflakeCount={150} />
       <header className="header">
         <h1 className="title">Groovy Auction House</h1>
         <div>
@@ -230,36 +232,36 @@ export default function CustomerPage() {
               }}
             />
             <div className="price-range-inputs">
-              <label>
-                Price $
-                <input
-                  type="number"
-                  value={minValue}
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (value >= 0 && value <= maxValue) {
-                      setMinValue(value);
+            <label>
+              <span style={{ color: 'white' }}>Price $</span>
+              <input
+                type="number"
+                value={minValue}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0 && value <= maxValue) {
+                    setMinValue(value);
+                  }
+                }}
+              />
+              <span style={{ color: 'white' }}>~ $</span>
+              <input
+                type="text" 
+                value={maxValue === 150 ? "150+" : maxValue} 
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === "150+") {
+                    setMaxValue(150);
+                  } else {
+                    const value = Number(inputValue);
+                    if (value >= minValue && value <= 150) {
+                      setMaxValue(value);
                     }
-                  }}
-                />
-                ~ $
-                <input
-                  type="text" 
-                  value={maxValue === 150 ? "150+" : maxValue} 
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (inputValue === "150+") {
-                      setMaxValue(150);
-                    } else {
-                      const value = Number(inputValue);
-                      if (value >= minValue && value <= 150) {
-                        setMaxValue(value);
-                      }
-                    }
-                  }}
-                />
-              </label>
-            </div>
+                  }
+                }}
+              />
+            </label>
+          </div>
           </div>
         </div>
       </div>

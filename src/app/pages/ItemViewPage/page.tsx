@@ -344,11 +344,10 @@ export default function ItemViewPage() {
           <div className="item-info">
             <h1>{item.Name}</h1>
             <p>{item.Description}</p>
-            <p>Initial Price: {item.InitialPrice}</p>
-
+            {/* <p>Initial Price: {item.InitialPrice}</p> */}
             {item.IsBuyNow === 0 && (
               <>
-                <p>Current Bid Price: {item.MaxBidAmount}</p>
+                <p className="item-time">{item.MaxBidAmount!==0? "Maximum Bid:" : "Initial Price:"} ${item.MaxBidAmount!==0?item.MaxBidAmount:item.InitialPrice}</p>
                 <div className="bid-entry">
                   <label htmlFor="currentBid">Enter Your Bid:</label>
                   <input
@@ -407,6 +406,7 @@ export default function ItemViewPage() {
 
             {item.IsBuyNow === 1 && (
               <>
+                <p className="item-time">{item.MaxBidAmount!==0? "Maximum Bid:" : "Initial Price:"} ${item.MaxBidAmount!==0?item.MaxBidAmount:item.InitialPrice}</p>
                 <button className="place-bid-button" 
                 onClick={() => {
                   const buyerId = sessionStorage.getItem('buyerId');

@@ -355,6 +355,37 @@ export default function SellerPage() {
       alert("Item removal canceled.");
     }
   };
+
+  const handleRequestUnfreeze = (itemID: number) => {
+    const userConfirmed = window.confirm(
+      "Are you sure you want to request to unfreeze this item?"
+    );
+
+    if (userConfirmed) {
+      const request = {
+        itemID: itemID,
+        sellerID: userID
+      };
+  
+      instance
+        .post("/seller/requestUnfreezeItem", request)
+        .then((response) => {
+          console.log("Response:", response.data);
+          setErrorMessage("");
+          alert("Are you sure to request unpublish item.");
+          handleViewItem(); // Refresh 
+        })
+        .catch((error) => {
+          console.error(
+            "Error response:",
+            error.response ? error.response.data : error.message
+          );
+          setErrorMessage("Error requesting unfreeze item.");
+        });
+    } else {
+      alert("Item publish canceled.");
+    }
+  };
   
   const doAction = (action: string, itemID: number) => {
     console.log("Action:", action);
@@ -386,6 +417,7 @@ export default function SellerPage() {
         break;
       case "Request Unfreeze":
         console.log("Requesting unfreeze");
+        handleRequestUnfreeze(itemID);
         break;
       default:
         console.log("Invalid action");

@@ -99,7 +99,7 @@ const LoginPage = () => {
 
   return (
     <div className="login-register-page">
-      <h1>XXX Auction - Login/Register</h1>
+      <h1>GROOVY-AUCTION_HOUSE - Login/Register</h1>
       <div>
         <input
           type="text"

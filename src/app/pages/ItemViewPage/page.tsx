@@ -432,5 +432,6 @@ export default function ItemViewPage() {
         <p>Loading item details...</p>
       )}
     </div>
+    </div>
   );
 }

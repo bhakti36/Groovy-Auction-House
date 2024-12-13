@@ -15,6 +15,9 @@ export const determineItemStatusAndActions = (item: Item) => {
     if (item.isFrozen) {
       status = "Frozen";
       actions = ["Request Unfreeze"];
+    } else if (item.isArchived) {
+      status = "Archived";
+      actions = [];
     } else if (timeLeft > 0 || item.startDate === null) {
       if (item.isPublished) {
         status = "Active";
@@ -24,10 +27,8 @@ export const determineItemStatusAndActions = (item: Item) => {
         actions = ["Publish", "Edit", "Remove", "Archive"];
       }
     } else {
-        if (item.isArchived) {
-        status = "Archived";
-        actions = [];
-      } else if (item.bids.length > 0) {
+        
+      if (item.bids.length > 0) {
         status = "Completed";
         actions = ["Fulfill"];
       } else {

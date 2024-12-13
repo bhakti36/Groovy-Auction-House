@@ -481,7 +481,7 @@ export default function SellerPage() {
 
       <header className="flexjustify-between">
         <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE - Seller</h1>
-        <h1>{userNameHome}</h1>
+        <h1>{userName}</h1>
       </header>
       <div className="mt-10 flex justify-end items-center space-x-4">
         <div className="text-white">Wallet: ${walletAmount}</div>

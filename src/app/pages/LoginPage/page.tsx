@@ -36,8 +36,14 @@ const LoginPage = () => {
         console.log(response);
         if (response.data.status == 200) {
           // console.log("hii");
+          console.log(response.data);
             // Redirect to the appropriate page
-            sessionStorage.setItem('userInfo', JSON.stringify(response.data));
+            sessionStorage.setItem('userID', response.data.success.accountID);
+            sessionStorage.setItem('userName', response.data.success.username);
+            sessionStorage.setItem('userType', userType);
+            // sessionStorage.removeItem('userInfo');
+            // sessionStorage.setItem('userInfo', JSON.stringify(response.data));
+
             if (userType == 'buyer') {
                 // Redirect to buyer page
                 router.push('/pages/BuyerHomePage')

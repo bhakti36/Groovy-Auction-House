@@ -22,9 +22,14 @@ const AddItemPage = () => {
   const router = useRouter(); 
 
   useEffect(() => {
-    const sellerID = sessionStorage.getItem('sellerID');
-    setUserID(sellerID ? parseInt(sellerID) : 2);
-    console.log('Seller ID:', sellerID);
+    const userID = sessionStorage.getItem('userID');
+    const userType = sessionStorage.getItem('userType');
+    if (userID === null || userType !==  "seller") {
+      router.push("/");
+    }else {
+      setUserID( parseInt(userID));
+    }
+    console.log('Seller ID:', userID);
   }, [userID]);
 
   const handleAddItem = async () => {
@@ -43,7 +48,7 @@ const AddItemPage = () => {
       return;
     }
 
-    if (!name || !description || !initialPrice || !durationDays || !durationHours || !durationMinutes || IsBuyNow === null) {
+    if (!name || !description || !initialPrice || !durationDays || !durationHours || !durationMinutes === null) {
       setErrorMessage('Please fill out all fields.');
       return;
     }
@@ -103,7 +108,8 @@ const AddItemPage = () => {
       setErrorMessage('');
       
       window.alert("Item added successfully!");
-      router.push('/pages/SellerHomePage'); 
+      sessionStorage.removeItem('itemId');
+      router.back(); 
       
     } catch (error) {
       const err = error as AxiosError;

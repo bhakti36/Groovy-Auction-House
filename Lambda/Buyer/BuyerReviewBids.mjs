@@ -1,45 +1,42 @@
 import mysql from 'mysql';
 
-let pool;
-
-const initPool = () => {
-    if (!pool) {
-        pool = mysql.createPool({
-            host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
-            user: "admin",
-            password: "8NpElCb61lk8lqVRaYAu",
-            database: "auction_house",
-            connectionLimit: 10
-        });
-    }
-};
-
 export const handler = async (event) => {
-    initPool();
+    const pool = mysql.createPool({
+        host: "groovy-auction-house-database.cfa2g4o42i87.us-east-2.rds.amazonaws.com",
+        user: "admin",
+        password: "8NpElCb61lk8lqVRaYAu",
+        database: "auction_house"
+    });
 
-    const dbError = {
-        status: 500,
-        message: "Database Error"
+    const successResponse = {
+        code: 200,
+        message: "Item details retrieved successfully"
     };
 
+    const errorResponse = {
+        code: 400,
+        message: "Failed to retrieve item details"
+    };
+    const dbError = {
+        status: 402,
+        message: "DB Error"
+    };
     const itemNotFound = {
         status: 404,
-        message: "No active bids found for this buyer."
+        message: "Item not found"
     };
-
+    let response = {};
     const executeQuery = (query, params) => {
         return new Promise((resolve, reject) => {
             pool.query(query, params, (error, results) => {
                 if (error) {
-                    console.error("Query execution error:", error);
-                    reject(dbError);
+                    reject(error);
                 } else {
                     resolve(results);
                 }
             });
         });
     };
-
     const reviewActiveBids = async (buyerID) => {
         
         const itemQuery = `
@@ -48,7 +45,7 @@ export const handler = async (event) => {
                 COALESCE(MAX(b.BidAmount), NULL) AS MaxBidAmount
             FROM 
                 auction_house.Item i
-            LEFT JOIN 
+            JOIN 
                 auction_house.Bid b ON i.ItemID = b.ItemID
             WHERE 
                 b.BuyerID = ? 
@@ -61,8 +58,6 @@ export const handler = async (event) => {
         if (items.length === 0) {
             throw itemNotFound;
         }
-
-      
         const bidsQuery = `
             SELECT 
                 b.*
@@ -90,7 +85,7 @@ export const handler = async (event) => {
             });
         });
 
-        // Merge items with their respective bid histories
+        
         return items.map(item => ({
             ...item,
             BidHistory: bidHistoryMap[item.ItemID] || []
@@ -99,26 +94,28 @@ export const handler = async (event) => {
 
     try {
         const { buyerID } = event;
-
-        if (!buyerID) {
-            throw {
-                status: 400,
-                message: "Buyer ID is required."
-            };
-        }
-
         const reviewBidsList = await reviewActiveBids(buyerID);
-
-        return {
+        response = {
             status: 200,
             message: "Retrieved bids successfully.",
             reviewBidsList
         };
+        return response;
+
     } catch (error) {
         console.error("Error:", error);
         return {
             status: error.status || 500,
             message: error.message || "An unknown error occurred."
         };
+    }
+    finally {
+        pool.end((err) => {
+            if (err) {
+                console.error('Error closing the pool', err);
+            } else {
+                console.log('Pool was closed.');
+            }
+        });
     }
 };

@@ -18,7 +18,7 @@ export default function SellerPage() {
   // const [newItemName, setNewItemName] = useState('');
   const router = useRouter();
   const [, setErrorMessage] = useState("");
-  const [userNameHome, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
   // const [] = useState("");
   const [sortChoice] = useState("timeLeft");
   const [userID, setUserID] = useState<number | null>(null);
@@ -26,25 +26,25 @@ export default function SellerPage() {
   const [items, setItems] = useState<Item[]>([]);
   
   useEffect(() => {
-    const info = sessionStorage.getItem("userInfo");
-    let userName = "";
-    // console.log(info)
-    if (info != null) {
-      console.log(info);
-      const json = JSON.parse(info);
-      console.log("json", json);
-      console.log("username", json.success.username);
-      userName = json.success.username;
+    // const info = sessionStorage.getItem("userInfo");
+
+    let userName = sessionStorage.getItem("userName");
+    let userID = sessionStorage.getItem("userID");
+    let userType = sessionStorage.getItem("userType");
+
+    if (userName === null || userID === null || userType === null || userType !== "seller") {
+      router.push("/");
+    } else {
       setUserName(userName);
-      setUserID(json.success.accountID);  
+      setUserID(parseInt(userID));  
       handleViewItem();
-      console.log("handleViewItem", items);
+      // console.log("handleViewItem", items);
     }
     
   }, [userID]);
 
   const handleAddNewItem = () => {
-    sessionStorage.setItem('sellerID', JSON.stringify(userID));
+    // sessionStorage.setItem('sellerID', JSON.stringify(userID));
     router.push("/pages/AddItemPage");
   };
 
@@ -425,6 +425,16 @@ export default function SellerPage() {
     }
   };
 
+  const handleLogOut = () => {
+    const isConfirmed = window.confirm("Are you sure you want to log out?");
+    if (isConfirmed) {
+      console.log('handleLogOut called ' + userID);
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userID");
+      router.push('/');
+    }
+  };
+
   const calculateTimeLeft = (
     startDate: string,
     durationDays: number,
@@ -467,7 +477,12 @@ export default function SellerPage() {
     <main className="min-h-screen p-6 bg-gray-100">
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
         <h1 className="text-xl font-semibold">Seller Home Page</h1>
-        <h1>{userNameHome}</h1>
+        <div className="flex items-center space-x-4">
+          <h1>{userName}</h1>
+          <button className="button" onClick={handleLogOut}>
+            Log Out
+          </button>
+        </div>
       </header>
       <div className="mt-10 flex justify-end items-center space-x-4">
         <div className="text-lg">Wallet: ${walletAmount}</div>

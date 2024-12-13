@@ -24,7 +24,14 @@ interface Item {
   IsBuyNow: number;
   MaxBidAmount: number;
   purchaseprice: number;
+  isMaxBid: boolean;
+}
 
+interface Bid {
+  BidID: number;
+  BuyerID: number;
+  ItemID: number;
+  BidAmount: number;
 }
 
 interface ItemJson {
@@ -37,6 +44,7 @@ interface ItemJson {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
+  BiddingHistory: Bid[];
   IsBuyNow: number;
   MaxBidAmount: number;
   IsComplete: boolean;
@@ -66,19 +74,16 @@ export default function BuyerPage() {
   const [loading, setLoading] = useState(false);
  
   useEffect(() => {
-    info = sessionStorage.getItem('userInfo')!;
-    let userName = "";
-    if (info != null) {
-      const json = JSON.parse(info);
-      setUserID(json.success.accountID);
-      console.log("test", json);
-      console.log("test", json.success.accountID);
-      console.log("test", userID);
-      console.log(json);
-      // totalFunds = parseInt(json.success.totalFunds);
-      // setWalletAmount(totalFunds);
-      userName = json.success.username;
+    // info = sessionStorage.getItem('userInfo')!;
+    let userName = sessionStorage.getItem("userName");
+    let userID = sessionStorage.getItem("userID");
+    let userType = sessionStorage.getItem("userType");
+    if (userName === null || userID === null || userType === null || userType !== "buyer") {
+      router.push("/");
+    } else {
       setUserName(userName);
+      setUserID(parseInt(userID));  
+      handleViewItem();
     }
   }, [userID]);
 
@@ -129,6 +134,8 @@ export default function BuyerPage() {
     const isConfirmed = window.confirm("Are you sure you want to log out?");
     if (isConfirmed) {
       console.log('handleLogOut called ' + userID);
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userID");
       router.push('/');
     }
   };
@@ -182,14 +189,14 @@ export default function BuyerPage() {
           name: item.Name,
           description: item.Description,
           image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
-          value: `$${item.InitialPrice}`,
+          value: item.BiddingHistory[0]? item.BiddingHistory[0].BidAmount:item.InitialPrice,
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,
-          MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
           isBuyNow: item.IsBuyNow,
+          isMaxBid: item.BiddingHistory[0]? true: false,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
 
@@ -218,9 +225,15 @@ export default function BuyerPage() {
     setTimeout(() => {
       instance.post('/buyer/reviewBids', request)
       .then((response) => {
+
+        // if(response.data.status)
+
         const responseItems = response.data.reviewBidsList;
 
-        //console.log("response", response);
+        console.log("response", response);
+        
+        // if(response)
+
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
 
         const formattedItems: Item[] = responseItems.map((item: ItemJson) => ({
@@ -228,15 +241,15 @@ export default function BuyerPage() {
           name: item.Name,
           description: item.Description,
           image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
-          value: `$${item.InitialPrice}`,
+          value: item.BiddingHistory[0]? item.BiddingHistory[0].BidAmount:item.InitialPrice,
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,
           MaxBidAmount: item.MaxBidAmount,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
+          isMaxBid: item.BiddingHistory[0]? true: false,
           IsBuyNow: item.IsBuyNow,
-
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
 
@@ -312,8 +325,6 @@ export default function BuyerPage() {
   };
 
   useEffect(() => {
-    handleViewItem();
-
     const interval = setInterval(() => {
       setItems(prevItems =>
         prevItems.map(item => ({
@@ -369,7 +380,8 @@ export default function BuyerPage() {
     <main className="min-h-screen p-6 bg-gray-100">
       <header className="header">
         <h1 className="title">Buyer home page</h1>
-        <div>
+        <div className="flex items-center space-x-4">
+          <h1>{userName}</h1>
           <button className="button" onClick={handleLogOut}>
             Log Out
           </button>
@@ -448,15 +460,15 @@ export default function BuyerPage() {
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">
-              <p className="item-time">Initial Price:</p>
-              <p className="item-time">{item.value}</p>
+            <p className="item-time">{item.isMaxBid? "Maximum Bid:" : "Initial Price:"}</p>
+            <p className="item-time">${item.value}</p>
             </div>
             {allMaxBidFlag && (
             <div className="item-status-value">
               <p className="item-time">
-                {reviewPurchaseFlag ? "MaxBid Amount" : "Sale Price:"}
+                {reviewPurchaseFlag ? "Your Bid" : "Sale Price:"}
               </p>
-              <p className="item-time">{item.MaxBidAmount}</p>
+              <p className="item-time">${item.MaxBidAmount}</p>
             </div>
             )}
 
@@ -470,10 +482,10 @@ export default function BuyerPage() {
               <p className="item-time">Purchased By</p>
               <p className="item-time">{userName}</p>
             </div> */}
-            <div className="item-status-value">
+            {/* <div className="item-status-value">
               <p className="item-status">Status:</p>
               <p className="item-time">{item.status}</p>
-            </div>
+            </div> */}
             {/* <div className="item-status-value">
             <p className="item-status">Bid History..</p>
             </div> */}

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import './globals.css';
+import MultiRangeSlider from "multi-range-slider-react";
 
 
 const instance = axios.create({
@@ -21,9 +22,16 @@ interface Item {
   durationDays: number;
   durationHours: number;
   durationMinutes: number;
-  MaxBidAmount: number;
+  biddingHistory: Bid[];
+  isMaxBid: boolean;
   purchaseprice: number;
+}
 
+interface Bid {
+  BidID: number;
+  BuyerID: number;
+  ItemID: number;
+  BidAmount: number;
 }
 
 interface ItemJson {
@@ -36,7 +44,7 @@ interface ItemJson {
   DurationDays: number;
   DurationHours: number;
   DurationMinutes: number;
-  MaxBidAmount: number;
+  biddingHistory: Bid[];
   IsComplete: boolean;
   IsFrozen: boolean;
   PurchasePrice: number;
@@ -45,28 +53,21 @@ interface ItemJson {
 
 export default function CustomerPage() {
   const router = useRouter();
-  let info = "";
-  // const [filter, setFilter] = useState<string>("All");
 
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('customer');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice,setSortChoice] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]);
-  const [activeButton, setActiveButton] = useState<string | null>("all");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [minValue, setMinValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(150);
  
   const handleLogIn = () => {
     sessionStorage.clear();
     router.push('/pages/LoginPage');
   };
-  
-  const handleAll = () => {
-    //console.log("all");
-    setActiveButton("all");
-    handleViewItem();
-  }
-  
 
   const handleViewItem = () => {
     setLoading(true);
@@ -85,15 +86,17 @@ export default function CustomerPage() {
           name: item.Name,
           description: item.Description,
           image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
-          value: `$${item.InitialPrice}`,
+          value: item.biddingHistory[0]? item.biddingHistory[0].BidAmount:item.InitialPrice,
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,
-          MaxBidAmount: item.MaxBidAmount,
+          isMaxBid: item.biddingHistory[0]? true: false,
           durationHours: item.DurationHours,
           durationMinutes: item.DurationMinutes,
           status: item.IsComplete ? 'Sold' : item.IsFrozen ? 'Pending' : 'Available'
         }));
+
+        console.log(formattedItems)
 
         setItems(formattedItems);
         setErrorMessage('');
@@ -104,10 +107,7 @@ export default function CustomerPage() {
         console.error('Error response:', error);
         setErrorMessage('Error retrieving items.');
       });
-     
     }, 1000); 
-
-   
   };
   
   const handleItemClick = (itemId: number) => {
@@ -119,7 +119,6 @@ export default function CustomerPage() {
 
   useEffect(() => {
     handleViewItem();
-
     const interval = setInterval(() => {
       setItems(prevItems =>
         prevItems.map(item => ({
@@ -156,17 +155,23 @@ export default function CustomerPage() {
   };
 
   const filteredItems = items
-    .filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((item) => item.timeLeft !== 'Ended')
+    .filter((item) => {
+      const itemValue = Number(item.value);
+      return itemValue >= minValue && (maxValue === 150 || itemValue <= maxValue);
+    })
     .sort((a, b) => {
+      if (sortChoice === "publishedDate") return a.startDate.localeCompare(b.startDate);
       if (sortChoice === "timeLeft") return a.timeLeft.localeCompare(b.timeLeft);
-      if (sortChoice === "value") return a.value.localeCompare(b.value);
+      if (sortChoice === "value") return Number(a.value) - Number(b.value);
       if (sortChoice === "name") return a.name.localeCompare(b.name);
       return 0;
     });
-
-    const getButtonClass = (button: string) => {
-      return button === activeButton ? "active-button" : "";
-    };
 
   return (
     <main className="min-h-screen p-6 bg-gray-100">
@@ -202,15 +207,61 @@ export default function CustomerPage() {
             <option value="name">Sort by Name</option>
             <option value="value">Sort by Value</option>
             <option value="timeLeft">Sort by Time Left</option>
+            <option value="publishedDate">Sort by Time Published</option>
           </select>
-          {/* <button onClick={() => console.log(`Searching for: ${searchQuery}`)} className="search-button">
-            Search
-          </button> */}
+          <div className="multi-range-slider-container">
+            <MultiRangeSlider
+              min={0} 
+              max={150} 
+              minValue={minValue}
+              maxValue={maxValue}
+              ruler={false}
+              label={false}
+              barInnerColor="pink"
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                boxShadow: "none",
+              }}
+              onInput={(e) => {
+                setMinValue(e.minValue);
+                setMaxValue(e.maxValue);
+              }}
+            />
+            <div className="price-range-inputs">
+              <label>
+                Price $
+                <input
+                  type="number"
+                  value={minValue}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0 && value <= maxValue) {
+                      setMinValue(value);
+                    }
+                  }}
+                />
+                ~ $
+                <input
+                  type="text" 
+                  value={maxValue === 150 ? "150+" : maxValue} 
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    if (inputValue === "150+") {
+                      setMaxValue(150);
+                    } else {
+                      const value = Number(inputValue);
+                      if (value >= minValue && value <= 150) {
+                        setMaxValue(value);
+                      }
+                    }
+                  }}
+                />
+              </label>
+            </div>
+          </div>
         </div>
       </div>
-      {/* <div className="filter-bar">
-        <button className={getButtonClass("all")} onClick={() => handleAll()}> All </button>
-      </div> */}
       <div className="grid-container">
         {filteredItems.map((item) => (
           <div
@@ -221,26 +272,17 @@ export default function CustomerPage() {
             <img src={item.image} alt={item.name} className="item-image" />
             <h3 className="item-name">{item.name}</h3>
             <div className="item-status-value">
-              <p className="item-time">Initial Price:</p>
-              <p className="item-time">{item.value}</p>
+              <p className="item-time">{item.isMaxBid? "Maximum Bid:" : "Initial Price:"}</p>
+              <p className="item-time">${item.value}</p>
             </div>
-            
 
-            
-            {/* <div className="item-status-value">
-              <p className="item-time">Purchased By</p>
-              <p className="item-time">{userName}</p>
-            </div> */}
-            <div className="item-status-value">
-              <p className="item-status">Status:</p>
-              <p className="item-time">{item.status}</p>
-            </div>
-            {/* <div className="item-status-value">
-            <p className="item-status">Bid History..</p>
-            </div> */}
+            <p className="item-status-value">
+                <span className="item-status">Time Left:</span>
+                <span className="item-time">{item.timeLeft}</span>
+            </p>
+
           </div>
         ))}
-
 
       </div>
     </main>

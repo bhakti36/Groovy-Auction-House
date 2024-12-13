@@ -196,22 +196,25 @@ body {
 
 .search-sort-container {
   display: flex;
-  justify-content: flex-start;
-  gap: 10px; 
+  align-items: center;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
 .search-box {
-  padding: 8px;
-  border-radius: 4px;
+  height: 36px;
+  padding: 5px 10px;
+  font-size: 14px;
   border: 1px solid #ccc;
-  width: 200px;
+  border-radius: 4px;
 }
 
 .sort-choice {
-  padding: 8px;
-  border-radius: 4px;
+  height: 36px;
+  padding: 5px;
+  font-size: 14px;
   border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .search-button {
@@ -283,4 +286,17 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.multi-range-slider-container{
+  width: 200px;
+}
+
+.price-range-inputs input {
+  width: 60px;
+  height: 30px;
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }

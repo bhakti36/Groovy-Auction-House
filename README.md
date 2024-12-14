@@ -78,7 +78,6 @@ UserID: Admin Password: Admin123
     AWS Screen Refresh Issue
     Avoid clicking the refresh button and using browser back button, as this may cause display disturbances or unexpected behavior.
 
-Query too complex for buyerItemDetail Also, -1 is not working, and why only 2 bids?
+    The Customer Page is the Landing Page. To Log in Press the Log In Button
 
-
-Customer can see the enterbid box but if he tries to place a bid, he will be prompted to login first and be redirected to the login page
+    Customer can see the enterbid box but if he tries to place a bid, he will be prompted to login first and be redirected to the login page

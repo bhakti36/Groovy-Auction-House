@@ -226,7 +226,7 @@ export default function BuyerPage() {
 
         // if(response.data.status)
 
-        const responseItems = response.data.reviewBidsList;
+        const responseItems = response.data.reviewBidsList || [];
 
         console.log("response", response);
         
@@ -278,7 +278,7 @@ export default function BuyerPage() {
       instance.post('/buyer/reviewPurchases', request)
       .then((response) => {
 
-        const responseItems = response.data.reviewPurchasesList;
+        const responseItems = response.data.reviewPurchasesList || [];
         console.log("responseItems", responseItems);
 
         const base_html = "https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/"
@@ -288,7 +288,7 @@ export default function BuyerPage() {
           name: item.Name,
           description: item.Description,
           image: base_html + (JSON.parse(item.Images)[0]) || '/images/default_image.jpg',
-          value: `$${item.InitialPrice}`,
+          value: `${item.InitialPrice}`,
           timeLeft: calculateTimeLeft(item.StartDate, item.DurationDays, item.DurationHours, item.DurationMinutes),
           startDate: item.StartDate,
           durationDays: item.DurationDays,

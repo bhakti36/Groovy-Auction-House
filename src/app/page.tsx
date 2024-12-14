@@ -54,7 +54,6 @@ interface ItemJson {
 
 export default function CustomerPage() {
   const router = useRouter();
-  const maxNumPrice = 100000;
 
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('customer');
@@ -64,7 +63,7 @@ export default function CustomerPage() {
   const [loading, setLoading] = useState(true);
 
   const [minValue, setMinValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(maxNumPrice);
+  const [maxValue, setMaxValue] = useState(150);
  
   const handleLogIn = () => {
     sessionStorage.clear();
@@ -157,6 +156,32 @@ export default function CustomerPage() {
     return `${seconds}s`;
   };
 
+  function parseTimeString(timeString: String) {
+    const timeParts = timeString.split(' ');
+    let totalSeconds = 0;
+
+    timeParts.forEach(part => {
+        const value = parseInt(part.slice(0, -1), 10);
+        if (part.endsWith('d')) {
+            totalSeconds += value * 24 * 60 * 60;
+        } else if (part.endsWith('h')) {
+            totalSeconds += value * 60 * 60;
+        } else if (part.endsWith('m')) {
+            totalSeconds += value * 60;
+        } else if (part.endsWith('s')) {
+            totalSeconds += value;
+        }
+    });
+
+    return totalSeconds;
+  }
+
+  function compareTimeStrings(a: String, b: String) {
+      const timeA = parseTimeString(a);
+      const timeB = parseTimeString(b);
+      return timeB - timeA; // for descending order
+  }
+
   const filteredItems = items
     .filter(
       (item) =>
@@ -166,11 +191,11 @@ export default function CustomerPage() {
     .filter((item) => item.timeLeft !== 'Ended')
     .filter((item) => {
       const itemValue = Number(item.value);
-      return itemValue >= minValue && (maxValue === maxNumPrice || itemValue <= maxValue);
+      return itemValue >= minValue && (maxValue === 150 || itemValue <= maxValue);
     })
     .sort((a, b) => {
-      if (sortChoice === "publishedDate") return a.startDate.localeCompare(b.startDate);
-      if (sortChoice === "timeLeft") return a.timeLeft.localeCompare(b.timeLeft);
+      if (sortChoice === "publishedDate") return b.startDate.localeCompare(a.startDate);
+      if (sortChoice === "timeLeft") return compareTimeStrings(b.timeLeft, a.timeLeft);
       if (sortChoice === "value") return Number(a.value) - Number(b.value);
       if (sortChoice === "name") return a.name.localeCompare(b.name);
       return 0;
@@ -216,7 +241,7 @@ export default function CustomerPage() {
           <div className="multi-range-slider-container">
             <MultiRangeSlider
               min={0} 
-              max={maxNumPrice} 
+              max={150} 
               minValue={minValue}
               maxValue={maxValue}
               ruler={false}
@@ -248,14 +273,14 @@ export default function CustomerPage() {
               <span style={{ color: 'white' }}>~ $</span>
               <input
                 type="text" 
-                value={maxValue === maxNumPrice ? `${maxNumPrice}+` : maxValue} 
+                value={maxValue === 150 ? "150+" : maxValue} 
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  if (inputValue === `${maxNumPrice}+`) {
-                    setMaxValue(maxNumPrice);
+                  if (inputValue === "150+") {
+                    setMaxValue(150);
                   } else {
                     const value = Number(inputValue);
-                    if (value >= minValue && value <= maxNumPrice) {
+                    if (value >= minValue && value <= 150) {
                       setMaxValue(value);
                     }
                   }

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import './globals.css';
 import axios from 'axios';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Box, Pagination } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography } from '@mui/material';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 

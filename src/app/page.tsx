@@ -156,7 +156,7 @@ export default function CustomerPage() {
     return `${seconds}s`;
   };
 
-  function parseTimeString(timeString: String) {
+  function parseTimeString(timeString: string) {
     const timeParts = timeString.split(' ');
     let totalSeconds = 0;
 
@@ -176,7 +176,7 @@ export default function CustomerPage() {
     return totalSeconds;
   }
 
-  function compareTimeStrings(a: String, b: String) {
+  function compareTimeStrings(a: string, b: string) {
       const timeA = parseTimeString(a);
       const timeB = parseTimeString(b);
       return timeB - timeA; // for descending order

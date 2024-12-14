@@ -102,15 +102,37 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  width: 100%;
+  height: 100%;
+  background: rgba(173, 216, 230, 0.5); /* Light blue, semi-transparent */
+  backdrop-filter: blur(4px); /* Frosted glass effect */
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  font-size: 18px;
-  border-radius: 8px; /* Match the card's border-radius */
+  z-index: 1;
+}
+
+.overlay:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/snowflake-152435_1280.png') repeat; /* Replace with your snowflake image */
+  background-size: 60px 60px; /* Adjust the size of the snowflakes */
+  opacity: 0.6;
+}
+
+.icicle-effect {
+  position: absolute;
+  top:0;
+  /* bottom: 0; */
+  width: 100%;
+  height: 40px;
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/icicle-3766673_1280.png') no-repeat bottom;
+  background-size: 100px 100px;
+  z-index: 3;
 }
 .single-button {
   background-color: red; /* Customize the button styling as needed */
@@ -239,4 +261,33 @@ body {
 .button:hover {
   background-color: #000000;
   color: white;
+}
+
+.filter-bar button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  margin: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-bar button.active {
+  background-color: #add8e6; /* Light blue for the active button */
+  border: 2px solid #0000ff; /* Darker blue border */
+  color: white;
+  position: relative;
+}
+
+.filter-bar button.active::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 20px; /* Adjust to the size of the icicles */
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/icicle-3766673_1280.png')
+    repeat center;
+  background-size: contain; /* Make sure it fits within the button */
+  position: absolute;
+  bottom: -10px; /* Adjust to the height of the icicle image */
+  left: 0;
 }

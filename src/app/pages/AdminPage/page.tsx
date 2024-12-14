@@ -16,20 +16,27 @@ interface ItemDetail {
   requestUnfreeze: boolean;
 }
 
+interface ItemJson {
+  name: string;
+  isFrozen: string;
+  itemID: number;
+  unFreezeRequested: boolean;
+}
+
+
 const AdminPage = () => {
   const [itemList, setItemList] = useState<ItemDetail[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [userID, setUserID] = useState(1);
-  const [accountID, setAccountID] = useState(1);
-  const [userName, setUserName] = useState('');
-  const [userType,] = useState('admin');
+  const [accountID,] = useState(1);
+  const [, setUserName] = useState('');
   const router = useRouter();
 
   useEffect(() => {
     
-    let userName = sessionStorage.getItem("userName");
-    let userID = sessionStorage.getItem("userID");
-    let userType = sessionStorage.getItem("userType");
+    const userName = sessionStorage.getItem("userName");
+    const userID = sessionStorage.getItem("userID");
+    const userType = sessionStorage.getItem("userType");
     if (userName === null || userID === null || userType === null || userType !== "admin") {
       router.push("/");
     } else {
@@ -42,7 +49,7 @@ const AdminPage = () => {
             accountID: userID,
           });
           console.log(response.data);
-          const itemDetailList = response.data.items.map((item: any) => ({
+          const itemDetailList = response.data.items.map((item: ItemJson) => ({
             name: item.name || 'Unnamed Item',
             status: item.isFrozen ? 'Frozen' : 'Unfrozen',
             requestUnfreeze: item.unFreezeRequested,

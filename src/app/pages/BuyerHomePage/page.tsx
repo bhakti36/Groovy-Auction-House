@@ -367,8 +367,9 @@ export default function BuyerPage() {
       item.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => {
+      if (sortChoice === "publishedDate") return a.startDate.localeCompare(b.startDate);
       if (sortChoice === "timeLeft") return a.timeLeft.localeCompare(b.timeLeft);
-      if (sortChoice === "value") return a.value.localeCompare(b.value);
+      if (sortChoice === "value") return Number(a.value) - Number(b.value);
       if (sortChoice === "name") return a.name.localeCompare(b.name);
       return 0;
     });

@@ -26,7 +26,6 @@ export default function SellerPage() {
   const [filter, setFilter] = useState<string>("All");
   const [items, setItems] = useState<Item[]>([]);
   // detect any active items
-  const [canBeClose, setCanBeClose] = useState(true);
   
   useEffect(() => {
     // const info = sessionStorage.getItem("userInfo");
@@ -52,35 +51,28 @@ export default function SellerPage() {
   };
 
   const handleCloseAccount = () => {
-    const userConfirmed = window.confirm(
-      "Are you sure you want to close your account? This action cannot be undone."
-    );
-  
-    if (userConfirmed && canBeClose) {
+    const isConfirmed = window.confirm("Are you sure you want to close account?");
+    if (isConfirmed) {
       const request = {
-        sellerID: userID,
+        sellerID: userID
       };
-  
-      instance
-        .post("/seller/closeAccount", request)
+      instance.post('/seller/closeAccount', request)
         .then((response) => {
-          console.log("Response:", response.data);
-          setErrorMessage("");
-          setWalletAmount(0);
-          alert("Account closed.");
-          router.replace("/pages/LoginPage");
+          console.log('Response:', response);
+          if (response.data.status === 403) {
+            alert('Make Sure No Active Item Before Close');
+          } else {
+            setErrorMessage('');
+            setWalletAmount(0);
+            router.push('/');
+          }
         })
         .catch((error) => {
-          console.error(
-            "Error response:",
-            error.response ? error.response.data : error.message
-          );
-          setErrorMessage("Error closing account.");
+          console.log(error);
+          setErrorMessage('Error adding item.');
         });
-    } else if (canBeClose===false){
-      alert("Please Make Sure No Item Is Active!");
     }
-  };  
+  };
 
   const handleViewItem = () => {
     const request = { sellerID: userID };
@@ -163,19 +155,11 @@ export default function SellerPage() {
         console.log("Formated Items:", formattedItems);
         setItems(formattedItems);
         setErrorMessage("");
-
-        checkCanBeClose(formattedItems);
       })
       .catch((error) => {
         console.error("Error response:", error);
         setErrorMessage("Error retrieving items.");
       });
-  };
-
-  const checkCanBeClose = (items: Item[]) => {
-    const canBeClose = !items.some((item) => item.isPublished);
-    setCanBeClose(canBeClose);
-    console.log("Can Be Close:", canBeClose); 
   };
 
   useEffect(() => {

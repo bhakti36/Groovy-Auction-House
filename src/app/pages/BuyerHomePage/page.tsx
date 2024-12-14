@@ -88,25 +88,27 @@ export default function BuyerPage() {
     }
   }, [userID]);
 
-
   const handleCloseAccount = () => {
     const isConfirmed = window.confirm("Are you sure you want to close account?");
     if (isConfirmed) {
-      //console.log('handleCloseAccount called' + userID);
       const request = {
         buyerID: userID
-      }
+      };
       instance.post('/buyer/closeAccount', request)
         .then((response) => {
           console.log('Response:', response);
-          setErrorMessage('');
+          if (response.data.status === 403) {
+            alert('Make Sure No Active Bid Before Close');
+          } else {
+            setErrorMessage('');
+            setWalletAmount(0);
+            router.push('/');
+          }
         })
         .catch((error) => {
           console.log(error);
           setErrorMessage('Error adding item.');
-        })
-      setWalletAmount(0);
-      router.push('/');
+        });
     }
   };
 

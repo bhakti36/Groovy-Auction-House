@@ -54,6 +54,7 @@ interface ItemJson {
 
 export default function CustomerPage() {
   const router = useRouter();
+  const maxNumPrice = 100000;
 
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('customer');
@@ -63,7 +64,7 @@ export default function CustomerPage() {
   const [loading, setLoading] = useState(true);
 
   const [minValue, setMinValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(150);
+  const [maxValue, setMaxValue] = useState(maxNumPrice);
  
   const handleLogIn = () => {
     sessionStorage.clear();
@@ -165,7 +166,7 @@ export default function CustomerPage() {
     .filter((item) => item.timeLeft !== 'Ended')
     .filter((item) => {
       const itemValue = Number(item.value);
-      return itemValue >= minValue && (maxValue === 150 || itemValue <= maxValue);
+      return itemValue >= minValue && (maxValue === maxNumPrice || itemValue <= maxValue);
     })
     .sort((a, b) => {
       if (sortChoice === "publishedDate") return a.startDate.localeCompare(b.startDate);
@@ -215,7 +216,7 @@ export default function CustomerPage() {
           <div className="multi-range-slider-container">
             <MultiRangeSlider
               min={0} 
-              max={150} 
+              max={maxNumPrice} 
               minValue={minValue}
               maxValue={maxValue}
               ruler={false}
@@ -247,14 +248,14 @@ export default function CustomerPage() {
               <span style={{ color: 'white' }}>~ $</span>
               <input
                 type="text" 
-                value={maxValue === 150 ? "150+" : maxValue} 
+                value={maxValue === maxNumPrice ? `${maxNumPrice}+` : maxValue} 
                 onChange={(e) => {
                   const inputValue = e.target.value;
-                  if (inputValue === "150+") {
-                    setMaxValue(150);
+                  if (inputValue === `${maxNumPrice}+`) {
+                    setMaxValue(maxNumPrice);
                   } else {
                     const value = Number(inputValue);
-                    if (value >= minValue && value <= 150) {
+                    if (value >= minValue && value <= maxNumPrice) {
                       setMaxValue(value);
                     }
                   }

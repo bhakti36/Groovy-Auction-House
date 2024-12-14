@@ -1,5 +1,6 @@
 'use client';
 
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import './globals.css';
@@ -59,6 +60,7 @@ interface Participant {
 interface ProfitItem {
     Name: string;
     Description: string;
+    Images: string;
     InitialPrice: number;
     PurchasePrice: number;
     AuctionHouseProfit: number;
@@ -107,7 +109,7 @@ export default function ForensicReportPage() {
     const [topProfitItems, setTopProfitItems] = useState([]);
     const [totalProfit, setTotalProfit] = useState<number | null>(null);
     const [isProfitPopupOpen, setProfitPopupOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [, setErrorMessage] = useState('');
     const [isModalOpen, setModalOpen] = useState(false);
     const [topMostBids, setTopMostBids] = useState([]);
     const [isBidsPopupOpen, setBidsPopupOpen] = useState(false);
@@ -150,7 +152,7 @@ export default function ForensicReportPage() {
                     }
 
                     if (response.data && response.data.topProfitItems) {
-                        const parsedItems = response.data.topProfitItems.map((item: any) => ({
+                        const parsedItems = response.data.topProfitItems.map((item: ProfitItem) => ({
                             Name: item.Name,
                             AuctionHouseProfit: item.AuctionHouseProfit,
                             Images: JSON.parse(item.Images),
@@ -196,7 +198,7 @@ export default function ForensicReportPage() {
                 })
         }
         catch (error) {
-            setErrorMessage('Failed to load auction report');
+            setErrorMessage('Failed to load auction report' + error);
             setLoading(false);
         } finally {
             setLoading(false);
@@ -389,6 +391,9 @@ export default function ForensicReportPage() {
 
 
     return (
+        <main className="min-h-screen p-6 bg-red-700">
+      {/* Snowfall Effect */}
+      <Snowfall color="white" snowflakeCount={150} />
         <div className="forensic-report-container">
             <div> <button type="button" onClick={() => router.back()}>Go to Admin Page</button></div>
             <button onClick={() => forensicReport && downloadForensicReportPDF(forensicReport)}>
@@ -571,6 +576,7 @@ export default function ForensicReportPage() {
                 )}
             </div>
         </div>
+    </main>
     );
 
 }

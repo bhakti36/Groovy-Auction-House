@@ -64,6 +64,7 @@ body {
 }
 
 .wallet-amount {
+  color: white;
   font-size: 1.125rem;
 }
 

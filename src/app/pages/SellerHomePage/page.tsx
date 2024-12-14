@@ -30,9 +30,9 @@ export default function SellerPage() {
   useEffect(() => {
     // const info = sessionStorage.getItem("userInfo");
 
-    let userName = sessionStorage.getItem("userName");
-    let userID = sessionStorage.getItem("userID");
-    let userType = sessionStorage.getItem("userType");
+    const userName = sessionStorage.getItem("userName");
+    const userID = sessionStorage.getItem("userID");
+    const userType = sessionStorage.getItem("userType");
 
     if (userName === null || userID === null || userType === null || userType !== "seller") {
       router.push("/");

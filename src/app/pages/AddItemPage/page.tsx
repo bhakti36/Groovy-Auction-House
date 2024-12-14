@@ -16,7 +16,7 @@ const AddItemPage = () => {
   const [durationDays, setDurationDays] = useState('');
   const [durationHours, setDurationHours] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
-  const [IsBuyNow, setIsBuyNow] = useState<boolean | null>(null);
+  const [IsBuyNow, setIsBuyNow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userID, setUserID] = useState(2);

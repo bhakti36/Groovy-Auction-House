@@ -357,7 +357,8 @@ export default function ItemViewPage() {
           {/* Item Details */}
           <div className="item-details">
             <h1 className="item-name">{item.Name}</h1>
-            <p className="item-description">{item.Description}</p>
+            <p className="item-description">Description: {item.Description}</p>
+            <p className="item-start-date">Start Date: {item.StartDate}</p>
 
             {item.IsBuyNow === 0 && (
               <div className="auction-section">

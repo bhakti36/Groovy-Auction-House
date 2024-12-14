@@ -1,7 +1,8 @@
 'use client'
 import React, { useState, useEffect  } from 'react';
-import Snowfall from 'react-snowfall'; // Import Snowfall effect
+import Snowfall from 'react-snowfall'; 
 import axios from 'axios';
+import './globals.css';
 import { useRouter } from 'next/navigation';
 
 const instance = axios.create({
@@ -11,59 +12,57 @@ const instance = axios.create({
 interface ItemDetail {
   name: string;
   status: string;
-  itemID: number;
-  unFreezeRequested: boolean;
-  isFrozen: boolean;
+  id: number;
+  requestUnfreeze: boolean;
 }
 
 const AdminPage = () => {
   const [itemList, setItemList] = useState<ItemDetail[]>([]);
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userID, setUserID] = useState(1);
   const [accountID, setAccountID] = useState(1);
+  const [userName, setUserName] = useState('');
+  const [userType,] = useState('admin');
   const router = useRouter();
 
   useEffect(() => {
-
-    const userName = sessionStorage.getItem("userName");
-    const userID = sessionStorage.getItem("userID");
-    const userType = sessionStorage.getItem("userType");
-
+    
+    let userName = sessionStorage.getItem("userName");
+    let userID = sessionStorage.getItem("userID");
+    let userType = sessionStorage.getItem("userType");
     if (userName === null || userID === null || userType === null || userType !== "admin") {
       router.push("/");
     } else {
-      setAccountID(parseInt(userID));  
+      setUserName(userName);
+      setUserID(parseInt(userID));  
+      const fetchItems = async () => {
+        setLoading(true);
+        try {
+          const response = await instance.post('/admin/freeze_unfreeze', {
+            accountID: userID,
+          });
+          console.log(response.data);
+          const itemDetailList = response.data.items.map((item: any) => ({
+            name: item.name || 'Unnamed Item',
+            status: item.isFrozen ? 'Frozen' : 'Unfrozen',
+            requestUnfreeze: item.unFreezeRequested,
+            id: item.itemID,
+          }));
+          setItemList(itemDetailList);
+        } catch (error) {
+          console.error('Error fetching items:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchItems();
     }
-
-    console.log('Account ID:', accountID);
-    const fetchItems = async () => {
-      setLoading(true);
-      try {
-        const response = await instance.post('/admin/freeze_unfreeze', {
-          accountID: accountID,
-        });
-        console.log(response.data);
-        const itemDetailList = response.data.items.map((item: ItemDetail) => ({
-          name: item.name || 'Unnamed Item',
-          status: item.isFrozen ? 'Frozen' : 'Unfrozen',
-          requestUnfreeze: item.unFreezeRequested,
-          id: item.itemID,
-        }));
-
-        setItemList(itemDetailList);
-      } catch (error) {
-        console.error('Error fetching items:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItems();
-  }, [accountID]);
+  }, [userID]);
 
   const handleFreezeUnfreeze = async (id: number, freeze: boolean) => {
     setItemList((prevItems) =>
       prevItems.map((item) =>
-        item.itemID === id ? { ...item, requestUnfreeze: freeze && item.unFreezeRequested? true: false, status: freeze ? 'Frozen' : 'Unfrozen' } : item
+        item.id === id ? { ...item, requestUnfreeze: freeze && item.requestUnfreeze? true: false, status: freeze ? 'Frozen' : 'Unfrozen' } : item
       )
     );
 
@@ -79,6 +78,16 @@ const AdminPage = () => {
     }
   };
 
+  const handleLogOut = () => {
+    const isConfirmed = window.confirm("Are you sure you want to log out?");
+    if (isConfirmed) {
+      console.log('handleLogOut called ' + userID);
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userID");
+      router.push('/');
+    }
+  };
+
   const handleAuctionReport = () => {
     setLoading(true);
     router.push('/pages/ReportPage');
@@ -89,36 +98,20 @@ const AdminPage = () => {
     router.push('/pages/ForensicReportPage');
   };
 
-  const handleLogOut = () => {
-    const isConfirmed = window.confirm("Are you sure you want to log out?");
-    if (isConfirmed) {
-      console.log('handleLogOut called ' + accountID);
-      sessionStorage.removeItem("userName");
-      sessionStorage.removeItem("userID");
-      router.push('/');
-    }
-  };
-
   return (
-
-    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
-    {/* Snowfall Effect */}
-    <Snowfall color="white" snowflakeCount={150} />
-    <header className="header">
-        <h1 className="title">Groovy Auction House - Admin</h1>
-        <div className="flex items-center space-x-4">
-          <button className="button" onClick={handleLogOut}>
+    <main className="min-h-screen p-6 bg-red-700">
+      <Snowfall color="white" snowflakeCount={150} />
+      <header className="header">
+        <h1 className="title">Groovy Auction House</h1>
+        <button className="button" onClick={handleLogOut}>
             Log Out
-          </button>
-        </div>
-      </header>
-
-        <div >
-      <div className="button-container">
-        <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
-        <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
-      </div>
-      <table>
+        </button>
+      </header>    
+      <div className="button-group">
+          <button className="button" onClick={() => handleAuctionReport()}>Generate Auction Report</button>
+          <button className="button" onClick={() => handleForensicReport()}>Generate Forensic Report</button>
+      </div>    
+      <table className="item-table">
         <thead>
           <tr>
             <th>Item Name</th>
@@ -129,19 +122,21 @@ const AdminPage = () => {
         </thead>
         <tbody>
           {itemList.map((item) => (
-            <tr key={item.itemID}>
+            <tr key={item.id}>
               <td>{item.name}</td>
-              <td>{item.status}</td>
-              <td>{item.unFreezeRequested ? 'Yes' : 'No'}</td>
+              <td className={`status ${item.status.toLowerCase()}`}>{item.status}</td>
+              <td>{item.requestUnfreeze ? 'Yes' : 'No'}</td>
               <td>
                 <button
-                  onClick={() => handleFreezeUnfreeze(item.itemID, true)}
+                  className="action-button small-button"
+                  onClick={() => handleFreezeUnfreeze(item.id, true)}
                   disabled={item.status === 'Frozen'}
                 >
                   Freeze
                 </button>
                 <button
-                  onClick={() => handleFreezeUnfreeze(item.itemID, false)}
+                  className="action-button small-button"
+                  onClick={() => handleFreezeUnfreeze(item.id, false)}
                   disabled={item.status === 'Unfrozen'}
                 >
                   Unfreeze
@@ -151,8 +146,8 @@ const AdminPage = () => {
           ))}
         </tbody>
       </table>
-    </div>
-    </div>
+
+    </main>
   )}
       
        

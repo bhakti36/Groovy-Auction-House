@@ -27,7 +27,7 @@
     "react-images-uploading": "^3.1.7",
     "react-router-dom": "^6.27.0",
     "react-snowfall": "^2.2.0",
-    "recharts": "^2.14.1"
+    "recharts": "^2.15.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

@@ -1,5 +1,5 @@
 'use client';
-
+import Snowfall from 'react-snowfall'; // Import Snowfall effect
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import './globals.css';
@@ -107,6 +107,9 @@ export default function ReportPage() {
     };
 
     return (
+        <main className="min-h-screen p-6 bg-red-700">
+            {/* Snowfall Effect */}
+            <Snowfall color="white" snowflakeCount={150} />
         <div style={{ padding: '20px' }}>
             <Button variant="contained" color="primary" onClick={() => router.back()}>
                 Go to Admin Page
@@ -175,5 +178,6 @@ export default function ReportPage() {
                 />
             </Box>
         </div>
+        </main>
     );
 }

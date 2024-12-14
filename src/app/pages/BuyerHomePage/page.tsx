@@ -56,7 +56,6 @@ interface ItemJson {
 
 export default function BuyerPage() {
   const router = useRouter();
-  let info = "";
   // const [filter, setFilter] = useState<string>("All");
 
   const [walletAmount, setWalletAmount] = useState(0);
@@ -64,7 +63,7 @@ export default function BuyerPage() {
   const [inputAmount, setInputAmount] = useState('');
   const [, setErrorMessage] = useState('');
   const [userType,] = useState('buyer');
-  const [userID, setUserID] = useState(1);
+  const [userID, setUserID] = useState<number|null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortChoice,setSortChoice] = useState('timeLeft');
   const [items, setItems] = useState<Item[]>([]);
@@ -75,10 +74,9 @@ export default function BuyerPage() {
   const [loading, setLoading] = useState(false);
  
   useEffect(() => {
-    // info = sessionStorage.getItem('userInfo')!;
-    let userName = sessionStorage.getItem("userName");
-    let userID = sessionStorage.getItem("userID");
-    let userType = sessionStorage.getItem("userType");
+    const userName = sessionStorage.getItem("userName");
+    const userID = sessionStorage.getItem("userID");
+    const userType = sessionStorage.getItem("userType");
     if (userName === null || userID === null || userType === null || userType !== "buyer") {
       router.push("/");
     } else {
@@ -144,13 +142,10 @@ export default function BuyerPage() {
   const handleAddMoney = () => {
     const amount = parseFloat(inputAmount);
     if (!isNaN(amount) && amount > 0) {
-      if (info != null) {
-        //console.log("info", info)
-        const accountid = userID
 
         const method = '/' + userType + '/addFunds';
         const request = {
-          accountID: accountid,
+          accountID: userID,
           funds: amount,
         };
 
@@ -163,11 +158,11 @@ export default function BuyerPage() {
 
         setInputAmount('');
         setShowAddMoneyDialog(false);
-      }
     }
   };
 
   const handleViewItem = () => {
+    if(userID === null) return;
     setreviewPurchaseFlag(true);
     setallMaxBidFlag(false);
     setLoading(true);

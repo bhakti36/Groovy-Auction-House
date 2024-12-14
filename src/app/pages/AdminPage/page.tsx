@@ -11,22 +11,29 @@ const instance = axios.create({
 interface ItemDetail {
   name: string;
   status: string;
-  id: number;
-  requestUnfreeze: boolean;
+  itemID: number;
+  unFreezeRequested: boolean;
+  isFrozen: boolean;
 }
 
 const AdminPage = () => {
   const [itemList, setItemList] = useState<ItemDetail[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [accountID, setAccountID] = useState(1);
   const router = useRouter();
 
   useEffect(() => {
-    let info = sessionStorage.getItem('userInfo');
-    if (info != null) {
-      const json = JSON.parse(info);
-      setAccountID(json.success.accountID);
+
+    const userName = sessionStorage.getItem("userName");
+    const userID = sessionStorage.getItem("userID");
+    const userType = sessionStorage.getItem("userType");
+
+    if (userName === null || userID === null || userType === null || userType !== "admin") {
+      router.push("/");
+    } else {
+      setAccountID(parseInt(userID));  
     }
+
     console.log('Account ID:', accountID);
     const fetchItems = async () => {
       setLoading(true);
@@ -35,11 +42,11 @@ const AdminPage = () => {
           accountID: accountID,
         });
         console.log(response.data);
-        const itemDetailList = response.data.items.map((item: any) => ({
-          name: item.Name || 'Unnamed Item',
-          status: item.IsFrozen ? 'Frozen' : 'Unfrozen',
-          requestUnfreeze: item.UnFreezeRequested,
-          id: item.ItemID,
+        const itemDetailList = response.data.items.map((item: ItemDetail) => ({
+          name: item.name || 'Unnamed Item',
+          status: item.isFrozen ? 'Frozen' : 'Unfrozen',
+          requestUnfreeze: item.unFreezeRequested,
+          id: item.itemID,
         }));
 
         setItemList(itemDetailList);
@@ -56,7 +63,7 @@ const AdminPage = () => {
   const handleFreezeUnfreeze = async (id: number, freeze: boolean) => {
     setItemList((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, requestUnfreeze: freeze && item.requestUnfreeze? true: false, status: freeze ? 'Frozen' : 'Unfrozen' } : item
+        item.itemID === id ? { ...item, requestUnfreeze: freeze && item.unFreezeRequested? true: false, status: freeze ? 'Frozen' : 'Unfrozen' } : item
       )
     );
 
@@ -82,13 +89,31 @@ const AdminPage = () => {
     router.push('/pages/ForensicReportPage');
   };
 
+  const handleLogOut = () => {
+    const isConfirmed = window.confirm("Are you sure you want to log out?");
+    if (isConfirmed) {
+      console.log('handleLogOut called ' + accountID);
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userID");
+      router.push('/');
+    }
+  };
+
   return (
 
     <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
     {/* Snowfall Effect */}
     <Snowfall color="white" snowflakeCount={150} />
+    <header className="header">
+        <h1 className="title">Groovy Auction House - Admin</h1>
+        <div className="flex items-center space-x-4">
+          <button className="button" onClick={handleLogOut}>
+            Log Out
+          </button>
+        </div>
+      </header>
+
         <div >
-        <h1 className="text-xl  font-semibold text-white">GROOVY ACTION HOUSE</h1>
       <div className="button-container">
         <div><button onClick={() => handleAuctionReport()}>Generate Auction Report</button></div>
         <div><button onClick={() => handleForensicReport()}>Generate Forensic Report</button></div>
@@ -104,19 +129,19 @@ const AdminPage = () => {
         </thead>
         <tbody>
           {itemList.map((item) => (
-            <tr key={item.id}>
+            <tr key={item.itemID}>
               <td>{item.name}</td>
               <td>{item.status}</td>
-              <td>{item.requestUnfreeze ? 'Yes' : 'No'}</td>
+              <td>{item.unFreezeRequested ? 'Yes' : 'No'}</td>
               <td>
                 <button
-                  onClick={() => handleFreezeUnfreeze(item.id, true)}
+                  onClick={() => handleFreezeUnfreeze(item.itemID, true)}
                   disabled={item.status === 'Frozen'}
                 >
                   Freeze
                 </button>
                 <button
-                  onClick={() => handleFreezeUnfreeze(item.id, false)}
+                  onClick={() => handleFreezeUnfreeze(item.itemID, false)}
                   disabled={item.status === 'Unfrozen'}
                 >
                   Unfreeze

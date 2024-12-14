@@ -36,14 +36,15 @@ const EditItemPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const info = sessionStorage.getItem("userInfo");
-      if (info) {
-        const json = JSON.parse(info);
-        const accountID = json.success?.accountID; 
-        setUserID(json.success.accountID);  
- 
-        if (accountID && itemID) {
-          await handleSellerViewItem(accountID, itemID);
+      const userName = sessionStorage.getItem("userName");
+      const userID = sessionStorage.getItem("userID");
+      const userType = sessionStorage.getItem("userType");
+      if (userName === null || userID === null || userType === null || userType !== "seller") {
+        router.push("/");
+      } else {
+        setUserID(parseInt(userID));  
+        if (userID && itemID) {
+          await handleSellerViewItem(parseInt(userID), itemID);
         }
       }
     };
@@ -188,12 +189,6 @@ const EditItemPage = () => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };  
 
-  const handleBuyNow = () => {
-    const isConfirmed = window.confirm("Are you sure you want to set item BuyNow?");
-    if (isConfirmed) {
-      setIsBuyNow(true);
-    }
-  };
   
   return (
     <Suspense fallback={<div>Loading...</div>}>

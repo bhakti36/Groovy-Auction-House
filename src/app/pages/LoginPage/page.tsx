@@ -98,7 +98,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#ffcccc' }}>
+    <div style={{ position: 'relative', height: '100vh', backgroundColor: '#dc2626' }}>
       {/* Snowfall Effect */}
       <Snowfall color="white" snowflakeCount={150} />
 

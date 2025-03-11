@@ -1,0 +1,149 @@
+.item-detail-page {
+  position: relative;
+  height: 100vh;
+  background-color: #dc2626;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.item-container {
+  display: flex;
+  flex-direction: row;
+  max-width: 80%;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-carousel {
+  flex: 1;
+  width: 600px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  position: relative;
+}
+
+.image-carousel img {
+  width: 75%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 32px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.arrow.left-arrow {
+  left: 20px;
+}
+
+.arrow.right-arrow {
+  right: 20px;
+}
+
+.arrow:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.item-details {
+  flex: 1.5;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.item-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.item-description {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.item-start-date {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+
+.item-price {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.bid-entry {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.bid-label {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.bid-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.action-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.action-button:hover {
+  background-color: #45a049;
+}
+
+.bidding-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bidding-table th, .bidding-table td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.bidding-table th {
+  background-color: #f2f2f2;
+}
+
+.time-left {
+  font-size: 14px;
+  color: #888;
+}
+
+.loading-message {
+  font-size: 18px;
+  color: white;
+}

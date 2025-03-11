@@ -1,0 +1,293 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --default-text-color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --default-text-color: #000000;
+  }
+}
+
+body {
+  color: var(--default-text-color);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.flexjustify-between
+{
+  display: flex; /* Ensures children are laid out in a row */
+  justify-content: space-between; /* Pushes items to the edges */
+  align-items: center; /* Aligns items vertically in the center */
+  padding: 1rem; /* Adds padding around the header */
+  background-color: rgb(103, 220, 103); /* Sets the background color to green */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.wallet-section {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wallet-amount {
+  font-size: 1.125rem;
+  
+}
+
+.add-money-button {
+  background-color: #10b981;
+}
+
+.add-money-button:hover {
+  background-color: #059669;
+}
+
+.close-account-button {
+  background-color: #ef4444;
+}
+
+.close-account-button:hover {
+  background-color: #dc2626;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.item-card {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  position: relative;
+  z-index: 0;
+}
+
+.item-card.frozen {
+  opacity: 0.5; /* Make the card semi-transparent */
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(173, 216, 230, 0.5); /* Light blue, semi-transparent */
+  backdrop-filter: blur(4px); /* Frosted glass effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.overlay:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/snowflake-152435_1280.png') repeat; /* Replace with your snowflake image */
+  background-size: 60px 60px; /* Adjust the size of the snowflakes */
+  opacity: 0.6;
+}
+
+.icicle-effect {
+  position: absolute;
+  top:0;
+  /* bottom: 0; */
+  width: 100%;
+  height: 40px;
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/icicle-3766673_1280.png') no-repeat bottom;
+  background-size: 100px 100px;
+  z-index: 3;
+}
+.single-button {
+  background-color: red; /* Customize the button styling as needed */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.item-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.item-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.item-status-value {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.item-actions {
+  display: grid;
+  /* grid-template-columns: repeat(2, 1fr); */
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.action-button {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.frozen-button {
+  background-color: #6b7280;
+}
+
+.frozen-button:hover {
+  background-color: #4b5563;
+}
+
+.archive-button {
+  background-color: #9ca3af;
+}
+
+.archive-button:hover {
+  background-color: #6b7280;
+}
+
+.publish-button {
+  background-color: #10b981;
+}
+
+.publish-button:hover {
+  background-color: #059669;
+}
+
+.edit-button {
+  background-color: #3b82f6;
+}
+
+.edit-button:hover {
+  background-color: #2563eb;
+}
+
+.unpublish-button {
+  background-color: #f59e0b;
+}
+
+.unpublish-button:hover {
+  background-color: #d97706;
+}
+
+.archive-button {
+  background-color: #4461ef;
+}
+
+.archive-button:hover {
+  background-color: #5461ef;
+}
+
+.fulfill-button {
+  background-color: #10b981;
+}
+
+.fulfill-button:hover {
+  background-color: #059669;
+}
+
+.remove-button {
+  background-color: #ef4444;
+}
+
+.remove-button:hover {
+  background-color: #dc2626;
+}
+
+.request-unfreeze-button {
+  background-color: #f59e0b;
+  z-index: 1;
+}
+
+.request-unfreeze-button:hover {
+  background-color: #fbaea7;
+}
+
+.button{
+  background-color: white;
+  color: black;
+  border: 1px solid #000000;
+}
+
+.button:hover {
+  background-color: #000000;
+  color: white;
+}
+
+.filter-bar button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  margin: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-bar button.active {
+  background-color: #add8e6; /* Light blue for the active button */
+  border: 2px solid #0000ff; /* Darker blue border */
+  color: white;
+  position: relative;
+}
+
+.filter-bar button.active::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 20px; /* Adjust to the size of the icicles */
+  background: url('https://groovy-auction-house.s3.us-east-2.amazonaws.com/images/icicle-3766673_1280.png')
+    repeat center;
+  background-size: contain; /* Make sure it fits within the button */
+  position: absolute;
+  bottom: -10px; /* Adjust to the height of the icicle image */
+  left: 0;
+}
